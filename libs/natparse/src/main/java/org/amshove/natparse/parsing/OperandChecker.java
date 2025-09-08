@@ -2,8 +2,7 @@ package org.amshove.natparse.parsing;
 
 import org.amshove.natparse.IDiagnostic;
 import org.amshove.natparse.ReadOnlyList;
-import org.amshove.natparse.natural.IDataType;
-import org.amshove.natparse.natural.IOperandNode;
+import org.amshove.natparse.natural.*;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -34,6 +33,59 @@ class OperandChecker
 		{
 			checkFormatDefinition(operand, definition, definitionTable);
 		}
+
+		var isScalar = true;
+		var isArray = false;
+		var isConst = operand instanceof ILiteralNode || isConstReference(operand);
+
+		// TODO: Other array stuff? System vars/functions returning arrays?
+		if (operand instanceof IVariableReferenceNode varRef && varRef.dimensions().hasItems())
+		{
+			isArray = varRef.dimensions().stream().anyMatch(d -> d instanceof IRangedArrayAccessNode);
+			isScalar = !isArray;
+		}
+
+		if (isScalar && !definitionTable.contains(OperandDefinition.STRUCTURE_SCALAR))
+		{
+			// TODO: no automated test
+			diagnostics.add(
+				ParserErrors.typeMismatch(
+					"Operand can not be a scalar value",
+					operand
+				)
+			);
+		}
+
+		if (isArray && !definitionTable.contains(OperandDefinition.STRUCTURE_ARRAY))
+		{
+			// TODO: no automated test
+			diagnostics.add(
+				ParserErrors.typeMismatch(
+					"Operand can not be an array",
+					operand
+				)
+			);
+		}
+
+		if (isConst && !definitionTable.contains(OperandDefinition.STRUCTURE_CONSTANT))
+		{
+			diagnostics.add(
+				ParserErrors.referenceNotMutable(
+					"Operand can not be a constant value",
+					operand
+				)
+			);
+		}
+	}
+
+	private boolean isConstReference(IOperandNode operand)
+	{
+		if (!(operand instanceof IVariableReferenceNode varRef) || !(varRef.reference()instanceof ITypedVariableNode typedVar))
+		{
+			return false;
+		}
+
+		return typedVar.type().isConstant();
 	}
 
 	private void checkFormatDefinition(

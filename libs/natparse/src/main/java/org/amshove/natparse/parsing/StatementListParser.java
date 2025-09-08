@@ -4836,6 +4836,13 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		return get;
 	}
 
+	private static final EnumSet<OperandDefinition> ASSIGN_COMPUTE_TARGET_OPERAND_DEFINITION_TABLE = EnumSet.of(
+		STRUCTURE_SCALAR, STRUCTURE_ARRAY, STRUCTURE_MODIFIABLE_SYSTEM_VARIABLE_ONLY,
+		FORMAT_ALPHANUMERIC_ASCII, FORMAT_ALPHANUMERIC_UNICODE, FORMAT_NUMERIC_UNPACKED, FORMAT_NUMERIC_PACKED, FORMAT_INTEGER, FORMAT_FLOATING, FORMAT_BINARY, FORMAT_DATE, FORMAT_TIME, FORMAT_LOGICAL, FORMAT_ATTRIBUTE_CONTROL, FORMAT_HANDLE_OF_OBJECT,
+		REFERENCING_BY_LABEL_PERMITTED,
+		DYNAMIC_DEFINITION_PERMITTED
+	);
+
 	private List<StatementNode> assignmentsOrIdentifierReference() throws ParseError
 	{
 		// TODO: this whole lookahead can be simplified when we understand more statements
@@ -4847,6 +4854,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 		var assignment = new AssignmentStatementNode();
 		assignment.setTarget(consumeOperandNode(assignment));
+		enqueueOperandCheck(assignment.target(), ASSIGN_COMPUTE_TARGET_OPERAND_DEFINITION_TABLE);
 		consumeMandatory(assignment, SyntaxKind.COLON_EQUALS_SIGN);
 		assignment.setOperand(consumeControlLiteralOrSubstringOrOperand(assignment));
 
@@ -4881,6 +4889,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(statement, kind);
 		statement.setRounded(consumeOptionally(statement, SyntaxKind.ROUNDED));
 		statement.setTarget(consumeOperandNode(statement));
+		enqueueOperandCheck(statement.target(), ASSIGN_COMPUTE_TARGET_OPERAND_DEFINITION_TABLE);
 		consumeAnyMandatory(statement, ASSIGN_COMPUTE_EQUALS_SIGNS);
 		statement.setOperand(consumeControlLiteralOrSubstringOrOperand(statement));
 
