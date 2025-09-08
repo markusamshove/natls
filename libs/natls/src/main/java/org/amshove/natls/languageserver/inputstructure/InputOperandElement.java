@@ -17,12 +17,16 @@ public class InputOperandElement extends InputResponseElement
 	private int sourceLine;
 	private int sourceColumnStart;
 	private int sourceColumnEnd;
+	private int row;
+	private int column;
 	private final List<InputAttributeElement> attributes;
 
-	protected InputOperandElement(IOutputOperandNode operand, ReadOnlyList<IAttributeNode> statementAttributes)
+	protected InputOperandElement(IOutputOperandNode operand, int row, int column, ReadOnlyList<IAttributeNode> statementAttributes)
 	{
 		super(InputStructureElementKind.OPERAND);
 
+		this.row = row;
+		this.column = column;
 		extractOperandValue(operand.operand());
 		if (operand instanceof ICharacterRepetitionOperandNode repetition)
 		{
@@ -180,6 +184,16 @@ public class InputOperandElement extends InputResponseElement
 	public int getSourceColumnEnd()
 	{
 		return sourceColumnEnd;
+	}
+
+	public int getRow()
+	{
+		return row;
+	}
+
+	public int getColumn()
+	{
+		return column;
 	}
 
 	public String getType()
