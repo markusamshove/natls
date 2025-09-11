@@ -60,7 +60,7 @@ public class HiddenDBMSAnalyzer extends AbstractAnalyzer
 			return;
 		}
 
-		if (context.getModule().file().getFiletype() != NaturalFileType.COPYCODE)
+		if (!context.isFiletype(NaturalFileType.COPYCODE))
 		{
 			return;
 		}

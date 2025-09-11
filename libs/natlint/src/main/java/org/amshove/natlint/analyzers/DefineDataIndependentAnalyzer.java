@@ -7,8 +7,8 @@ import org.amshove.natlint.api.ILinterContext;
 import org.amshove.natparse.DiagnosticSeverity;
 import org.amshove.natparse.NodeUtil;
 import org.amshove.natparse.ReadOnlyList;
-import org.amshove.natparse.natural.ISyntaxNode;
 import org.amshove.natparse.natural.IScopeNode;
+import org.amshove.natparse.natural.ISyntaxNode;
 
 public class DefineDataIndependentAnalyzer extends AbstractAnalyzer
 {
@@ -45,7 +45,7 @@ public class DefineDataIndependentAnalyzer extends AbstractAnalyzer
 			return;
 		}
 
-		if (UNWANTED_FILETYPES.contains(context.getModule().file().getFiletype()))
+		if (context.isIncludableFileType())
 		{
 			return;
 		}

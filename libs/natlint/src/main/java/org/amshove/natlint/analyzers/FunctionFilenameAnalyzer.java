@@ -32,7 +32,7 @@ public class FunctionFilenameAnalyzer extends AbstractAnalyzer
 
 	private void analyzeFunction(INaturalModule module, IAnalyzeContext context)
 	{
-		if (module.file().getFiletype() != NaturalFileType.FUNCTION || !(module instanceof IFunction function))
+		if (!context.isFiletype(NaturalFileType.FUNCTION) || !(module instanceof IFunction function))
 		{
 			return;
 		}

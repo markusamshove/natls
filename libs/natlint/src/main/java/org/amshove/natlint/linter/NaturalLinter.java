@@ -3,6 +3,7 @@ package org.amshove.natlint.linter;
 import org.amshove.natlint.api.LinterDiagnostic;
 import org.amshove.natparse.ReadOnlyList;
 import org.amshove.natparse.natural.*;
+import org.amshove.natparse.natural.project.NaturalFileType;
 
 import java.util.ArrayList;
 
@@ -10,6 +11,12 @@ public class NaturalLinter
 {
 	public ReadOnlyList<LinterDiagnostic> lint(INaturalModule module)
 	{
+		// We can not analyze DDMs because we don't have an AST for them
+		if (module.file().getFiletype() == NaturalFileType.DDM)
+		{
+			return ReadOnlyList.empty();
+		}
+
 		var linterContext = LinterContext.INSTANCE;
 		var diagnostics = new ArrayList<LinterDiagnostic>();
 		var analyzeContext = new AnalyzeContext(module, diagnostics::add);

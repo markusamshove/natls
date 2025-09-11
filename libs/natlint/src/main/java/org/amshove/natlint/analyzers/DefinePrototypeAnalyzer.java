@@ -49,7 +49,7 @@ public class DefinePrototypeAnalyzer extends AbstractAnalyzer
 
 	private void analyzeFunction(INaturalModule module, IAnalyzeContext context)
 	{
-		if (module.file().getFiletype() != NaturalFileType.FUNCTION)
+		if (!context.isFiletype(NaturalFileType.FUNCTION))
 		{
 			return;
 		}
