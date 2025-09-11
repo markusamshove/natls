@@ -39,7 +39,7 @@ public class VariableReferenceAnalyzer extends AbstractAnalyzer
 
 	private void analyzeVariable(ISyntaxNode syntaxNode, IAnalyzeContext context)
 	{
-		if (UNWANTED_FILETYPES.contains(context.getModule().file().getFiletype()))
+		if (context.isIncludableFileType())
 		{
 			return;
 		}
@@ -71,7 +71,7 @@ public class VariableReferenceAnalyzer extends AbstractAnalyzer
 
 	private void checkIfVariableIsMutatedOnly(IVariableNode variable, IAnalyzeContext context)
 	{
-		if (variable.references().size() == 0)
+		if (variable.references().isEmpty())
 		{
 			return;
 		}
@@ -96,13 +96,14 @@ public class VariableReferenceAnalyzer extends AbstractAnalyzer
 			// Just assume that any parent group that is referenced is read
 			for (var parent : variable.getVariableParentsAscending())
 			{
-				if (parent.references().size() > 0)
+				if (!parent.references().isEmpty())
 				{
 					return;
 				}
 			}
 
-			if (NodeUtil.findFirstParentOfType(variable, IRedefinitionNode.class)instanceof IRedefinitionNode redefine && redefine.reference().references().size() > 0)
+			if (NodeUtil.findFirstParentOfType(variable, IRedefinitionNode.class)instanceof IRedefinitionNode redefine && !redefine.reference()
+				.references().isEmpty())
 			{
 				return;
 			}

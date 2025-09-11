@@ -54,7 +54,7 @@ public class HiddenWorkfileAnalyzer extends AbstractAnalyzer
 			return;
 		}
 
-		if (context.getModule().file().getFiletype() == NaturalFileType.PROGRAM)
+		if (context.isFiletype(NaturalFileType.PROGRAM))
 		{
 			return;
 		}

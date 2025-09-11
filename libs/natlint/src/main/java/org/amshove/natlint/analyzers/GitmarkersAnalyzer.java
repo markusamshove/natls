@@ -45,7 +45,7 @@ public class GitmarkersAnalyzer extends AbstractAnalyzer
 			return;
 		}
 
-		if (module.file().getFiletype().equals(NaturalFileType.MAP)) /* Maps are unpredictable */
+		if (context.isFiletype(NaturalFileType.MAP)) /* Maps are unpredictable */
 		{
 			return;
 		}

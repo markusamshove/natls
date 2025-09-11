@@ -38,13 +38,12 @@ public class BetweenSubroutinesAnalyzer extends AbstractAnalyzer
 			return;
 		}
 
-		if (module instanceof IModuleWithBody hasBody && hasBody.body() == null)
+		if (!(module instanceof IModuleWithBody hasBody) || hasBody.body() == null)
 		{
 			return;
 		}
 
-		var moduleWithBody = (IModuleWithBody) module;
-		var body = moduleWithBody.body();
+		var body = hasBody.body();
 
 		ISyntaxNode firstNode = null;
 		ISyntaxNode lastNode = null;

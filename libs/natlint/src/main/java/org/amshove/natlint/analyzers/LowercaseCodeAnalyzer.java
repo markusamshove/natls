@@ -1,7 +1,5 @@
 package org.amshove.natlint.analyzers;
 
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import org.amshove.natlint.api.AbstractAnalyzer;
 import org.amshove.natlint.api.DiagnosticDescription;
 import org.amshove.natlint.api.IAnalyzeContext;
@@ -12,6 +10,9 @@ import org.amshove.natparse.lexing.SyntaxKind;
 import org.amshove.natparse.lexing.SyntaxToken;
 import org.amshove.natparse.natural.INaturalModule;
 import org.amshove.natparse.natural.project.NaturalFileType;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LowercaseCodeAnalyzer extends AbstractAnalyzer
 {
@@ -49,7 +50,7 @@ public class LowercaseCodeAnalyzer extends AbstractAnalyzer
 			return;
 		}
 
-		if (module.file().getFiletype().equals(NaturalFileType.DDM))
+		if (context.isFiletype(NaturalFileType.DDM))
 		{
 			return;
 		}
