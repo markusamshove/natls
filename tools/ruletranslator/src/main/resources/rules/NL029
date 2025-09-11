@@ -4,3 +4,61 @@ tags: clumsy, brain-overload, confusing, bad-practice
 type: CODE_SMELL
 description:
 The Natural language accepts code in between definitions of subroutines. This is strongly discouraged, as it is confusing, hides functionality and greatly lessens readability and ease of maintenance.
+
+## Non compliant
+
+```natural
+DEFINE DATA LOCAL
+1 #A (N3)
+1 #B (N3)
+END-DEFINE
+
+#A := 5
+#B := 7
+
+DEFINE SUBROUTINE CALC-ADD
+  ADD #A #B
+  WRITE 'Sum:' #A
+END-SUBROUTINE
+
+/* Executable code in between subroutines
+PERFORM CALC-ADD
+PERFORM CALC-MULT
+
+DEFINE SUBROUTINE CALC-MULT
+  MULTIPLY #A BY #B
+  WRITE 'Product:' #A
+END-SUBROUTINE
+
+END
+```
+
+## Compliant
+
+```natural
+DEFINE DATA LOCAL
+1 #A (N3)
+1 #B (N3)
+END-DEFINE
+
+#A := 5
+#B := 7
+PERFORM CALC-ADD
+PERFORM CALC-MULT
+
+DEFINE SUBROUTINE CALC-ADD
+  ADD #A #B
+  WRITE 'Sum:' #A
+END-SUBROUTINE
+
+/* No executable code between subroutines.
+
+DEFINE SUBROUTINE CALC-MULT
+  MULTIPLY #A BY #B
+  WRITE 'Product:' #A
+END-SUBROUTINE
+
+#A := 6 /* Allowed
+
+END
+```
