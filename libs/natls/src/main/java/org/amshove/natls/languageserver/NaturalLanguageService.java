@@ -323,6 +323,11 @@ public class NaturalLanguageService implements LanguageClientAware
 
 	private void publishDiagnosticsOfFile(LanguageServerFile file)
 	{
+		if (file.getNaturalFile().getFiletype() == NaturalFileType.DDM)
+		{
+			return;
+		}
+
 		client.publishDiagnostics(new PublishDiagnosticsParams(file.getUri(), file.allDiagnostics()));
 	}
 
