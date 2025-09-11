@@ -2134,10 +2134,29 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		{
 			consumeOptionally(examine, SyntaxKind.VALUE);
 			consumeOptionally(examine, SyntaxKind.OF);
-		}
-		consumeOptionally(examine, SyntaxKind.PATTERN);
 
-		consumeOperandNode(examine);
+			consumeOptionally(examine, SyntaxKind.PATTERN);
+			consumeOperandNode(examine);
+		}
+		else
+			if (consumeOptionally(examine, SyntaxKind.CHARPOSITION))
+			{
+				consumeOperandNode(examine);
+				if (consumeOptionally(examine, SyntaxKind.CHARLENGTH))
+				{
+					consumeOperandNode(examine);
+				}
+			}
+			else
+				if (consumeOptionally(examine, SyntaxKind.CHARLENGTH))
+				{
+					consumeOperandNode(examine);
+				}
+				else
+				{
+					consumeOptionally(examine, SyntaxKind.PATTERN);
+					consumeOperandNode(examine);
+				}
 
 		var hadAbsolute = consumeOptionally(examine, SyntaxKind.ABSOLUTE);
 		if (!hadAbsolute && consumeOptionally(examine, SyntaxKind.WITH))
