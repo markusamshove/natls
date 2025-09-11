@@ -2,7 +2,6 @@ package org.amshove.natparse.parsing.statements;
 
 import org.amshove.natparse.natural.IDefineWorkFileNode;
 import org.amshove.natparse.natural.ILiteralNode;
-import org.amshove.natparse.natural.IVariableReferenceNode;
 import org.amshove.natparse.parsing.ParserError;
 import org.amshove.natparse.parsing.StatementParseTest;
 import org.junit.jupiter.api.Test;
