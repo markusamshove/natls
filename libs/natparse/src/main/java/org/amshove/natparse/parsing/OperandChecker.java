@@ -58,7 +58,7 @@ class OperandChecker
 		{
 			diagnostics.add(
 				ParserErrors.typeMismatch(
-					"Operand can not be a scalar value",
+					"Operand can not be a scalar value. %s".formatted(formatAllowedStructures(definitionTable)),
 					operand
 				)
 			);
@@ -69,7 +69,7 @@ class OperandChecker
 			// TODO: no automated test
 			diagnostics.add(
 				ParserErrors.typeMismatch(
-					"Operand can not be an array",
+					"Operand can not be an array. %s".formatted(formatAllowedStructures(definitionTable)),
 					operand
 				)
 			);
@@ -79,7 +79,7 @@ class OperandChecker
 		{
 			diagnostics.add(
 				ParserErrors.referenceNotMutable(
-					"Operand can not be a constant value",
+					"Operand can not be a constant value. %s".formatted(formatAllowedStructures(definitionTable)),
 					operand
 				)
 			);
@@ -125,6 +125,70 @@ class OperandChecker
 				builder.append(definition.shortform());
 				separator = ", ";
 			}
+		}
+
+		return builder.toString();
+	}
+
+	private static String formatAllowedStructures(EnumSet<OperandDefinition> definitionTable)
+	{
+		var builder = new StringBuilder("It must be one of: ");
+		var separator = "";
+		var wantedSeparator = ", ";
+
+		if (definitionTable.contains(OperandDefinition.STRUCTURE_CONSTANT))
+		{
+			builder
+				.append(separator)
+				.append("a constant");
+			separator = wantedSeparator;
+		}
+
+		if (definitionTable.contains(OperandDefinition.STRUCTURE_SCALAR))
+		{
+			builder
+				.append(separator)
+				.append("a scalar value");
+			separator = wantedSeparator;
+		}
+
+		if (definitionTable.contains(OperandDefinition.STRUCTURE_ARRAY))
+		{
+			builder
+				.append(separator)
+				.append("an array");
+			separator = wantedSeparator;
+		}
+
+		if (definitionTable.contains(OperandDefinition.STRUCTURE_GROUP))
+		{
+			builder
+				.append(separator)
+				.append("a group");
+			separator = wantedSeparator;
+		}
+
+		if (definitionTable.contains(OperandDefinition.STRUCTURE_SYSTEM_VARIABLE))
+		{
+			builder
+				.append(separator)
+				.append("an unmodifiable system variable");
+			separator = wantedSeparator;
+		}
+
+		if (definitionTable.contains(OperandDefinition.STRUCTURE_MODIFIABLE_SYSTEM_VARIABLE_ONLY))
+		{
+			builder
+				.append(separator)
+				.append("a modifiable system variable");
+			separator = wantedSeparator;
+		}
+
+		if (definitionTable.contains(OperandDefinition.STRUCTURE_ARITHMETIC_EXPRESSION))
+		{
+			builder
+				.append(separator)
+				.append("an arithmetic expression");
 		}
 
 		return builder.toString();
