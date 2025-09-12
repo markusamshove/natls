@@ -1451,6 +1451,11 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		DYNAMIC_DEFINITION_NOT_PERMITTED
 	);
 
+	private final EnumSet<OperandDefinition> RESIZE_EXPAND_REDUCE_DYNAMIC_OPERAND_TABLE = EnumSet.of(
+		STRUCTURE_SCALAR, STRUCTURE_ARRAY, FORMAT_ALPHANUMERIC_ASCII, FORMAT_ALPHANUMERIC_UNICODE,
+		FORMAT_BINARY, REFERENCING_BY_LABEL_NOT_PERMITTED, DYNAMIC_DEFINITION_NOT_PERMITTED
+	);
+
 	private StatementNode reduce() throws ParseError
 	{
 		if (peekAny(1, List.of(SyntaxKind.SIZE, SyntaxKind.DYNAMIC)))
@@ -1509,6 +1514,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 		var toReduce = consumeVariableReferenceNode(reduce);
 		reduce.setVariableToResize(toReduce);
+		enqueueOperandCheck(toReduce, RESIZE_EXPAND_REDUCE_DYNAMIC_OPERAND_TABLE);
 		consumeMandatory(reduce, SyntaxKind.TO);
 		var newSize = consumeOperandNode(reduce);
 		reduce.setSizeToResizeTo(newSize);
@@ -1569,8 +1575,9 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(expand, SyntaxKind.DYNAMIC);
 		consumeOptionally(expand, SyntaxKind.VARIABLE);
 
-		var toReduce = consumeVariableReferenceNode(expand);
-		expand.setVariableToResize(toReduce);
+		var toExpand = consumeVariableReferenceNode(expand);
+		expand.setVariableToResize(toExpand);
+		enqueueOperandCheck(toExpand, RESIZE_EXPAND_REDUCE_DYNAMIC_OPERAND_TABLE);
 		consumeMandatory(expand, SyntaxKind.TO);
 		var newSize = consumeOperandNode(expand);
 		expand.setSizeToResizeTo(newSize);
@@ -1637,6 +1644,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeOptionally(resize, SyntaxKind.VARIABLE);
 		var toResize = consumeVariableReferenceNode(resize);
 		resize.setVariableToResize(toResize);
+		enqueueOperandCheck(toResize, RESIZE_EXPAND_REDUCE_DYNAMIC_OPERAND_TABLE);
 		consumeMandatory(resize, SyntaxKind.TO);
 		var newSize = consumeOperandNode(resize);
 		resize.setSizeToResizeTo(newSize);
