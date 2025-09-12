@@ -45,9 +45,17 @@ class OperandChecker
 			isScalar = !isArray;
 		}
 
+		// The reference is to an array. This is special for RESIZE, REDUCE and EXPAND because
+		// they're the only statements that don't use index access but a plain reference to the array.
+		var isPlainArrayRefStatement = operand.parent() instanceof IResizeArrayNode || operand.parent() instanceof IExpandArrayNode || operand.parent() instanceof IReduceArrayNode;
+		if (isPlainArrayRefStatement && operand instanceof IVariableReferenceNode varRef && varRef.reference()instanceof IVariableNode variable && variable.isArray())
+		{
+			isArray = true;
+			isScalar = false;
+		}
+
 		if (isScalar && !definitionTable.contains(OperandDefinition.STRUCTURE_SCALAR))
 		{
-			// TODO: no automated test
 			diagnostics.add(
 				ParserErrors.typeMismatch(
 					"Operand can not be a scalar value",
@@ -93,7 +101,7 @@ class OperandChecker
 		EnumSet<OperandDefinition> definitionTable
 	)
 	{
-		if (!definitionTable.contains(definition))
+		if (!definitionTable.contains(OperandDefinition.ALL_FORMATS) && !definitionTable.contains(definition))
 		{
 			diagnostics.add(
 				ParserErrors.typeMismatch(

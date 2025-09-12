@@ -1446,6 +1446,11 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		return numFound;
 	}
 
+	private static final EnumSet<OperandDefinition> RESIZE_EXPAND_REDUCE_ARRAY_OPERAND_TABLE = EnumSet.of(
+		STRUCTURE_ARRAY, STRUCTURE_GROUP, ALL_FORMATS, REFERENCING_BY_LABEL_PERMITTED,
+		DYNAMIC_DEFINITION_NOT_PERMITTED
+	);
+
 	private StatementNode reduce() throws ParseError
 	{
 		if (peekAny(1, List.of(SyntaxKind.SIZE, SyntaxKind.DYNAMIC)))
@@ -1463,6 +1468,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(reduce, SyntaxKind.ARRAY);
 		var array = consumeVariableReferenceNode(reduce);
 		reduce.setArrayToReduce(array);
+		enqueueOperandCheck(array, RESIZE_EXPAND_REDUCE_ARRAY_OPERAND_TABLE);
 		consumeMandatory(reduce, SyntaxKind.TO);
 
 		if (consumeOptionally(reduce, SyntaxKind.LPAREN))
@@ -1532,6 +1538,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(expand, SyntaxKind.ARRAY);
 		var array = consumeVariableReferenceNode(expand);
 		expand.setArrayToExpand(array);
+		enqueueOperandCheck(array, RESIZE_EXPAND_REDUCE_ARRAY_OPERAND_TABLE);
 		consumeMandatory(expand, SyntaxKind.TO);
 
 		consumeMandatory(expand, SyntaxKind.LPAREN);
@@ -1598,6 +1605,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(resize, SyntaxKind.ARRAY);
 		var array = consumeVariableReferenceNode(resize);
 		resize.setArrayToResize(array);
+		enqueueOperandCheck(array, RESIZE_EXPAND_REDUCE_ARRAY_OPERAND_TABLE);
 		consumeMandatory(resize, SyntaxKind.TO);
 
 		consumeMandatory(resize, SyntaxKind.LPAREN);

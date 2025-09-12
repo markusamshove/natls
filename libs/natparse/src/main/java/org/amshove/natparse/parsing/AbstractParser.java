@@ -1045,11 +1045,13 @@ abstract class AbstractParser<T>
 			}
 			consumeMandatory(systemFunction, SyntaxKind.RPAREN);
 		}
-		systemFunction.addParameter(consumeOperandNode(systemFunction));
-		while (consumeOptionally(systemFunction, SyntaxKind.COMMA))
+
+		do
 		{
 			systemFunction.addParameter(consumeOperandNode(systemFunction));
 		}
+		while (consumeOptionally(systemFunction, SyntaxKind.COMMA));
+
 		consumeMandatory(systemFunction, SyntaxKind.RPAREN);
 		node.addNode(systemFunction);
 		return systemFunction;
