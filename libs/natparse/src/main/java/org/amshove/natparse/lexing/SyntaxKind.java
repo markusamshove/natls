@@ -116,6 +116,7 @@ public enum SyntaxKind
 	SV_LENGTH(false, false, true),
 	TRANSLATE(true, false, true),
 	TIMESTMP(false, true, false),
+	TIMESTMPX(false, true, false),
 	PF_KEY(false, true, false),
 	INIT_PROGRAM(false, true, false),
 	INIT_USER(false, true, false),

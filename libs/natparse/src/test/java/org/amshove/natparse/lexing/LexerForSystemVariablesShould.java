@@ -341,6 +341,12 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 	}
 
 	@Test
+	void lexTimestmpx()
+	{
+		assertTokens("*TIMESTMPX", token(SyntaxKind.TIMESTMPX, "*TIMESTMPX"));
+	}
+
+	@Test
 	void lexTimestmp()
 	{
 		assertTokens("*TIMESTMP", token(SyntaxKind.TIMESTMP, "*TIMESTMP"));

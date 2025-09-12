@@ -797,6 +797,11 @@ public class Lexer
 			createAndAdd(SyntaxKind.TPSYS);
 			return;
 		}
+		if (scanner.advanceIfIgnoreCase("TIMESTMPX"))
+		{
+			createAndAdd(SyntaxKind.TIMESTMPX);
+			return;
+		}
 		if (scanner.advanceIfIgnoreCase("TIMESTMP"))
 		{
 			createAndAdd(SyntaxKind.TIMESTMP);
