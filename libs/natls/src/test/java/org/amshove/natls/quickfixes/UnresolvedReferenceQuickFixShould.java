@@ -344,7 +344,7 @@ class UnresolvedReferenceQuickFixShould extends CodeActionTest
 			DEFINE DATA
 			LOCAL
 			END-DEFINE
-			   
+
 			INCLUDE TH${}$ECC
 			END
 			""")
@@ -355,7 +355,7 @@ class UnresolvedReferenceQuickFixShould extends CodeActionTest
 				LOCAL
 				1 #THE-VAR-I-NEED (A) DYNAMIC
 				END-DEFINE
-				   
+
 				INCLUDE THECC
 				END
 					""");
@@ -392,6 +392,7 @@ class UnresolvedReferenceQuickFixShould extends CodeActionTest
 			"*ISN,P10",
 			"*LENGTH(#STR),I4",
 			"*TIMX,T",
+			"*TIMESTMPX,B16",
 			"*TIMESTMP,B8",
 			"*TIMN,N7",
 			"*DAT4J,A7",
@@ -540,9 +541,9 @@ class UnresolvedReferenceQuickFixShould extends CodeActionTest
 			1 #GRP
 			2 #VAR1 (I4)
 			END-DEFINE
-			
+
 			#GRP.#V${}$AR2 := 'Hi'
-			
+
 			END
 			""")
 			.fixes(ParserError.UNRESOLVED_REFERENCE.id())
@@ -553,9 +554,9 @@ class UnresolvedReferenceQuickFixShould extends CodeActionTest
 			2 #VAR1 (I4)
 			2 #VAR2 (A2)
 			END-DEFINE
-			
+
 			#GRP.#VAR2 := 'Hi'
-			
+
 			END
 			""");
 	}
@@ -567,9 +568,9 @@ class UnresolvedReferenceQuickFixShould extends CodeActionTest
 			DEFINE DATA
 			LOCAL
 			END-DEFINE
-			
+
 			#GRP.#V${}$AR1 := 'Hi'
-			
+
 			END
 			""")
 			.fixes(ParserError.UNRESOLVED_REFERENCE.id())
@@ -579,9 +580,9 @@ class UnresolvedReferenceQuickFixShould extends CodeActionTest
 			1 #GRP
 			2 #VAR1 (A2)
 			END-DEFINE
-			
+
 			#GRP.#VAR1 := 'Hi'
-			
+
 			END
 			""");
 	}
@@ -594,9 +595,9 @@ class UnresolvedReferenceQuickFixShould extends CodeActionTest
 			LOCAL
 			1 #VAR1 (A10)
 			END-DEFINE
-			
+
 			#GRP.#V${}$AR1 := 'Hi'
-			
+
 			END
 			""")
 			.fixes(ParserError.UNRESOLVED_REFERENCE.id())
@@ -607,9 +608,9 @@ class UnresolvedReferenceQuickFixShould extends CodeActionTest
 			2 #VAR1 (A2)
 			1 #VAR1 (A10)
 			END-DEFINE
-			
+
 			#GRP.#VAR1 := 'Hi'
-			
+
 			END
 			""");
 	}
