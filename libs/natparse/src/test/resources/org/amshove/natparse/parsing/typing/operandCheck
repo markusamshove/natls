@@ -2,6 +2,8 @@ DEFINE DATA LOCAL
 1 #A10 (A10)
 1 #N10 (N10)
 1 #ADYN (A) DYNAMIC
+1 #C-DIRECTION (A1) CONST<'F'>
+1 #A1 (A1)
 1 #ARR-A10 (A10/*)
 1 #GRP-ARR (1:*)
   2 #GRP-ARR-1 (A1)
@@ -30,5 +32,11 @@ REDUCE DYNAMIC #ADYN TO 200
 REDUCE DYNAMIC #N10 TO 200 /* !{D:ERROR:NPP037} format must be A, U or B
 
 COMPRESS #ADYN INTO #ARR-A10(*) /* !{D:ERROR:NPP037} compress target can not be an array
+
+/* Examine direction
+EXAMINE DIRECTION 'F' #ADYN FOR 'A' REPLACE 'B' /* 'F' is constant
+EXAMINE DIRECTION #C-DIRECTION #ADYN FOR 'A' REPLACE 'B' /* constant
+EXAMINE DIRECTION #A1 #ADYN FOR 'A' REPLACE 'B' /* scalar
+EXAMINE DIRECTION #N10 #ADYN FOR 'A' REPLACE 'B' /* !{D:ERROR:NPP037} Direction must be Alphanumeric
 
 END

@@ -2128,7 +2128,8 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		if (consumeOptionally(examine, SyntaxKind.DIRECTION) && !consumeAnyOptionally(examine, List.of(SyntaxKind.FORWARD, SyntaxKind.BACKWARD)))
 		{
 			// Direction can be specified as an operand (TODO: Type-check A1 or string literal of length 1)
-			consumeOperandNode(examine);
+			var directionOperand = consumeOperandNode(examine);
+			enqueueOperandCheck(directionOperand, EnumSet.of(STRUCTURE_CONSTANT, STRUCTURE_SCALAR, FORMAT_ALPHANUMERIC_ASCII, REFERENCING_BY_LABEL_PERMITTED, DYNAMIC_DEFINITION_NOT_PERMITTED));
 		}
 
 		if (consumeOptionally(examine, SyntaxKind.FULL))
