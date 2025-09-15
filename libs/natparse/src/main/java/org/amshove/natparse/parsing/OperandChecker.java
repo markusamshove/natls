@@ -41,7 +41,7 @@ class OperandChecker
 		// TODO: Other array stuff? System vars/functions returning arrays?
 		if (operand instanceof IVariableReferenceNode varRef && varRef.dimensions().hasItems())
 		{
-			isArray = varRef.dimensions().stream().anyMatch(d -> d instanceof IRangedArrayAccessNode);
+			isArray = varRef.dimensions().stream().anyMatch(IRangedArrayAccessNode.class::isInstance);
 			isScalar = !isArray;
 		}
 

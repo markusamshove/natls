@@ -2,9 +2,10 @@ package org.amshove.natparse.parsing;
 
 import org.amshove.natparse.natural.DataFormat;
 
-/// This enum corresponds to the "Operand Definition Table"
-/// from the Natural documentation.
-/// These are used for typechecking operands in statements.
+/**
+ * This enum corresponds to the "Operand Definition Table" from the Natural documentation. These are used for
+ * typechecking operands in statements.
+ */
 public enum OperandDefinition
 {
 	STRUCTURE_CONSTANT('C'),
