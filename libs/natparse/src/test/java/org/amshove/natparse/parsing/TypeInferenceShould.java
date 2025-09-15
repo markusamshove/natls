@@ -37,6 +37,7 @@ class TypeInferenceShould
 			"*LENGTH(#STR),(I4)",
 			"*TIMX,(T)",
 			"*TIMESTMP,(B8)",
+			"*TIMESTMPX,(B16)",
 			"*TIMN,(N7)",
 			"*DAT4J,(A7)",
 			"*NET-USER,(A253)"

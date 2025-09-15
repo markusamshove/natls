@@ -34,7 +34,7 @@ public class ForLoopAnalyzer extends AbstractAnalyzer
 
 	private void analyzeFor(ISyntaxNode iSyntaxNode, IAnalyzeContext context)
 	{
-		if (context.getModule().file().getFiletype() == NaturalFileType.COPYCODE)
+		if (context.isFiletype(NaturalFileType.COPYCODE))
 		{
 			return;
 		}

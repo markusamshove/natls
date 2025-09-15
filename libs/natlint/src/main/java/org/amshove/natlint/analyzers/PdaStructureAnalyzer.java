@@ -48,7 +48,7 @@ public class PdaStructureAnalyzer extends AbstractAnalyzer
 			return;
 		}
 
-		if (module.file().getFiletype() != NaturalFileType.PDA)
+		if (!context.isFiletype(NaturalFileType.PDA))
 		{
 			return;
 		}

@@ -30,6 +30,7 @@ public class BuiltInFunctionTable
 			unmodifiableVariable(SyntaxKind.SV_TIME, "Returns the current time of the day as A10 in format HH:II:SS.T", ALPHANUMERIC, 10.0),
 			unmodifiableVariable(SyntaxKind.TIMX, "Returns the current time of the day as builtin time format", TIME, 0.0),
 			unmodifiableVariable(SyntaxKind.TIMESTMP, "Returns the machine-internal clock value", BINARY, 8.0),
+			unmodifiableVariable(SyntaxKind.TIMESTMPX, "Returns the extended machine-internal clock value", BINARY, 16.0),
 			unmodifiableVariable(SyntaxKind.TIME_OUT, "Contains the number of seconds remaining before the current transaction will be timed out (Natural Security only).", NUMERIC, 5.0),
 			unmodifiableVariable(SyntaxKind.TIMN, "Returns the current time of the day as numeric format", NUMERIC, 7.0),
 			function(
@@ -183,7 +184,7 @@ public class BuiltInFunctionTable
 			function(SyntaxKind.SV_PARSE_NAMESPACE, "Contains the element index within the JSON array being parsed", ALPHANUMERIC, 255, labelParameter(false)),
 			unmodifiableVariable(SyntaxKind.BROWSER_IO, """
 					Returns whether the application is running in a web browser via WebIO or Natural for Ajax.
-					
+
 					It can contain one of the following values:
 
 					empty     : The application is not running in a browser
@@ -408,7 +409,7 @@ public class BuiltInFunctionTable
 				""", NUMERIC, 2),
 			modifiableVariable(SyntaxKind.SV_CONVID, """
 				Contains the ID of the current RPC conversion. Automatically set by OPEN CONVERSATION.
-				
+
 				*CONVID can be modified to switch between multiple open conversations.
 				""", INTEGER, 4)
 		);
