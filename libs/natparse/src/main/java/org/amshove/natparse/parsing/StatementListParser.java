@@ -26,8 +26,8 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	private static final Pattern SETKEY_PATTERN = Pattern.compile("(ENTR|CLR|PA[1-3]|PF([1-9]|[0-1][\\d]|2[0-4]))\\b");
 	private static final List<SyntaxKind> TO_INTO = List.of(SyntaxKind.INTO, SyntaxKind.TO);
 
-	private List<IReferencableNode> referencableNodes;
-	private final Map<IOperandNode, EnumSet<OperandDefinition>> operandCheckQueue = new HashMap<>(); // TODO: from nested parsers
+	private final List<IReferencableNode> referencableNodes = new ArrayList<>();;
+	private final Map<IOperandNode, EnumSet<OperandDefinition>> operandCheckQueue = new HashMap<>();
 
 	private final Set<String> currentModuleCallStack = new HashSet<>();
 	private final Set<String> declaredStatementLabels = new HashSet<>();
@@ -50,7 +50,6 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	@Override
 	protected IStatementListNode parseInternal()
 	{
-		referencableNodes = new ArrayList<>();
 		var statementList = statementList();
 		resolveUnresolvedInternalPerforms();
 		if (!shouldRelocateDiagnostics())
@@ -3461,6 +3460,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 				unresolvedSymbols.addAll(nestedParser.unresolvedSymbols);
 				referencableNodes.addAll(nestedParser.referencableNodes);
+				operandCheckQueue.putAll(nestedParser.operandCheckQueue);
 				include.setBody(
 					statementList.result(),
 					shouldRelocateDiagnostics()

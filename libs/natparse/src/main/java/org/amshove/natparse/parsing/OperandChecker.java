@@ -38,7 +38,6 @@ class OperandChecker
 		var isArray = false;
 		var isConst = operand instanceof ILiteralNode || isConstReference(operand);
 
-		// TODO: Other array stuff? System vars/functions returning arrays?
 		if (operand instanceof IVariableReferenceNode varRef && varRef.dimensions().hasItems())
 		{
 			isArray = varRef.dimensions().stream().anyMatch(IRangedArrayAccessNode.class::isInstance);
@@ -66,7 +65,6 @@ class OperandChecker
 
 		if (isArray && !definitionTable.contains(OperandDefinition.STRUCTURE_ARRAY))
 		{
-			// TODO: no automated test
 			diagnostics.add(
 				ParserErrors.typeMismatch(
 					"Operand can not be an array. %s".formatted(formatAllowedStructures(definitionTable)),
