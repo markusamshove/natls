@@ -29,4 +29,6 @@ EXPAND DYNAMIC #N10 TO 200 /* !{D:ERROR:NPP037} format must be A, U or B
 REDUCE DYNAMIC #ADYN TO 200
 REDUCE DYNAMIC #N10 TO 200 /* !{D:ERROR:NPP037} format must be A, U or B
 
+COMPRESS #ADYN INTO #ARR-A10(*) /* !{D:ERROR:NPP037} compress target can not be an array
+
 END
