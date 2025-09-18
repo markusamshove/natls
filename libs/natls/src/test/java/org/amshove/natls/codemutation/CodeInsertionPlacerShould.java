@@ -320,6 +320,41 @@ class CodeInsertionPlacerShould extends EmptyProjectTest
 	}
 
 	@Test
+	void findARangeForASubroutineInASubprogramWithOnErrorDeclaredInCopycode()
+	{
+		// This test makes sure that new subroutines are not placed within
+		// copy codes which contain an ON ERROR statement.
+		// The subroutine should be placed in the file that is requested
+		createOrSaveLanguageServerFile("LIBONE", "ONERRCC.NSC", """
+			/* Add some ignores so that the line number of ON ERROR is
+			/* distinct from END within the subprogram
+			IGNORE
+			IGNORE
+			IGNORE
+			IGNORE
+			IGNORE
+			IGNORE
+			ON ERROR
+			IGNORE
+			END-ERROR
+			""");
+		var file = createOrSaveLanguageServerFile("LIBONE", "SUBPROG.NSN", """
+			DEFINE DATA LOCAL
+			END-DEFINE
+			INCLUDE ONERRCC
+			END
+			""");
+
+		assertInsertion(
+			sut.findInsertionPositionForStatementAtEnd(file),
+			"",
+			3, 0,
+			3, 0,
+			System.lineSeparator()
+		);
+	}
+
+	@Test
 	void findARangeForASubroutineInASubprogramWithEmptyBody()
 	{
 		var file = createOrSaveLanguageServerFile("LIBONE", "SUBPROG.NSN", """
