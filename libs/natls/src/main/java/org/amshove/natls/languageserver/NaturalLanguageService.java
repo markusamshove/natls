@@ -157,13 +157,6 @@ public class NaturalLanguageService implements LanguageClientAware
 		return new DocumentSymbolProvider().provideSymbols(module);
 	}
 
-	public void createdFile(String uri)
-	{
-		var path = LspUtil.uriToPath(uri);
-		var lspFile = languageServerProject.addFile(path);
-		lspFile.parse();
-	}
-
 	public static void setConfiguration(LSConfiguration configuration)
 	{
 		config = configuration;
@@ -337,6 +330,16 @@ public class NaturalLanguageService implements LanguageClientAware
 		this.client = client;
 	}
 
+	public void fileCreated(String uri)
+	{
+		var path = LspUtil.uriToPath(uri);
+		var lspFile = languageServerProject.addFile(path);
+		if (openEditors.contains(path))
+		{
+			lspFile.parse();
+		}
+	}
+
 	public void fileSaved(Path path)
 	{
 		var file = findNaturalFile(path);
@@ -353,22 +356,57 @@ public class NaturalLanguageService implements LanguageClientAware
 		}
 	}
 
-	public void fileExternallyChanged(Path path)
-	{
-		if (openEditors.contains(path))
-		{
-			// Already handled by `fileSaved`
-			return;
-		}
-
-		var file = findNaturalFile(path);
-		file.parseWithoutCallers();
-	}
-
 	public void fileDeleted(Path path)
 	{
 		var file = findNaturalFile(path);
 		languageServerProject.removeFile(file);
+	}
+
+	/**
+	 * Handle externally changed files. This should only trigger a parse of files that are <strong>not</strong> directly
+	 * opened, because the client is expected to send a didChange event.</br>
+	 * The parsing that this handler triggers is for files that are <strong>not opened</strong> but referenced by opened
+	 * files, e.g. data areas.
+	 */
+	public void fileExternallyChanged(Path changedFilePath)
+	{
+		if (openEditors.contains(changedFilePath))
+		{
+			// If the file is opened then the client should've sent didChange by specification
+			return;
+		}
+
+		var filesToParse = new HashSet<LanguageServerFile>();
+
+		for (var openEditor : openEditors)
+		{
+			var file = findNaturalFile(openEditor);
+			if (file == null)
+			{
+				continue;
+			}
+
+			for (var outgoingReference : file.getOutgoingReferences())
+			{
+				if (outgoingReference.getPath().equals(changedFilePath))
+				{
+					log.fine(() -> "%s is open and references %s, reparse without callers triggered".formatted(openEditor, changedFilePath));
+					filesToParse.add(outgoingReference);
+				}
+			}
+		}
+
+		if (!filesToParse.isEmpty())
+		{
+			var changedFile = findNaturalFile(changedFilePath);
+			changedFile.parseWithoutCallers();
+			publishDiagnosticsOfFile(changedFile);
+			for (var file : filesToParse)
+			{
+				file.parseWithoutCallers();
+				publishDiagnosticsOfFile(file);
+			}
+		}
 	}
 
 	public void fileClosed(Path path)
