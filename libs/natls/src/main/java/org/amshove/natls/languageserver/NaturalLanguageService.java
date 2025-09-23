@@ -345,9 +345,12 @@ public class NaturalLanguageService implements LanguageClientAware
 			return;
 		}
 
-		file.save();
-		publishDiagnostics(file);
-		client.refreshCodeLenses();
+		if (openEditors.contains(path))
+		{
+			file.save();
+			publishDiagnostics(file);
+			client.refreshCodeLenses();
+		}
 	}
 
 	public void fileExternallyChanged(Path path)
@@ -366,7 +369,6 @@ public class NaturalLanguageService implements LanguageClientAware
 	{
 		var file = findNaturalFile(path);
 		languageServerProject.removeFile(file);
-		reparseOpenFiles();
 	}
 
 	public void fileClosed(Path path)
