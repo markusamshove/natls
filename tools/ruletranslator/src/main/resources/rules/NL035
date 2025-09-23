@@ -4,3 +4,68 @@ tags: clumsy, confusing, bad-practice
 type: CODE_SMELL
 description:
 Hides implementation for XREF, because data access is shown in all INCLUDErs of the Copycode, and not just the Copycode itself. Interface is copied amongst INCLUDErs instead of being isolated. Meaning changes in interface will affect all INCLUDErs. Access modules should be isolated in Subprograms instead.
+
+## Non compliant
+
+```natural
+* COPYCODE: CUSTFIND
+FIND CUSTOMER WITH NAME = #SEARCH-NAME
+  MOVE CUSTOMER-ID   TO #CUST-ID
+  MOVE CUSTOMER-ADDR TO #CUST-ADDR
+END-FIND
+```
+
+Example program using the copycode
+```natural
+DEFINE DATA
+LOCAL
+1 #SEARCH-NAME (A30)
+1 #CUST-ID     (N10)
+1 #CUST-ADDR   (A50)
+END-DEFINE
+INPUT 'Enter customer name:' #SEARCH-NAME
+INCLUDE CUSTFIND
+DISPLAY #CUST-ID #CUST-ADDR
+END
+```
+
+## Compliant
+
+Use an interface (Parameter Data Area)
+
+```natural
+DEFINE DATA
+PARAMETER
+1 PDACUST
+  2 PDACUST-IN
+    3 P-SEARCH-NAME (A30)
+  2 PDACUST-OUT
+    3 P-CUST-ID     (N10)
+    3 P-CUST-ADDR   (A50)
+    ...
+END-DEFINE
+```
+
+Subprogram (FINDCUST)
+```natural
+DEFINE DATA
+PARAMETER USING PDACUST
+END-DEFINE
+
+RESET PDACUST.PDACUST-OUT
+FIND CUSTOMER WITH NAME = P-SEARCH-NAME
+  MOVE CUSTOMER.CUSTOMER-ID   TO PDACUST.P-CUST-ID
+  MOVE CUSTOMER.CUSTOMER-ADDR TO PDACUST.P-CUST-ADDR
+END-FIND
+END
+```
+Example program using the subprogram
+```natural
+DEFINE DATA
+LOCAL USING PDACUST
+END-DEFINE
+INPUT 'Enter customer name:' PDACUST.P-SEARCH-NAME
+CALLNAT 'FINDCUST' USING PDACUST
+DISPLAY PDACUST.PDACUST-OUT
+END
+```

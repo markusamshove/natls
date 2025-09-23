@@ -15,13 +15,19 @@ Imaging a PDA named `PDANAME`, the data structure is expected to be as follows:
 
 Optionally `PDANAME-INOUT` can be a group too - it can even be standalone, if all your parameters are input/output (rare).
 
-A PDA structure should follow these rules in order to be able to access each area individually through `RESET` and `MOVE BY NAME` statements, and to mention the fewest parameters in `CALLNAT`'s/`PERFORM`'s, which improves readability.
+A PDA structure should follow these rules in order to be able to access each area individually through `RESET` and `MOVE BY NAME` statements:
+```natural
+RESET PDANAME.PDANAME-OUT
+MOVE BY NAME other-structure TO PDANAME.PDANAME-IN
+```
+
+and to mention the fewest parameters in `CALLNAT`'s/`PERFORM`'s, while at the same time making a clear reference to the PDA in use, which improves readability:
 
 ```natural
 CALLNAT 'SUBPGM' USING PDANAME
 PERFORM EXTERNAL-SUBROUTINE-NAME PDANAME
 ```
 
-If you have array groups, these are only possible at level > 2.
+If you have array groups, these are only possible at levels > 2.
 
 This behavior can be configured using the `natls.style.in_out_groups` option in the [analyzer configuration](/docs/analyzer-config.md)
