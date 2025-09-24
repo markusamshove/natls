@@ -36,10 +36,10 @@ public class CliAnalyzer
 	private Path workingDirectory;
 	private final AnalyzerPredicates predicates;
 	private final FileStatusSink fileStatusSink;
+	private Map<String, AtomicInteger> totalDiagnosticsById = new HashMap<>();
 
 	public CliAnalyzer(Path workingDirectory, IDiagnosticSink sink, FileStatusSink fileStatusSink, AnalyzerPredicates predicates, boolean disableLinting)
 	{
-	private Map<String, AtomicInteger> totalDiagnosticsById = new HashMap<>();
 		this.workingDirectory = workingDirectory;
 		this.predicates = predicates;
 		filesystem = new ActualFilesystem();
