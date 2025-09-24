@@ -167,8 +167,10 @@ public class CliAnalyzer
 
 				var totalDiagnosticsInFileById = allDiagnosticsInFile.stream()
 					.collect(Collectors.groupingBy(IDiagnostic::id, Collectors.counting()));
-				for(var diagnosticId : totalDiagnosticsInFileById.keySet()){
-					if(!totalDiagnosticsById.containsKey(diagnosticId)){
+				for (var diagnosticId : totalDiagnosticsInFileById.keySet())
+				{
+					if (!totalDiagnosticsById.containsKey(diagnosticId))
+					{
 						totalDiagnosticsById.put(diagnosticId, new AtomicInteger());
 					}
 					totalDiagnosticsById.get(diagnosticId)
@@ -231,7 +233,8 @@ public class CliAnalyzer
 		System.out.printf("GC time: %ds%n", (gcTime / 1000));
 		System.out.println();
 		System.out.println("Total diagnostics by ID");
-		for(var diagnosticId : totalDiagnosticsById.keySet().stream().sorted().toList()){
+		for (var diagnosticId : totalDiagnosticsById.keySet().stream().sorted().toList())
+		{
 			System.out.printf("%s: %,d%n", diagnosticId, totalDiagnosticsById.get(diagnosticId).get());
 		}
 		System.out.println();
