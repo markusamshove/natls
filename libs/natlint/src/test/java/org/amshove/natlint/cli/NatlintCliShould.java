@@ -41,4 +41,20 @@ class NatlintCliShould extends CliTest
 		assertThat(result.exitCode()).isPositive();
 		assertThat(result.stdErr()).isEmpty(); // no user error raised
 	}
+
+	@Test
+	void printNoAdditionalInfoWhenRunWithoutDiagnosticFlags(@ProjectName("clitest") NaturalProject project)
+	{
+		var result = runNatlint("-w", project.getRootPath().toAbsolutePath().toString());
+		assertThat(result.exitCode()).isPositive();
+		assertThat(!result.stdOut().contains("Total diagnostics by ID"));
+	}
+
+	@Test
+	void printInfoWhenRunWithDiagnosticStats(@ProjectName("clitest") NaturalProject project)
+	{
+		var result = runNatlint("-w", project.getRootPath().toAbsolutePath().toString(), "--diagnostic-stats");
+		assertThat(result.exitCode()).isPositive();
+		assertThat(result.stdOut().contains("Total diagnostics by ID"));
+	}
 }

@@ -86,7 +86,14 @@ public class AnalyzeCommand implements Callable<Integer>
 	}, description = "Skips analyzing with natlint", defaultValue = "false")
 	boolean disableLinting;
 
+	@CommandLine.Option(names =
+	{
+		"--diagnostic-stats"
+	}, description = "Show total diagnostics by ID", defaultValue = "false")
+	boolean showDiagnosticStats;
+
 	private AnalyzerPredicates predicates;
+	private AnalyzerOutputFlags outputFlags;
 
 	@Override
 	public Integer call()
@@ -95,6 +102,8 @@ public class AnalyzeCommand implements Callable<Integer>
 		configureModulePredicates();
 		configureDiagnosticPredicates();
 		configureSinkType();
+		configureOutputFlags();
+
 		var analyzer = createAnalyzer();
 		var exitCode = analyzer.run();
 		return handleExitCode(exitCode);
@@ -108,6 +117,7 @@ public class AnalyzeCommand implements Callable<Integer>
 		configureModulePredicates();
 		configureDiagnosticPredicates();
 		configureSinkType();
+		configureOutputFlags();
 
 		var br = new BufferedReader(new InputStreamReader(System.in));
 		var gitChanges = new ArrayList<String>();
@@ -179,6 +189,11 @@ public class AnalyzeCommand implements Callable<Integer>
 		}
 	}
 
+	private void configureOutputFlags()
+	{
+		outputFlags = new AnalyzerOutputFlags(showDiagnosticStats);
+	}
+
 	private void configureSinkType()
 	{
 		if (ciMode)
@@ -197,7 +212,8 @@ public class AnalyzeCommand implements Callable<Integer>
 			sinkType.createSink(theWorkingDirectory),
 			fileStatusMode ? FileStatusSink.create() : FileStatusSink.dummy(),
 			predicates,
-			disableLinting
+			disableLinting,
+			outputFlags
 		);
 	}
 
