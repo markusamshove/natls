@@ -36,9 +36,10 @@ public class CliAnalyzer
 	private Path workingDirectory;
 	private final AnalyzerPredicates predicates;
 	private final FileStatusSink fileStatusSink;
+	private final AnalyzerOutputFlags outputFlags;
 	private Map<String, AtomicInteger> totalDiagnosticsById = new HashMap<>();
 
-	public CliAnalyzer(Path workingDirectory, IDiagnosticSink sink, FileStatusSink fileStatusSink, AnalyzerPredicates predicates, boolean disableLinting)
+	public CliAnalyzer(Path workingDirectory, IDiagnosticSink sink, FileStatusSink fileStatusSink, AnalyzerPredicates predicates, boolean disableLinting, AnalyzerOutputFlags outputFlags)
 	{
 		this.workingDirectory = workingDirectory;
 		this.predicates = predicates;
@@ -46,6 +47,7 @@ public class CliAnalyzer
 		diagnosticSink = sink;
 		this.fileStatusSink = fileStatusSink;
 		this.disableLinting = disableLinting;
+		this.outputFlags = outputFlags;
 	}
 
 	public int run()
@@ -232,12 +234,15 @@ public class CliAnalyzer
 		System.out.printf("Number of GCs: %d%n", gcs);
 		System.out.printf("GC time: %ds%n", (gcTime / 1000));
 		System.out.println();
-		System.out.println("Total diagnostics by ID");
-		for (var diagnosticId : totalDiagnosticsById.keySet().stream().sorted().toList())
+		if (outputFlags.showDiagnosticStats())
 		{
-			System.out.printf("%s: %,d%n", diagnosticId, totalDiagnosticsById.get(diagnosticId).get());
+			System.out.println("Total diagnostics by ID");
+			for (var diagnosticId : totalDiagnosticsById.keySet().stream().sorted().toList())
+			{
+				System.out.printf("%s: %,d%n", diagnosticId, totalDiagnosticsById.get(diagnosticId).get());
+			}
+			System.out.println();
 		}
-		System.out.println();
 
 		return totalDiagnostics.get() > 0 ? 1 : 0;
 	}

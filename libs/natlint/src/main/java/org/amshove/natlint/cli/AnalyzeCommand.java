@@ -13,7 +13,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "analyze", description = "Analyze the Natural project in the current working directory", mixinStandardHelpOptions = true)
@@ -86,7 +88,14 @@ public class AnalyzeCommand implements Callable<Integer>
 	}, description = "Skips analyzing with natlint", defaultValue = "false")
 	boolean disableLinting;
 
+	@CommandLine.Option(names =
+	{
+		"--diagnostic-stats"
+	}, description = "Show total diagnostics by ID", defaultValue = "false")
+	boolean showDiagnosticStats;
+
 	private AnalyzerPredicates predicates;
+	private AnalyzerOutputFlags outputFlags;
 
 	@Override
 	public Integer call()
@@ -95,6 +104,8 @@ public class AnalyzeCommand implements Callable<Integer>
 		configureModulePredicates();
 		configureDiagnosticPredicates();
 		configureSinkType();
+		configureOutputFlags();
+
 		var analyzer = createAnalyzer();
 		var exitCode = analyzer.run();
 		return handleExitCode(exitCode);
@@ -108,6 +119,7 @@ public class AnalyzeCommand implements Callable<Integer>
 		configureModulePredicates();
 		configureDiagnosticPredicates();
 		configureSinkType();
+		configureOutputFlags();
 
 		var br = new BufferedReader(new InputStreamReader(System.in));
 		var gitChanges = new ArrayList<String>();
@@ -179,6 +191,11 @@ public class AnalyzeCommand implements Callable<Integer>
 		}
 	}
 
+	private void configureOutputFlags()
+	{
+		outputFlags = new AnalyzerOutputFlags(showDiagnosticStats);
+	}
+
 	private void configureSinkType()
 	{
 		if (ciMode)
@@ -197,7 +214,8 @@ public class AnalyzeCommand implements Callable<Integer>
 			sinkType.createSink(theWorkingDirectory),
 			fileStatusMode ? FileStatusSink.create() : FileStatusSink.dummy(),
 			predicates,
-			disableLinting
+			disableLinting,
+			outputFlags
 		);
 	}
 
