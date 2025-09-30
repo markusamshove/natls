@@ -73,8 +73,8 @@ public enum SyntaxKind
 	SV_NUMBER(false, true, true),
 	SV_OCCURRENCE(false, false, true),
 	SV_OCC(false, false, true),
-	// TODO: SV_PAGE_EVENT
-	// TODO: SV_PAGE_LEVEL
+	SV_PAGE_EVENT(false, true, false),
+	SV_PAGE_LEVEL(false, true, false),
 	SV_PROGRAM(true, true, false),
 	// TODO: SV_REINPUT_TYPE
 	// TODO: SV_ROWCOUNT

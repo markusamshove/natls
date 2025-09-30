@@ -348,6 +348,16 @@ public class BuiltInFunctionTable
 				new BuiltInFunctionParameter("array", new DataType(DataFormat.NONE, 1), true),
 				new BuiltInFunctionParameter("dimension", new DataType(DataFormat.NONE, 1), false)
 			),
+			unmodifiableVariable(SyntaxKind.SV_PAGE_EVENT, """
+				Returns the name of the current event delivered from Natural for Ajax
+
+				Used for rich GUI programming with `PROCESS PAGE`.
+				""", UNICODE, DataType.DYNAMIC_LENGTH),
+			unmodifiableVariable(SyntaxKind.SV_PAGE_LEVEL, """
+				Returns the level of `PROCESS PAGE MODAL` statement blocks
+
+				Returns 0 if no modal is active. No output to Report 0 is possible if value is > 0
+				""", INTEGER, 4),
 			function(
 				SyntaxKind.MINVAL, """
 					Returns the minimal value of all given operand values.

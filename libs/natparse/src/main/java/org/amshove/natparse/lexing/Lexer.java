@@ -575,6 +575,16 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_OCC);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("PAGE-EVENT"))
+			{
+				createAndAdd(SyntaxKind.SV_PAGE_EVENT);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("PAGE-LEVEL"))
+			{
+				createAndAdd(SyntaxKind.SV_PAGE_LEVEL);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("PROGRAM"))
 			{
 				createAndAdd(SyntaxKind.SV_PROGRAM);
