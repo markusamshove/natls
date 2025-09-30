@@ -457,44 +457,454 @@ public class Lexer
 
 		scanner.start();
 		scanner.advance();
-		if (scanner.advanceIfIgnoreCase("OCCURRENCE"))
+		// Application
 		{
-			createAndAdd(SyntaxKind.OCCURRENCE);
-			return;
+			if (scanner.advanceIfIgnoreCase("APPLIC-ID"))
+			{
+				createAndAdd(SyntaxKind.APPLIC_ID);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("APPLIC-NAME"))
+			{
+				createAndAdd(SyntaxKind.APPLIC_NAME);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("COM"))
+			{
+				createAndAdd(SyntaxKind.COM);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("COUNTER"))
+			{
+				createAndAdd(SyntaxKind.COUNTER);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("CPU-TIME"))
+			{
+				createAndAdd(SyntaxKind.CPU_TIME);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("CURRENT-UNIT"))
+			{
+				createAndAdd(SyntaxKind.CURRENT_UNIT);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("DATA"))
+			{
+				createAndAdd(SyntaxKind.SV_DATA);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("ERROR-LINE"))
+			{
+				createAndAdd(SyntaxKind.ERROR_LINE);
+				return;
+			}
+				if (scanner.advanceIfIgnoreCase("ERROR-NR"))
+			{
+				createAndAdd(SyntaxKind.ERROR_NR);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("ERROR-TA"))
+			{
+				createAndAdd(SyntaxKind.ERROR_TA);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("ERROR"))
+			{
+				createAndAdd(SyntaxKind.SV_ERROR);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("ETID"))
+			{
+				createAndAdd(SyntaxKind.ETID);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("ISN"))
+			{
+				createAndAdd(SyntaxKind.SV_ISN);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("LBOUND"))
+			{
+				createAndAdd(SyntaxKind.LBOUND);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("LIBRARY-ID"))
+			{
+				createAndAdd(SyntaxKind.LIBRARY_ID);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("LINEX"))
+			{
+				createAndAdd(SyntaxKind.LINEX);
+				return;
+			}
+			// LINE moved to bottom for ordering reasons
+			if (scanner.advanceIfIgnoreCase("NUMBER"))
+			{
+				createAndAdd(SyntaxKind.SV_NUMBER);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("OCCURRENCE"))
+			{
+				createAndAdd(SyntaxKind.OCCURRENCE);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("OCC"))
+			{
+				createAndAdd(SyntaxKind.OCC);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("PROGRAM"))
+			{
+				createAndAdd(SyntaxKind.PROGRAM);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("STARTUP"))
+			{
+				createAndAdd(SyntaxKind.STARTUP);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("STEPLIB"))
+			{
+				createAndAdd(SyntaxKind.STEPLIB);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("SUBROUTINE"))
+			{
+				createAndAdd(SyntaxKind.SV_SUBROUTINE);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("UBOUND"))
+			{
+				createAndAdd(SyntaxKind.UBOUND);
+				return;
+			}
 		}
-		if (scanner.advanceIfIgnoreCase("OCC"))
+
+		// Date and Time
 		{
-			createAndAdd(SyntaxKind.OCC);
-			return;
+			//   Date
+			{
+				if (scanner.advanceIfIgnoreCase("DATD"))
+				{
+					createAndAdd(SyntaxKind.DATD);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DAT4D"))
+				{
+					createAndAdd(SyntaxKind.DAT4D);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DATE"))
+				{
+					createAndAdd(SyntaxKind.SV_DATE);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DAT4E"))
+				{
+					createAndAdd(SyntaxKind.DAT4E);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DATG"))
+				{
+					createAndAdd(SyntaxKind.DATG);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DATI"))
+				{
+					createAndAdd(SyntaxKind.DATI);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DAT4I"))
+				{
+					createAndAdd(SyntaxKind.DAT4I);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DATJ"))
+				{
+					createAndAdd(SyntaxKind.DATJ);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DAT4J"))
+				{
+					createAndAdd(SyntaxKind.DAT4J);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DATN"))
+				{
+					createAndAdd(SyntaxKind.DATN);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DATU"))
+				{
+					createAndAdd(SyntaxKind.DATU);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DAT4U"))
+				{
+					createAndAdd(SyntaxKind.DAT4U);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DATVS"))
+				{
+					createAndAdd(SyntaxKind.DATVS);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DATV"))
+				{
+					createAndAdd(SyntaxKind.DATV);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("DATX"))
+				{
+					createAndAdd(SyntaxKind.DATX);
+					return;
+				}
+			}
+			//  Time
+			{
+				if (scanner.advanceIfIgnoreCase("TIMD"))
+				{
+					createAndAdd(SyntaxKind.TIMD);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("TIMESTMPX"))
+				{
+					createAndAdd(SyntaxKind.TIMESTMPX);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("TIMESTMP"))
+				{
+					createAndAdd(SyntaxKind.TIMESTMP);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("TIME-OUT"))
+				{
+					createAndAdd(SyntaxKind.TIME_OUT);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("TIME"))
+				{
+					createAndAdd(SyntaxKind.SV_TIME);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("TIMN"))
+				{
+					createAndAdd(SyntaxKind.TIMN);
+					return;
+				}
+				if (scanner.advanceIfIgnoreCase("TIMX"))
+				{
+					createAndAdd(SyntaxKind.TIMX);
+					return;
+				}
+			}
 		}
-		if (scanner.advanceIfIgnoreCase("DATA"))
+
+		// Input Output
 		{
-			createAndAdd(SyntaxKind.SV_DATA);
-			return;
+			if (scanner.advanceIfIgnoreCase("CURS-COL"))
+			{
+				createAndAdd(SyntaxKind.CURS_COL);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("CURS-FIELD"))
+			{
+				createAndAdd(SyntaxKind.CURS_FIELD);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("CURS-LINE"))
+			{
+				createAndAdd(SyntaxKind.CURS_LINE);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("LINE-COUNT"))
+			{
+				createAndAdd(SyntaxKind.LINE_COUNT);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("LINESIZE"))
+			{
+				createAndAdd(SyntaxKind.LINESIZE);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("LOG-LS"))
+			{
+				createAndAdd(SyntaxKind.LOG_LS);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("LOG-PS"))
+			{
+				createAndAdd(SyntaxKind.LOG_PS);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("PAGE-NUMBER"))
+			{
+				createAndAdd(SyntaxKind.PAGE_NUMBER);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("PAGESIZE"))
+			{
+				createAndAdd(SyntaxKind.PAGESIZE);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("PF-KEY"))
+			{
+				createAndAdd(SyntaxKind.PF_KEY);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("WINDOW-LS"))
+			{
+				createAndAdd(SyntaxKind.WINDOW_LS);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("WINDOW-POS"))
+			{
+				createAndAdd(SyntaxKind.WINDOW_POS);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("WINDOW-PS"))
+			{
+				createAndAdd(SyntaxKind.WINDOW_PS);
+				return;
+			}
 		}
+
+		// Natural Environment
+		{
+			if (scanner.advanceIfIgnoreCase("BROWSER-IO"))
+			{
+				createAndAdd(SyntaxKind.BROWSER_IO);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("DEVICE"))
+			{
+				createAndAdd(SyntaxKind.DEVICE);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("GROUP"))
+			{
+				createAndAdd(SyntaxKind.SV_GROUP);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("INIT-USER"))
+			{
+				createAndAdd(SyntaxKind.INIT_USER);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("LANGUAGE"))
+			{
+				createAndAdd(SyntaxKind.LANGUAGE);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("NET-USER"))
+			{
+				createAndAdd(SyntaxKind.NET_USER);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("PID"))
+			{
+				createAndAdd(SyntaxKind.PID);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("SERVER-TYPE"))
+			{
+				createAndAdd(SyntaxKind.SERVER_TYPE);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("USER-NAME"))
+			{
+				createAndAdd(SyntaxKind.USER_NAME);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("USER"))
+			{
+				createAndAdd(SyntaxKind.SV_USER);
+				return;
+			}
+		}
+
+		// System Environment
+		{
+			if (scanner.advanceIfIgnoreCase("HOSTNAME"))
+			{
+				createAndAdd(SyntaxKind.HOSTNAME);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("INIT-ID"))
+			{
+				createAndAdd(SyntaxKind.INIT_ID);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("INIT-PROGRAM"))
+			{
+				createAndAdd(SyntaxKind.INIT_PROGRAM);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("MACHINE-CLASS"))
+			{
+				createAndAdd(SyntaxKind.MACHINE_CLASS);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("OPSYS"))
+			{
+				createAndAdd(SyntaxKind.OPSYS);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("TPSYS"))
+			{
+				createAndAdd(SyntaxKind.TPSYS);
+				return;
+			}
+		}
+
+		// XML and JSON parsing
+		{
+			if (scanner.advanceIfIgnoreCase("PARSE-LEVEL"))
+			{
+				createAndAdd(SyntaxKind.SV_PARSE_LEVEL);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("PARSE-INDEX"))
+			{
+				createAndAdd(SyntaxKind.SV_PARSE_INDEX);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("PARSE-TYPE"))
+			{
+				createAndAdd(SyntaxKind.SV_PARSE_TYPE);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("PARSE-COL"))
+			{
+				createAndAdd(SyntaxKind.SV_PARSE_COL);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("PARSE-NAMESPACE"))
+			{
+				createAndAdd(SyntaxKind.SV_PARSE_NAMESPACE);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("PARSE-ROW"))
+			{
+				createAndAdd(SyntaxKind.SV_PARSE_ROW);
+				return;
+			}
+		}
+
+		// Order dependent items
+		{
+			if (scanner.advanceIfIgnoreCase("LINE"))
+			{
+				createAndAdd(SyntaxKind.LINE);
+				return;
+			}
+		}
+
 		if (scanner.advanceIfIgnoreCase("LEVEL"))
 		{
 			createAndAdd(SyntaxKind.SV_LEVEL);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("LINEX"))
-		{
-			createAndAdd(SyntaxKind.LINEX);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("LINE-COUNT"))
-		{
-			createAndAdd(SyntaxKind.LINE_COUNT);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("LINESIZE"))
-		{
-			createAndAdd(SyntaxKind.LINESIZE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("PAGESIZE"))
-		{
-			createAndAdd(SyntaxKind.PAGESIZE);
 			return;
 		}
 		if (scanner.advanceIfIgnoreCase("TRIM"))
@@ -502,274 +912,14 @@ public class Lexer
 			createAndAdd(SyntaxKind.TRIM);
 			return;
 		}
-		if (scanner.advanceIfIgnoreCase("ERROR-NR"))
-		{
-			createAndAdd(SyntaxKind.ERROR_NR);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("ERROR-LINE"))
-		{
-			createAndAdd(SyntaxKind.ERROR_LINE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("ERROR-TA"))
-		{
-			createAndAdd(SyntaxKind.ERROR_TA);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("ERROR"))
-		{
-			createAndAdd(SyntaxKind.SV_ERROR);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("LINE"))
-		{
-			createAndAdd(SyntaxKind.LINE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("TIMX"))
-		{
-			createAndAdd(SyntaxKind.TIMX);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("TIMD"))
-		{
-			createAndAdd(SyntaxKind.TIMD);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("TIMN"))
-		{
-			createAndAdd(SyntaxKind.TIMN);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("TIME-OUT"))
-		{
-			createAndAdd(SyntaxKind.TIME_OUT);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DAT4E"))
-		{
-			createAndAdd(SyntaxKind.DAT4E);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DATE"))
-		{
-			createAndAdd(SyntaxKind.SV_DATE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DATX"))
-		{
-			createAndAdd(SyntaxKind.DATX);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DATN"))
-		{
-			createAndAdd(SyntaxKind.DATN);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DATD"))
-		{
-			createAndAdd(SyntaxKind.DATD);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DAT4D"))
-		{
-			createAndAdd(SyntaxKind.DAT4D);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DAT4I"))
-		{
-			createAndAdd(SyntaxKind.DAT4I);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DATI"))
-		{
-			createAndAdd(SyntaxKind.DATI);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DATG"))
-		{
-			createAndAdd(SyntaxKind.DATG);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DAT4J"))
-		{
-			createAndAdd(SyntaxKind.DAT4J);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DATJ"))
-		{
-			createAndAdd(SyntaxKind.DATJ);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DAT4U"))
-		{
-			createAndAdd(SyntaxKind.DAT4U);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DATU"))
-		{
-			createAndAdd(SyntaxKind.DATU);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DATVS"))
-		{
-			createAndAdd(SyntaxKind.DATVS);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("DATV"))
-		{
-			createAndAdd(SyntaxKind.DATV);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("LANGUAGE"))
-		{
-			createAndAdd(SyntaxKind.LANGUAGE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("LIBRARY-ID"))
-		{
-			createAndAdd(SyntaxKind.LIBRARY_ID);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("ISN"))
-		{
-			createAndAdd(SyntaxKind.SV_ISN);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("PROGRAM"))
-		{
-			createAndAdd(SyntaxKind.PROGRAM);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("CPU-TIME"))
-		{
-			createAndAdd(SyntaxKind.CPU_TIME);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("ETID"))
-		{
-			createAndAdd(SyntaxKind.ETID);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("INIT-PROGRAM"))
-		{
-			createAndAdd(SyntaxKind.INIT_PROGRAM);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("LBOUND"))
-		{
-			createAndAdd(SyntaxKind.LBOUND);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("UBOUND"))
-		{
-			createAndAdd(SyntaxKind.UBOUND);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("GROUP"))
-		{
-			createAndAdd(SyntaxKind.SV_GROUP);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("USER-NAME"))
-		{
-			createAndAdd(SyntaxKind.USER_NAME);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("USER"))
-		{
-			createAndAdd(SyntaxKind.SV_USER);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("NUMBER"))
-		{
-			createAndAdd(SyntaxKind.SV_NUMBER);
-			return;
-		}
 		if (scanner.advanceIfIgnoreCase("LENGTH"))
 		{
 			createAndAdd(SyntaxKind.SV_LENGTH);
 			return;
 		}
-		if (scanner.advanceIfIgnoreCase("CURRENT-UNIT"))
-		{
-			createAndAdd(SyntaxKind.CURRENT_UNIT);
-			return;
-		}
 		if (scanner.advanceIfIgnoreCase("CURSOR"))
 		{
 			createAndAdd(SyntaxKind.CURSOR);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("CURS-COL"))
-		{
-			createAndAdd(SyntaxKind.CURS_COL);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("CURS-LINE"))
-		{
-			createAndAdd(SyntaxKind.CURS_LINE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("CURS-FIELD"))
-		{
-			createAndAdd(SyntaxKind.CURS_FIELD);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("PARSE-COL"))
-		{
-			createAndAdd(SyntaxKind.SV_PARSE_COL);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("PARSE-ROW"))
-		{
-			createAndAdd(SyntaxKind.SV_PARSE_ROW);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("PARSE-LEVEL"))
-		{
-			createAndAdd(SyntaxKind.SV_PARSE_LEVEL);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("PARSE-TYPE"))
-		{
-			createAndAdd(SyntaxKind.SV_PARSE_TYPE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("PARSE-INDEX"))
-		{
-			createAndAdd(SyntaxKind.SV_PARSE_INDEX);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("PARSE-NAMESPACE"))
-		{
-			createAndAdd(SyntaxKind.SV_PARSE_NAMESPACE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("INIT-USER"))
-		{
-			createAndAdd(SyntaxKind.INIT_USER);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("INIT-ID"))
-		{
-			createAndAdd(SyntaxKind.INIT_ID);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("COUNTER"))
-		{
-			createAndAdd(SyntaxKind.COUNTER);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("COM"))
-		{
-			createAndAdd(SyntaxKind.COM);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("PF-KEY"))
-		{
-			createAndAdd(SyntaxKind.PF_KEY);
 			return;
 		}
 		if (scanner.advanceIfIgnoreCase("MAXVAL"))
@@ -782,114 +932,9 @@ public class Lexer
 			createAndAdd(SyntaxKind.MINVAL);
 			return;
 		}
-		if (scanner.advanceIfIgnoreCase("DEVICE"))
-		{
-			createAndAdd(SyntaxKind.DEVICE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("OPSYS"))
-		{
-			createAndAdd(SyntaxKind.OPSYS);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("TPSYS"))
-		{
-			createAndAdd(SyntaxKind.TPSYS);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("TIMESTMPX"))
-		{
-			createAndAdd(SyntaxKind.TIMESTMPX);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("TIMESTMP"))
-		{
-			createAndAdd(SyntaxKind.TIMESTMP);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("APPLIC-ID"))
-		{
-			createAndAdd(SyntaxKind.APPLIC_ID);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("APPLIC-NAME"))
-		{
-			createAndAdd(SyntaxKind.APPLIC_NAME);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("SERVER-TYPE"))
-		{
-			createAndAdd(SyntaxKind.SERVER_TYPE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("STARTUP"))
-		{
-			createAndAdd(SyntaxKind.STARTUP);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("STEPLIB"))
-		{
-			createAndAdd(SyntaxKind.STEPLIB);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("PAGE-NUMBER"))
-		{
-			createAndAdd(SyntaxKind.PAGE_NUMBER);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("WINDOW-PS"))
-		{
-			createAndAdd(SyntaxKind.WINDOW_PS);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("WINDOW-POS"))
-		{
-			createAndAdd(SyntaxKind.WINDOW_POS);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("WINDOW-LS"))
-		{
-			createAndAdd(SyntaxKind.WINDOW_LS);
-			return;
-		}
 		if (scanner.advanceIfIgnoreCase("TRANSLATE"))
 		{
 			createAndAdd(SyntaxKind.TRANSLATE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("PID"))
-		{
-			createAndAdd(SyntaxKind.PID);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("NET-USER"))
-		{
-			createAndAdd(SyntaxKind.NET_USER);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("HOSTNAME"))
-		{
-			createAndAdd(SyntaxKind.HOSTNAME);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("MACHINE-CLASS"))
-		{
-			createAndAdd(SyntaxKind.MACHINE_CLASS);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("TIME"))
-		{
-			createAndAdd(SyntaxKind.SV_TIME);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("SUBROUTINE"))
-		{
-			createAndAdd(SyntaxKind.SV_SUBROUTINE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("BROWSER-IO"))
-		{
-			createAndAdd(SyntaxKind.BROWSER_IO);
 			return;
 		}
 		if (scanner.advanceIfIgnoreCase("OUTIN"))
