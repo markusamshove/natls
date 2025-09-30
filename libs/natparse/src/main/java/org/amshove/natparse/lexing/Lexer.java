@@ -886,7 +886,7 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_PARSE_COL);
 				return;
 			}
-			if (scanner.advanceIfIgnoreCase("PARSE-NAMESPACE"))
+			if (scanner.advanceIfIgnoreCase("PARSE-NAMESPACE-URI"))
 			{
 				createAndAdd(SyntaxKind.SV_PARSE_NAMESPACE_URI);
 				return;
