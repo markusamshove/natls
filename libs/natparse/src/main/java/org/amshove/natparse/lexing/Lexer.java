@@ -590,6 +590,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_PROGRAM);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("REINPUT-TYPE"))
+			{
+				createAndAdd(SyntaxKind.SV_REINPUT_TYPE);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("STARTUP"))
 			{
 				createAndAdd(SyntaxKind.SV_STARTUP);

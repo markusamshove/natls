@@ -261,6 +261,13 @@ public class BuiltInFunctionTable
 				More in depth information can be retrieved with a combination of `MACHINE-CLASS`, `*HARDWARE` and `*OS`.
 				""", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_PROGRAM, "Returns the name of the current Natural object", ALPHANUMERIC, 8),
+			unmodifiableVariable(SyntaxKind.SV_REINPUT_TYPE, """
+				Returns whether the app is in a state that allows `REINPUT` or `PROCESS PAGE UPDATE`.
+
+				- (blanks)	Cannot perform `REINPUT` or `PROCESS PAGE UPDATE`
+				- REINPUT	Can perform `REINPUT`
+				- UPDATE	Can perform `PROCESS PAGE UPDATE`
+				""", ALPHANUMERIC, 16),
 			unmodifiableVariable(SyntaxKind.SV_GROUP, "Returns Group ID or user's own ID taken from Natural Security logon", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_USER_NAME, "Returns the user name of the current user, as taken from Natural Security", ALPHANUMERIC, 32),
 			unmodifiableVariable(SyntaxKind.SV_CODEPAGE, """
