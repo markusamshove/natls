@@ -52,6 +52,7 @@ public enum SyntaxKind
 	SV_APPLIC_ID(false, true, false),
 	SV_APPLIC_NAME(false, true, false),
 	SV_COM(false, true, false),
+	SV_CONVID(false, true, false),
 	SV_COUNTER(false, true, true),
 	SV_CPU_TIME(false, true, false),
 	SV_CURRENT_UNIT(false, true, false),
@@ -178,7 +179,6 @@ public enum SyntaxKind
 	MINVAL(false, false, true),
 	SV_LEVEL(false, true, false),
 	TRANSLATE(true, false, true),
-	SV_CONVID(false, true, false),
 
 	// Kcheck reserved keywords
 	ABS(false, false, false),

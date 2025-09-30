@@ -474,6 +474,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_COM);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("CONVID"))
+			{
+				createAndAdd(SyntaxKind.SV_CONVID);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("COUNTER"))
 			{
 				createAndAdd(SyntaxKind.SV_COUNTER);
@@ -950,11 +955,6 @@ public class Lexer
 		if (scanner.advanceIfIgnoreCase("IN"))
 		{
 			createAndAdd(SyntaxKind.IN_ATTRIBUTE);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("CONVID"))
-		{
-			createAndAdd(SyntaxKind.SV_CONVID);
 			return;
 		}
 		scanner.rollbackCurrentLexeme();
