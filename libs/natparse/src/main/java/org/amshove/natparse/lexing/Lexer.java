@@ -499,6 +499,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_DATA);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("EDITOR"))
+			{
+				createAndAdd(SyntaxKind.SV_EDITOR);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("ERROR-LINE"))
 			{
 				createAndAdd(SyntaxKind.SV_ERROR_LINE);

@@ -402,6 +402,12 @@ public class BuiltInFunctionTable
 				`0` is returned if the stack is empty.
 				`-1` is returned if the next value in the stack is a command or name of a transaction
 				""", NUMERIC, 3),
+			unmodifiableVariable(SyntaxKind.SV_EDITOR, """
+				Returns whether the Natural editors are enabled on the server
+
+				`TRUE` if they are enabled
+				`FALSE` if they are not
+				""", LOGIC, 1),
 			unmodifiableVariable(SyntaxKind.SV_LEVEL, """
 				Returns the level number of the current program, dialog, ... which is currently active.
 

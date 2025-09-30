@@ -57,7 +57,7 @@ public enum SyntaxKind
 	SV_CPU_TIME(false, true, false),
 	SV_CURRENT_UNIT(false, true, false),
 	SV_DATA(false, true, false),
-	// TODO: SV_EDITOR
+	SV_EDITOR(false, true, false),
 	SV_ERROR_LINE(false, true, false),
 	SV_ERROR_NR(false, true, false),
 	SV_ERROR(false, true, false), // *ERROR is equivalent of *ERROR-NR
