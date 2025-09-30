@@ -461,32 +461,32 @@ public class Lexer
 		{
 			if (scanner.advanceIfIgnoreCase("APPLIC-ID"))
 			{
-				createAndAdd(SyntaxKind.APPLIC_ID);
+				createAndAdd(SyntaxKind.SV_APPLIC_ID);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("APPLIC-NAME"))
 			{
-				createAndAdd(SyntaxKind.APPLIC_NAME);
+				createAndAdd(SyntaxKind.SV_APPLIC_NAME);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("COM"))
 			{
-				createAndAdd(SyntaxKind.COM);
+				createAndAdd(SyntaxKind.SV_COM);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("COUNTER"))
 			{
-				createAndAdd(SyntaxKind.COUNTER);
+				createAndAdd(SyntaxKind.SV_COUNTER);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("CPU-TIME"))
 			{
-				createAndAdd(SyntaxKind.CPU_TIME);
+				createAndAdd(SyntaxKind.SV_CPU_TIME);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("CURRENT-UNIT"))
 			{
-				createAndAdd(SyntaxKind.CURRENT_UNIT);
+				createAndAdd(SyntaxKind.SV_CURRENT_UNIT);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("DATA"))
@@ -496,17 +496,17 @@ public class Lexer
 			}
 			if (scanner.advanceIfIgnoreCase("ERROR-LINE"))
 			{
-				createAndAdd(SyntaxKind.ERROR_LINE);
+				createAndAdd(SyntaxKind.SV_ERROR_LINE);
 				return;
 			}
 				if (scanner.advanceIfIgnoreCase("ERROR-NR"))
 			{
-				createAndAdd(SyntaxKind.ERROR_NR);
+				createAndAdd(SyntaxKind.SV_ERROR_NR);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("ERROR-TA"))
 			{
-				createAndAdd(SyntaxKind.ERROR_TA);
+				createAndAdd(SyntaxKind.SV_ERROR_TA);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("ERROR"))
@@ -516,7 +516,7 @@ public class Lexer
 			}
 			if (scanner.advanceIfIgnoreCase("ETID"))
 			{
-				createAndAdd(SyntaxKind.ETID);
+				createAndAdd(SyntaxKind.SV_ETID);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("ISN"))
@@ -526,17 +526,22 @@ public class Lexer
 			}
 			if (scanner.advanceIfIgnoreCase("LBOUND"))
 			{
-				createAndAdd(SyntaxKind.LBOUND);
+				createAndAdd(SyntaxKind.SV_LBOUND);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("LENGTH"))
+			{
+				createAndAdd(SyntaxKind.SV_LENGTH);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("LIBRARY-ID"))
 			{
-				createAndAdd(SyntaxKind.LIBRARY_ID);
+				createAndAdd(SyntaxKind.SV_LIBRARY_ID);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("LINEX"))
 			{
-				createAndAdd(SyntaxKind.LINEX);
+				createAndAdd(SyntaxKind.SV_LINEX);
 				return;
 			}
 			// LINE moved to bottom for ordering reasons
@@ -547,27 +552,27 @@ public class Lexer
 			}
 			if (scanner.advanceIfIgnoreCase("OCCURRENCE"))
 			{
-				createAndAdd(SyntaxKind.OCCURRENCE);
+				createAndAdd(SyntaxKind.SV_OCCURRENCE);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("OCC"))
 			{
-				createAndAdd(SyntaxKind.OCC);
+				createAndAdd(SyntaxKind.SV_OCC);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("PROGRAM"))
 			{
-				createAndAdd(SyntaxKind.PROGRAM);
+				createAndAdd(SyntaxKind.SV_PROGRAM);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("STARTUP"))
 			{
-				createAndAdd(SyntaxKind.STARTUP);
+				createAndAdd(SyntaxKind.SV_STARTUP);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("STEPLIB"))
 			{
-				createAndAdd(SyntaxKind.STEPLIB);
+				createAndAdd(SyntaxKind.SV_STEPLIB);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("SUBROUTINE"))
@@ -577,7 +582,7 @@ public class Lexer
 			}
 			if (scanner.advanceIfIgnoreCase("UBOUND"))
 			{
-				createAndAdd(SyntaxKind.UBOUND);
+				createAndAdd(SyntaxKind.SV_UBOUND);
 				return;
 			}
 		}
@@ -588,12 +593,12 @@ public class Lexer
 			{
 				if (scanner.advanceIfIgnoreCase("DATD"))
 				{
-					createAndAdd(SyntaxKind.DATD);
+					createAndAdd(SyntaxKind.SV_DATD);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DAT4D"))
 				{
-					createAndAdd(SyntaxKind.DAT4D);
+					createAndAdd(SyntaxKind.SV_DAT4D);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DATE"))
@@ -603,62 +608,62 @@ public class Lexer
 				}
 				if (scanner.advanceIfIgnoreCase("DAT4E"))
 				{
-					createAndAdd(SyntaxKind.DAT4E);
+					createAndAdd(SyntaxKind.SV_DAT4E);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DATG"))
 				{
-					createAndAdd(SyntaxKind.DATG);
+					createAndAdd(SyntaxKind.SV_DATG);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DATI"))
 				{
-					createAndAdd(SyntaxKind.DATI);
+					createAndAdd(SyntaxKind.SV_DATI);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DAT4I"))
 				{
-					createAndAdd(SyntaxKind.DAT4I);
+					createAndAdd(SyntaxKind.SV_DAT4I);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DATJ"))
 				{
-					createAndAdd(SyntaxKind.DATJ);
+					createAndAdd(SyntaxKind.SV_DATJ);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DAT4J"))
 				{
-					createAndAdd(SyntaxKind.DAT4J);
+					createAndAdd(SyntaxKind.SV_DAT4J);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DATN"))
 				{
-					createAndAdd(SyntaxKind.DATN);
+					createAndAdd(SyntaxKind.SV_DATN);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DATU"))
 				{
-					createAndAdd(SyntaxKind.DATU);
+					createAndAdd(SyntaxKind.SV_DATU);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DAT4U"))
 				{
-					createAndAdd(SyntaxKind.DAT4U);
+					createAndAdd(SyntaxKind.SV_DAT4U);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DATVS"))
 				{
-					createAndAdd(SyntaxKind.DATVS);
+					createAndAdd(SyntaxKind.SV_DATVS);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DATV"))
 				{
-					createAndAdd(SyntaxKind.DATV);
+					createAndAdd(SyntaxKind.SV_DATV);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("DATX"))
 				{
-					createAndAdd(SyntaxKind.DATX);
+					createAndAdd(SyntaxKind.SV_DATX);
 					return;
 				}
 			}
@@ -666,22 +671,22 @@ public class Lexer
 			{
 				if (scanner.advanceIfIgnoreCase("TIMD"))
 				{
-					createAndAdd(SyntaxKind.TIMD);
+					createAndAdd(SyntaxKind.SV_TIMD);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("TIMESTMPX"))
 				{
-					createAndAdd(SyntaxKind.TIMESTMPX);
+					createAndAdd(SyntaxKind.SV_TIMESTMPX);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("TIMESTMP"))
 				{
-					createAndAdd(SyntaxKind.TIMESTMP);
+					createAndAdd(SyntaxKind.SV_TIMESTMP);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("TIME-OUT"))
 				{
-					createAndAdd(SyntaxKind.TIME_OUT);
+					createAndAdd(SyntaxKind.SV_TIME_OUT);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("TIME"))
@@ -691,12 +696,12 @@ public class Lexer
 				}
 				if (scanner.advanceIfIgnoreCase("TIMN"))
 				{
-					createAndAdd(SyntaxKind.TIMN);
+					createAndAdd(SyntaxKind.SV_TIMN);
 					return;
 				}
 				if (scanner.advanceIfIgnoreCase("TIMX"))
 				{
-					createAndAdd(SyntaxKind.TIMX);
+					createAndAdd(SyntaxKind.SV_TIMX);
 					return;
 				}
 			}
@@ -706,67 +711,67 @@ public class Lexer
 		{
 			if (scanner.advanceIfIgnoreCase("CURS-COL"))
 			{
-				createAndAdd(SyntaxKind.CURS_COL);
+				createAndAdd(SyntaxKind.SV_CURS_COL);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("CURS-FIELD"))
 			{
-				createAndAdd(SyntaxKind.CURS_FIELD);
+				createAndAdd(SyntaxKind.SV_CURS_FIELD);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("CURS-LINE"))
 			{
-				createAndAdd(SyntaxKind.CURS_LINE);
+				createAndAdd(SyntaxKind.SV_CURS_LINE);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("LINE-COUNT"))
 			{
-				createAndAdd(SyntaxKind.LINE_COUNT);
+				createAndAdd(SyntaxKind.SV_LINE_COUNT);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("LINESIZE"))
 			{
-				createAndAdd(SyntaxKind.LINESIZE);
+				createAndAdd(SyntaxKind.SV_LINESIZE);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("LOG-LS"))
 			{
-				createAndAdd(SyntaxKind.LOG_LS);
+				createAndAdd(SyntaxKind.SV_LOG_LS);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("LOG-PS"))
 			{
-				createAndAdd(SyntaxKind.LOG_PS);
+				createAndAdd(SyntaxKind.SV_LOG_PS);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("PAGE-NUMBER"))
 			{
-				createAndAdd(SyntaxKind.PAGE_NUMBER);
+				createAndAdd(SyntaxKind.SV_PAGE_NUMBER);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("PAGESIZE"))
 			{
-				createAndAdd(SyntaxKind.PAGESIZE);
+				createAndAdd(SyntaxKind.SV_PAGESIZE);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("PF-KEY"))
 			{
-				createAndAdd(SyntaxKind.PF_KEY);
+				createAndAdd(SyntaxKind.SV_PF_KEY);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("WINDOW-LS"))
 			{
-				createAndAdd(SyntaxKind.WINDOW_LS);
+				createAndAdd(SyntaxKind.SV_WINDOW_LS);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("WINDOW-POS"))
 			{
-				createAndAdd(SyntaxKind.WINDOW_POS);
+				createAndAdd(SyntaxKind.SV_WINDOW_POS);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("WINDOW-PS"))
 			{
-				createAndAdd(SyntaxKind.WINDOW_PS);
+				createAndAdd(SyntaxKind.SV_WINDOW_PS);
 				return;
 			}
 		}
@@ -775,12 +780,12 @@ public class Lexer
 		{
 			if (scanner.advanceIfIgnoreCase("BROWSER-IO"))
 			{
-				createAndAdd(SyntaxKind.BROWSER_IO);
+				createAndAdd(SyntaxKind.SV_BROWSER_IO);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("DEVICE"))
 			{
-				createAndAdd(SyntaxKind.DEVICE);
+				createAndAdd(SyntaxKind.SV_DEVICE);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("GROUP"))
@@ -790,32 +795,32 @@ public class Lexer
 			}
 			if (scanner.advanceIfIgnoreCase("INIT-USER"))
 			{
-				createAndAdd(SyntaxKind.INIT_USER);
+				createAndAdd(SyntaxKind.SV_INIT_USER);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("LANGUAGE"))
 			{
-				createAndAdd(SyntaxKind.LANGUAGE);
+				createAndAdd(SyntaxKind.SV_LANGUAGE);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("NET-USER"))
 			{
-				createAndAdd(SyntaxKind.NET_USER);
+				createAndAdd(SyntaxKind.SV_NET_USER);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("PID"))
 			{
-				createAndAdd(SyntaxKind.PID);
+				createAndAdd(SyntaxKind.SV_PID);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("SERVER-TYPE"))
 			{
-				createAndAdd(SyntaxKind.SERVER_TYPE);
+				createAndAdd(SyntaxKind.SV_SERVER_TYPE);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("USER-NAME"))
 			{
-				createAndAdd(SyntaxKind.USER_NAME);
+				createAndAdd(SyntaxKind.SV_USER_NAME);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("USER"))
@@ -829,32 +834,32 @@ public class Lexer
 		{
 			if (scanner.advanceIfIgnoreCase("HOSTNAME"))
 			{
-				createAndAdd(SyntaxKind.HOSTNAME);
+				createAndAdd(SyntaxKind.SV_HOSTNAME);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("INIT-ID"))
 			{
-				createAndAdd(SyntaxKind.INIT_ID);
+				createAndAdd(SyntaxKind.SV_INIT_ID);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("INIT-PROGRAM"))
 			{
-				createAndAdd(SyntaxKind.INIT_PROGRAM);
+				createAndAdd(SyntaxKind.SV_INIT_PROGRAM);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("MACHINE-CLASS"))
 			{
-				createAndAdd(SyntaxKind.MACHINE_CLASS);
+				createAndAdd(SyntaxKind.SV_MACHINE_CLASS);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("OPSYS"))
 			{
-				createAndAdd(SyntaxKind.OPSYS);
+				createAndAdd(SyntaxKind.SV_OPSYS);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("TPSYS"))
 			{
-				createAndAdd(SyntaxKind.TPSYS);
+				createAndAdd(SyntaxKind.SV_TPSYS);
 				return;
 			}
 		}
@@ -883,7 +888,7 @@ public class Lexer
 			}
 			if (scanner.advanceIfIgnoreCase("PARSE-NAMESPACE"))
 			{
-				createAndAdd(SyntaxKind.SV_PARSE_NAMESPACE);
+				createAndAdd(SyntaxKind.SV_PARSE_NAMESPACE_URI);
 				return;
 			}
 			if (scanner.advanceIfIgnoreCase("PARSE-ROW"))
@@ -897,7 +902,7 @@ public class Lexer
 		{
 			if (scanner.advanceIfIgnoreCase("LINE"))
 			{
-				createAndAdd(SyntaxKind.LINE);
+				createAndAdd(SyntaxKind.SV_LINE);
 				return;
 			}
 		}
@@ -910,11 +915,6 @@ public class Lexer
 		if (scanner.advanceIfIgnoreCase("TRIM"))
 		{
 			createAndAdd(SyntaxKind.TRIM);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("LENGTH"))
-		{
-			createAndAdd(SyntaxKind.SV_LENGTH);
 			return;
 		}
 		if (scanner.advanceIfIgnoreCase("CURSOR"))

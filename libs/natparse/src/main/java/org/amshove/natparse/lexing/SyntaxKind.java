@@ -49,82 +49,83 @@ public enum SyntaxKind
 
 	// System variables and functions
 	//   Application
-	APPLIC_ID(false, true, false),
-	APPLIC_NAME(false, true, false),
-	COM(false, true, false),
-	COUNTER(false, true, true),
-	CPU_TIME(false, true, false),
-	CURRENT_UNIT(false, true, false),
+	SV_APPLIC_ID(false, true, false),
+	SV_APPLIC_NAME(false, true, false),
+	SV_COM(false, true, false),
+	SV_COUNTER(false, true, true),
+	SV_CPU_TIME(false, true, false),
+	SV_CURRENT_UNIT(false, true, false),
 	SV_DATA(false, true, false),
 	// TODO: SV_EDITOR
-	ERROR_LINE(false, true, false),
-	ERROR_NR(false, true, false),
+	SV_ERROR_LINE(false, true, false),
+	SV_ERROR_NR(false, true, false),
 	SV_ERROR(false, true, false), // *ERROR is equivalent of *ERROR-NR
-	ERROR_TA(false, true, false),
-	ETID(false, true, false),
+	SV_ERROR_TA(false, true, false),
+	SV_ETID(false, true, false),
 	SV_ISN(false, true, true),
-	LBOUND(false, false, true),
-	LIBRARY_ID(false, true, false),
-	LINE(false, true, false),
-	LINEX(false, true, false),
+	SV_LBOUND(false, false, true),
+	SV_LENGTH(false, false, true),
+	SV_LIBRARY_ID(false, true, false),
+	SV_LINE(false, true, false),
+	SV_LINEX(false, true, false),
 	// TODO: SV_LOAD_LIBRARY_ID
 	SV_NUMBER(false, true, true),
-	OCCURRENCE(false, false, true),
-	OCC(false, false, true),
+	SV_OCCURRENCE(false, false, true),
+	SV_OCC(false, false, true),
 	// TODO: SV_PAGE_EVENT
 	// TODO: SV_PAGE_LEVEL
-	PROGRAM(true, true, false),
+	SV_PROGRAM(true, true, false),
 	// TODO: SV_REINPUT_TYPE
 	// TODO: SV_ROWCOUNT
-	STARTUP(false, true, false),
-	STEPLIB(false, true, false),
+	SV_STARTUP(false, true, false),
+	SV_STEPLIB(false, true, false),
 	SV_SUBROUTINE(false, true, false),
 	// TODO: SV_THIS_OBJECT
 	// TODO: SV_TYPE
-	UBOUND(false, false, true),
+	SV_UBOUND(false, false, true),
 
 	//    Date and Time
 	//      Date
-	DATD(false, true, false),
-	DAT4D(false, true, false),
+	SV_DATD(false, true, false),
+	SV_DAT4D(false, true, false),
 	SV_DATE(false, true, false),
-	DAT4E(false, true, false),
-	DATG(false, true, false),
-	DATI(false, true, false),
-	DAT4I(false, true, false),
-	DATJ(false, true, false),
-	DAT4J(false, true, false),
-	DATN(false, true, false),
-	DATU(false, true, false),
-	DAT4U(false, true, false),
-	DATV(false, true, false),
-	DATVS(false, true, false),
-	DATX(false, true, false),
+	SV_DAT4E(false, true, false),
+	SV_DATG(false, true, false),
+	SV_DATI(false, true, false),
+	SV_DAT4I(false, true, false),
+	SV_DATJ(false, true, false),
+	SV_DAT4J(false, true, false),
+	SV_DATN(false, true, false),
+	SV_DATU(false, true, false),
+	SV_DAT4U(false, true, false),
+	SV_DATV(false, true, false),
+	SV_DATVS(false, true, false),
+	SV_DATX(false, true, false),
 	//      Time
-	TIMD(false, false, true),
+	SV_TIMD(false, false, true),
 	SV_TIME(false, true, false),
-	TIME_OUT(false, true, false),
-	TIMESTMP(false, true, false),
-	TIMESTMPX(false, true, false),
-	TIMN(false, true, false),
-	TIMX(false, true, false),
+	SV_TIME_OUT(false, true, false),
+	SV_TIMESTMP(false, true, false),
+	SV_TIMESTMPX(false, true, false),
+	SV_TIMN(false, true, false),
+	SV_TIMX(false, true, false),
 
 	//   Input/Output
-	CURS_COL(false, true, false),
-	CURS_FIELD(false, true, false),
-	CURS_LINE(false, true, false),
+	SV_CURS_COL(false, true, false),
+	SV_CURS_FIELD(false, true, false),
+	SV_CURS_LINE(false, true, false),
 	// TODO: SV_CURSOR (CURSOR already exists)
-	LINE_COUNT(false, true, true),
-	LINESIZE(false, true, false),
-	LOG_LS(true, false, false),
-	LOG_PS(true, false, false),
-	PAGE_NUMBER(false, true, true),
-	PAGESIZE(false, true, false),
-	PF_KEY(false, true, false),
+	SV_LINE_COUNT(false, true, true),
+	SV_LINESIZE(false, true, false),
+	SV_LOG_LS(true, false, false),
+	SV_LOG_PS(true, false, false),
+	SV_PAGE_NUMBER(false, true, true),
+	SV_PAGESIZE(false, true, false),
+	SV_PF_KEY(false, true, false),
 	// TODO: SV_PF_NAME
-	WINDOW_LS(false, true, false),
-	WINDOW_POS(false, true, false),
-	WINDOW_PS(false, true, false),
+	SV_WINDOW_LS(false, true, false),
+	SV_WINDOW_POS(false, true, false),
+	SV_WINDOW_PS(false, true, false),
 
 	//    JSON
 	SV_PARSE_LEVEL(false, false, true),
@@ -132,43 +133,43 @@ public enum SyntaxKind
 	SV_PARSE_TYPE(false, false, true),
 
 	//    Natural Environment
-	BROWSER_IO(false, true, false),
-	DEVICE(false, true, false),
+	SV_BROWSER_IO(false, true, false),
+	SV_DEVICE(false, true, false),
 	SV_GROUP(false, true, false),
 	// TODO: SV_HARDCOPY
-	INIT_USER(false, true, false),
-	LANGUAGE(true, true, false),
+	SV_INIT_USER(false, true, false),
+	SV_LANGUAGE(true, true, false),
 	// TODO: NATVERS
-	NET_USER(false, true, false),
+	SV_NET_USER(false, true, false),
 	// TODO: PARM_USER
 	// TODO: PATCH_LEVEL
-	PID(false, true, false),
+	SV_PID(false, true, false),
 	// TODO: SV_SCREEN_IO
-	SERVER_TYPE(false, true, false),
+	SV_SERVER_TYPE(false, true, false),
 	// TODO: SV_UI
 	SV_USER(false, true, false),
-	USER_NAME(false, true, false),
+	SV_USER_NAME(false, true, false),
 
 	//    System Environment
 	// TODO: SV_CODEPAGE
 	// TODO: SV_HARDWARE
-	HOSTNAME(false, true, false),
-	INIT_ID(false, true, false),
-	INIT_PROGRAM(false, true, false),
+	SV_HOSTNAME(false, true, false),
+	SV_INIT_ID(false, true, false),
+	SV_INIT_PROGRAM(false, true, false),
 	// TODO: SV_LOCALE
-	MACHINE_CLASS(false, true, false),
-	OPSYS(false, true, false),
+	SV_MACHINE_CLASS(false, true, false),
+	SV_OPSYS(false, true, false),
 	// TODO: SV_OS
 	// TODO: SV_OSVERS
 	// TODO: SV_TP
-	TPSYS(false, true, false),
+	SV_TPSYS(false, true, false),
 	// TODO: SV_TPVERS
 	// TODO: SV_WINMGR
 	// TODO: SV_WINMGRVERS
 
 	//    XML
 	SV_PARSE_COL(false, false, true),
-	SV_PARSE_NAMESPACE(false, false, true), // TODO: change to SV_PARSE_NAMESPACE_URI
+	SV_PARSE_NAMESPACE_URI(false, false, true),
 	SV_PARSE_ROW(false, false, true),
 
 
@@ -176,7 +177,6 @@ public enum SyntaxKind
 	MAXVAL(false, false, true),
 	MINVAL(false, false, true),
 	SV_LEVEL(false, true, false),
-	SV_LENGTH(false, false, true),
 	TRANSLATE(true, false, true),
 	SV_CONVID(false, true, false),
 

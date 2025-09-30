@@ -21,7 +21,7 @@ public class CodeConsistencyAnalyzerTests extends AbstractAnalyzerTest
 	Stream<DynamicTest> testTokenPreferences()
 	{
 		var preferences = List.of(
-			new TokenPreferenceConfig(SyntaxKind.OCCURRENCE, SyntaxKind.OCC, 5, """
+			new TokenPreferenceConfig(SyntaxKind.SV_OCCURRENCE, SyntaxKind.SV_OCC, 5, """
 				DEFINE DATA
 				LOCAL
 				1 #ARR (A10/*)

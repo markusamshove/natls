@@ -18,22 +18,22 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 		"../xml-variables.csv",
 	}, delimiter = '\t')
 	void lexAllVariables(String source, String type, String modify) {
-		var sourceSansParams = source.replaceAll("\\(r\\)", "");
+		var sourceSansParams = source.replaceAll("\\(\\w+\\)$", "");
 		var tokenName = "SV_" + sourceSansParams.substring(1).replaceAll("-", "_");
 		var expected = token(SyntaxKind.valueOf(tokenName), sourceSansParams);
-		assertTokens(source, expected);
+		assertTokens(sourceSansParams, expected);
 	}
 
 	@Test
 	void lexTimX()
 	{
-		assertTokens("*TIMX", token(SyntaxKind.TIMX, "*TIMX"));
+		assertTokens("*TIMX", token(SyntaxKind.SV_TIMX, "*TIMX"));
 	}
 
 	@Test
 	void lexSystemVariablesAndFunctionsCaseInsensitive()
 	{
-		assertTokens("*timX", token(SyntaxKind.TIMX, "*timX"));
+		assertTokens("*timX", token(SyntaxKind.SV_TIMX, "*timX"));
 	}
 
 	@Test
@@ -45,31 +45,31 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 	@Test
 	void lexDat4E()
 	{
-		assertTokens("*DAT4E", token(SyntaxKind.DAT4E, "*DAT4E"));
+		assertTokens("*DAT4E", token(SyntaxKind.SV_DAT4E, "*DAT4E"));
 	}
 
 	@Test
 	void lexDatX()
 	{
-		assertTokens("*DATX", token(SyntaxKind.DATX, "*DATX"));
+		assertTokens("*DATX", token(SyntaxKind.SV_DATX, "*DATX"));
 	}
 
 	@Test
 	void lexDatN()
 	{
-		assertTokens("*DATN", token(SyntaxKind.DATN, "*DATN"));
+		assertTokens("*DATN", token(SyntaxKind.SV_DATN, "*DATN"));
 	}
 
 	@Test
 	void lexLanguage()
 	{
-		assertTokens("*LANGUAGE", token(SyntaxKind.LANGUAGE, "*LANGUAGE"));
+		assertTokens("*LANGUAGE", token(SyntaxKind.SV_LANGUAGE, "*LANGUAGE"));
 	}
 
 	@Test
 	void lexProgram()
 	{
-		assertTokens("*PROGRAM", token(SyntaxKind.PROGRAM, "*PROGRAM"));
+		assertTokens("*PROGRAM", token(SyntaxKind.SV_PROGRAM, "*PROGRAM"));
 	}
 
 	@Test
@@ -87,55 +87,55 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 	@Test
 	void lexUserName()
 	{
-		assertTokens("*USER-NAME", token(SyntaxKind.USER_NAME, "*USER-NAME"));
+		assertTokens("*USER-NAME", token(SyntaxKind.SV_USER_NAME, "*USER-NAME"));
 	}
 
 	@Test
 	void lexLibraryId()
 	{
-		assertTokens("*LIBRARY-ID", token(SyntaxKind.LIBRARY_ID, "*LIBRARY-ID"));
+		assertTokens("*LIBRARY-ID", token(SyntaxKind.SV_LIBRARY_ID, "*LIBRARY-ID"));
 	}
 
 	@Test
 	void lexLineX()
 	{
-		assertTokens("*LINEX", token(SyntaxKind.LINEX, "*LINEX"));
+		assertTokens("*LINEX", token(SyntaxKind.SV_LINEX, "*LINEX"));
 	}
 
 	@Test
 	void lexCurrentUnit()
 	{
-		assertTokens("*CURRENT-UNIT", token(SyntaxKind.CURRENT_UNIT, "*CURRENT-UNIT"));
+		assertTokens("*CURRENT-UNIT", token(SyntaxKind.SV_CURRENT_UNIT, "*CURRENT-UNIT"));
 	}
 
 	@Test
 	void lexOcc()
 	{
-		assertTokens("*OCC", token(SyntaxKind.OCC, "*OCC"));
+		assertTokens("*OCC", token(SyntaxKind.SV_OCC, "*OCC"));
 	}
 
 	@Test
 	void lexOccurence()
 	{
-		assertTokens("*OCCURRENCE", token(SyntaxKind.OCCURRENCE, "*OCCURRENCE"));
+		assertTokens("*OCCURRENCE", token(SyntaxKind.SV_OCCURRENCE, "*OCCURRENCE"));
 	}
 
 	@Test
 	void lexErrorNr()
 	{
-		assertTokens("*ERROR-NR", token(SyntaxKind.ERROR_NR, "*ERROR-NR"));
+		assertTokens("*ERROR-NR", token(SyntaxKind.SV_ERROR_NR, "*ERROR-NR"));
 	}
 
 	@Test
 	void lexErrorLine()
 	{
-		assertTokens("*ERROR-LINE", token(SyntaxKind.ERROR_LINE, "*ERROR-LINE"));
+		assertTokens("*ERROR-LINE", token(SyntaxKind.SV_ERROR_LINE, "*ERROR-LINE"));
 	}
 
 	@Test
 	void lexErrorTa()
 	{
-		assertTokens("*ERROR-TA", token(SyntaxKind.ERROR_TA, "*ERROR-TA"));
+		assertTokens("*ERROR-TA", token(SyntaxKind.SV_ERROR_TA, "*ERROR-TA"));
 	}
 
 	@Test
@@ -147,19 +147,19 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 	@Test
 	void lexInitUser()
 	{
-		assertTokens("*INIT-USER", token(SyntaxKind.INIT_USER, "*INIT-USER"));
+		assertTokens("*INIT-USER", token(SyntaxKind.SV_INIT_USER, "*INIT-USER"));
 	}
 
 	@Test
 	void lexCounter()
 	{
-		assertTokens("*COUNTER", token(SyntaxKind.COUNTER, "*COUNTER"));
+		assertTokens("*COUNTER", token(SyntaxKind.SV_COUNTER, "*COUNTER"));
 	}
 
 	@Test
 	void lexLine()
 	{
-		assertTokens("*LINE", token(SyntaxKind.LINE, "*LINE"));
+		assertTokens("*LINE", token(SyntaxKind.SV_LINE, "*LINE"));
 	}
 
 	@Test
@@ -189,13 +189,13 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 	@Test
 	void lexCursLine()
 	{
-		assertTokens("*CURS-LINE", token(SyntaxKind.CURS_LINE, "*CURS-LINE"));
+		assertTokens("*CURS-LINE", token(SyntaxKind.SV_CURS_LINE, "*CURS-LINE"));
 	}
 
 	@Test
 	void lexCursCol()
 	{
-		assertTokens("*CURS-COL", token(SyntaxKind.CURS_COL, "*CURS-COL"));
+		assertTokens("*CURS-COL", token(SyntaxKind.SV_CURS_COL, "*CURS-COL"));
 	}
 
 	@Test
@@ -231,145 +231,145 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 	@Test
 	void lexParseNamespace()
 	{
-		assertTokens("*PARSE-NAMESPACE", token(SyntaxKind.SV_PARSE_NAMESPACE, "*PARSE-NAMESPACE"));
+		assertTokens("*PARSE-NAMESPACE", token(SyntaxKind.SV_PARSE_NAMESPACE_URI, "*PARSE-NAMESPACE"));
 	}
 
 	@Test
 	void lexPfKey()
 	{
-		assertTokens("*PF-KEY", token(SyntaxKind.PF_KEY, "*PF-KEY"));
+		assertTokens("*PF-KEY", token(SyntaxKind.SV_PF_KEY, "*PF-KEY"));
 	}
 
 	@Test
 	void lexBrowserIo()
 	{
-		assertTokens("*BROWSER-IO", token(SyntaxKind.BROWSER_IO, "*BROWSER-IO"));
+		assertTokens("*BROWSER-IO", token(SyntaxKind.SV_BROWSER_IO, "*BROWSER-IO"));
 	}
 
 	@Test
 	void lexDevice()
 	{
-		assertTokens("*DEVICE", token(SyntaxKind.DEVICE, "*DEVICE"));
+		assertTokens("*DEVICE", token(SyntaxKind.SV_DEVICE, "*DEVICE"));
 	}
 
 	@Test
 	void lexDatD()
 	{
-		assertTokens("*DATD", token(SyntaxKind.DATD, "*DATD"));
+		assertTokens("*DATD", token(SyntaxKind.SV_DATD, "*DATD"));
 	}
 
 	@Test
 	void lexTimN()
 	{
-		assertTokens("*TIMN", token(SyntaxKind.TIMN, "*TIMN"));
+		assertTokens("*TIMN", token(SyntaxKind.SV_TIMN, "*TIMN"));
 	}
 
 	@Test
 	void lexTimeOut()
 	{
-		assertTokens("*TIME-OUT", token(SyntaxKind.TIME_OUT, "*TIME-OUT"));
+		assertTokens("*TIME-OUT", token(SyntaxKind.SV_TIME_OUT, "*TIME-OUT"));
 	}
 
 	@Test
 	void lexOpSys()
 	{
-		assertTokens("*OPSYS", token(SyntaxKind.OPSYS, "*OPSYS"));
+		assertTokens("*OPSYS", token(SyntaxKind.SV_OPSYS, "*OPSYS"));
 	}
 
 	@Test
 	void lexTpSys()
 	{
-		assertTokens("*TPSYS", token(SyntaxKind.TPSYS, "*TPSYS"));
+		assertTokens("*TPSYS", token(SyntaxKind.SV_TPSYS, "*TPSYS"));
 	}
 
 	@Test
 	void lexApplicId()
 	{
-		assertTokens("*APPLIC-ID", token(SyntaxKind.APPLIC_ID, "*APPLIC-ID"));
+		assertTokens("*APPLIC-ID", token(SyntaxKind.SV_APPLIC_ID, "*APPLIC-ID"));
 	}
 
 	@Test
 	void lexApplicName()
 	{
-		assertTokens("*APPLIC-NAME", token(SyntaxKind.APPLIC_NAME, "*APPLIC-NAME"));
+		assertTokens("*APPLIC-NAME", token(SyntaxKind.SV_APPLIC_NAME, "*APPLIC-NAME"));
 	}
 
 	@Test
 	void lexStartup()
 	{
-		assertTokens("*STARTUP", token(SyntaxKind.STARTUP, "*STARTUP"));
+		assertTokens("*STARTUP", token(SyntaxKind.SV_STARTUP, "*STARTUP"));
 	}
 
 	@Test
 	void lexSteplib()
 	{
-		assertTokens("*STEPLIB", token(SyntaxKind.STEPLIB, "*STEPLIB"));
+		assertTokens("*STEPLIB", token(SyntaxKind.SV_STEPLIB, "*STEPLIB"));
 	}
 
 	@Test
 	void lexPageNumber()
 	{
-		assertTokens("*PAGE-NUMBER", token(SyntaxKind.PAGE_NUMBER, "*PAGE-NUMBER"));
+		assertTokens("*PAGE-NUMBER", token(SyntaxKind.SV_PAGE_NUMBER, "*PAGE-NUMBER"));
 	}
 
 	@Test
 	void lexPid()
 	{
-		assertTokens("*PID", token(SyntaxKind.PID, "*PID"));
+		assertTokens("*PID", token(SyntaxKind.SV_PID, "*PID"));
 	}
 
 	@Test
 	void lexWindowPs()
 	{
-		assertTokens("*WINDOW-PS", token(SyntaxKind.WINDOW_PS, "*WINDOW-PS"));
+		assertTokens("*WINDOW-PS", token(SyntaxKind.SV_WINDOW_PS, "*WINDOW-PS"));
 	}
 
 	@Test
 	void lexWindowPos()
 	{
-		assertTokens("*WINDOW-POS", token(SyntaxKind.WINDOW_POS, "*WINDOW-POS"));
+		assertTokens("*WINDOW-POS", token(SyntaxKind.SV_WINDOW_POS, "*WINDOW-POS"));
 	}
 
 	@Test
 	void lexWindowLs()
 	{
-		assertTokens("*WINDOW-LS", token(SyntaxKind.WINDOW_LS, "*WINDOW-LS"));
+		assertTokens("*WINDOW-LS", token(SyntaxKind.SV_WINDOW_LS, "*WINDOW-LS"));
 	}
 
 	@Test
 	void lexInitId()
 	{
-		assertTokens("*INIT-ID", token(SyntaxKind.INIT_ID, "*INIT-ID"));
+		assertTokens("*INIT-ID", token(SyntaxKind.SV_INIT_ID, "*INIT-ID"));
 	}
 
 	@Test
 	void lexCom()
 	{
-		assertTokens("*COM", token(SyntaxKind.COM, "*COM"));
+		assertTokens("*COM", token(SyntaxKind.SV_COM, "*COM"));
 	}
 
 	@Test
 	void lexDat4D()
 	{
-		assertTokens("*DAT4D", token(SyntaxKind.DAT4D, "*DAT4D"));
+		assertTokens("*DAT4D", token(SyntaxKind.SV_DAT4D, "*DAT4D"));
 	}
 
 	@Test
 	void lexCursField()
 	{
-		assertTokens("*CURS-FIELD", token(SyntaxKind.CURS_FIELD, "*CURS-FIELD"));
+		assertTokens("*CURS-FIELD", token(SyntaxKind.SV_CURS_FIELD, "*CURS-FIELD"));
 	}
 
 	@Test
 	void lexTimestmpx()
 	{
-		assertTokens("*TIMESTMPX", token(SyntaxKind.TIMESTMPX, "*TIMESTMPX"));
+		assertTokens("*TIMESTMPX", token(SyntaxKind.SV_TIMESTMPX, "*TIMESTMPX"));
 	}
 
 	@Test
 	void lexTimestmp()
 	{
-		assertTokens("*TIMESTMP", token(SyntaxKind.TIMESTMP, "*TIMESTMP"));
+		assertTokens("*TIMESTMP", token(SyntaxKind.SV_TIMESTMP, "*TIMESTMP"));
 	}
 
 	@Test
@@ -411,133 +411,133 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 	@Test
 	void lexDatG()
 	{
-		assertTokens("*DATG", token(SyntaxKind.DATG, "*DATG"));
+		assertTokens("*DATG", token(SyntaxKind.SV_DATG, "*DATG"));
 	}
 
 	@Test
 	void lexLineCount()
 	{
-		assertTokens("*LINE-COUNT", token(SyntaxKind.LINE_COUNT, "*LINE-COUNT"));
+		assertTokens("*LINE-COUNT", token(SyntaxKind.SV_LINE_COUNT, "*LINE-COUNT"));
 	}
 
 	@Test
 	void lexLineSize()
 	{
-		assertTokens("*LINESIZE", token(SyntaxKind.LINESIZE, "*LINESIZE"));
+		assertTokens("*LINESIZE", token(SyntaxKind.SV_LINESIZE, "*LINESIZE"));
 	}
 
 	@Test
 	void lexNetUser()
 	{
-		assertTokens("*NET-USER", token(SyntaxKind.NET_USER, "*NET-USER"));
+		assertTokens("*NET-USER", token(SyntaxKind.SV_NET_USER, "*NET-USER"));
 	}
 
 	@Test
 	void lexHostName()
 	{
-		assertTokens("*HOSTNAME", token(SyntaxKind.HOSTNAME, "*HOSTNAME"));
+		assertTokens("*HOSTNAME", token(SyntaxKind.SV_HOSTNAME, "*HOSTNAME"));
 	}
 
 	@Test
 	void lexMachineClass()
 	{
-		assertTokens("*MACHINE-CLASS", token(SyntaxKind.MACHINE_CLASS, "*MACHINE-CLASS"));
+		assertTokens("*MACHINE-CLASS", token(SyntaxKind.SV_MACHINE_CLASS, "*MACHINE-CLASS"));
 	}
 
 	@Test
 	void lexPageSize()
 	{
-		assertTokens("*PAGESIZE", token(SyntaxKind.PAGESIZE, "*PAGESIZE"));
+		assertTokens("*PAGESIZE", token(SyntaxKind.SV_PAGESIZE, "*PAGESIZE"));
 	}
 
 	@Test
 	void lexDat4I()
 	{
-		assertTokens("*DAT4I", token(SyntaxKind.DAT4I, "*DAT4I"));
+		assertTokens("*DAT4I", token(SyntaxKind.SV_DAT4I, "*DAT4I"));
 	}
 
 	@Test
 	void lexDatI()
 	{
-		assertTokens("*DATI", token(SyntaxKind.DATI, "*DATI"));
+		assertTokens("*DATI", token(SyntaxKind.SV_DATI, "*DATI"));
 	}
 
 	@Test
 	void lexTimD()
 	{
-		assertTokens("*TIMD", token(SyntaxKind.TIMD, "*TIMD"));
+		assertTokens("*TIMD", token(SyntaxKind.SV_TIMD, "*TIMD"));
 	}
 
 	@Test
 	void lexCpuTime()
 	{
-		assertTokens("*CPU-TIME", token(SyntaxKind.CPU_TIME, "*CPU-TIME"));
+		assertTokens("*CPU-TIME", token(SyntaxKind.SV_CPU_TIME, "*CPU-TIME"));
 	}
 
 	@Test
 	void lexEtid()
 	{
-		assertTokens("*ETID", token(SyntaxKind.ETID, "*ETID"));
+		assertTokens("*ETID", token(SyntaxKind.SV_ETID, "*ETID"));
 	}
 
 	@Test
 	void lexInitProgram()
 	{
-		assertTokens("*INIT-PROGRAM", token(SyntaxKind.INIT_PROGRAM, "*INIT-PROGRAM"));
+		assertTokens("*INIT-PROGRAM", token(SyntaxKind.SV_INIT_PROGRAM, "*INIT-PROGRAM"));
 	}
 
 	@Test
 	void lexLbound()
 	{
-		assertTokens("*LBOUND", token(SyntaxKind.LBOUND, "*LBOUND"));
+		assertTokens("*LBOUND", token(SyntaxKind.SV_LBOUND, "*LBOUND"));
 	}
 
 	@Test
 	void lexUbound()
 	{
-		assertTokens("*UBOUND", token(SyntaxKind.UBOUND, "*UBOUND"));
+		assertTokens("*UBOUND", token(SyntaxKind.SV_UBOUND, "*UBOUND"));
 	}
 
 	@Test
 	void lexServerType()
 	{
-		assertTokens("*SERVER-TYPE", token(SyntaxKind.SERVER_TYPE, "*SERVER-TYPE"));
+		assertTokens("*SERVER-TYPE", token(SyntaxKind.SV_SERVER_TYPE, "*SERVER-TYPE"));
 	}
 
 	@Test
 	void lexDat4J()
 	{
-		assertTokens("*DAT4J", token(SyntaxKind.DAT4J, "*DAT4J"));
+		assertTokens("*DAT4J", token(SyntaxKind.SV_DAT4J, "*DAT4J"));
 	}
 
 	@Test
 	void lexDatJ()
 	{
-		assertTokens("*DATJ", token(SyntaxKind.DATJ, "*DATJ"));
+		assertTokens("*DATJ", token(SyntaxKind.SV_DATJ, "*DATJ"));
 	}
 
 	@Test
 	void lexDat4U()
 	{
-		assertTokens("*DAT4U", token(SyntaxKind.DAT4U, "*DAT4U"));
+		assertTokens("*DAT4U", token(SyntaxKind.SV_DAT4U, "*DAT4U"));
 	}
 
 	@Test
 	void lexDatU()
 	{
-		assertTokens("*DATU", token(SyntaxKind.DATU, "*DATU"));
+		assertTokens("*DATU", token(SyntaxKind.SV_DATU, "*DATU"));
 	}
 
 	@Test
 	void lexDatVS()
 	{
-		assertTokens("*DATVS", token(SyntaxKind.DATVS, "*DATVS"));
+		assertTokens("*DATVS", token(SyntaxKind.SV_DATVS, "*DATVS"));
 	}
 
 	@Test
 	void lexDatV()
 	{
-		assertTokens("*DATV", token(SyntaxKind.DATV, "*DATV"));
+		assertTokens("*DATV", token(SyntaxKind.SV_DATV, "*DATV"));
 	}
 
 	@Test

@@ -16,8 +16,8 @@ public class BuiltInFunctionTable
 	static
 	{
 		TABLE = Map.ofEntries(
-			unmodifiableVariable(SyntaxKind.APPLIC_ID, "Returns the ID of the current library", ALPHANUMERIC, 8.0),
-			unmodifiableVariable(SyntaxKind.APPLIC_NAME, """
+			unmodifiableVariable(SyntaxKind.SV_APPLIC_ID, "Returns the ID of the current library", ALPHANUMERIC, 8.0),
+			unmodifiableVariable(SyntaxKind.SV_APPLIC_NAME, """
 				If Natural Security is installed, the variable contains the
 				name of library to which the user is logged on.
 
@@ -26,15 +26,15 @@ public class BuiltInFunctionTable
 
 				If Natural Security is not installed, variable contains the name 'SYSTEM'.
 				""", ALPHANUMERIC, 32.0),
-			unmodifiableVariable(SyntaxKind.INIT_ID, "Returns the ID of the device that Natural invoked", ALPHANUMERIC, 8.0),
+			unmodifiableVariable(SyntaxKind.SV_INIT_ID, "Returns the ID of the device that Natural invoked", ALPHANUMERIC, 8.0),
 			unmodifiableVariable(SyntaxKind.SV_TIME, "Returns the current time of the day as A10 in format HH:II:SS.T", ALPHANUMERIC, 10.0),
-			unmodifiableVariable(SyntaxKind.TIMX, "Returns the current time of the day as builtin time format", TIME, 0.0),
-			unmodifiableVariable(SyntaxKind.TIMESTMP, "Returns the machine-internal clock value", BINARY, 8.0),
-			unmodifiableVariable(SyntaxKind.TIMESTMPX, "Returns the extended machine-internal clock value", BINARY, 16.0),
-			unmodifiableVariable(SyntaxKind.TIME_OUT, "Contains the number of seconds remaining before the current transaction will be timed out (Natural Security only).", NUMERIC, 5.0),
-			unmodifiableVariable(SyntaxKind.TIMN, "Returns the current time of the day as numeric format", NUMERIC, 7.0),
+			unmodifiableVariable(SyntaxKind.SV_TIMX, "Returns the current time of the day as builtin time format", TIME, 0.0),
+			unmodifiableVariable(SyntaxKind.SV_TIMESTMP, "Returns the machine-internal clock value", BINARY, 8.0),
+			unmodifiableVariable(SyntaxKind.SV_TIMESTMPX, "Returns the extended machine-internal clock value", BINARY, 16.0),
+			unmodifiableVariable(SyntaxKind.SV_TIME_OUT, "Contains the number of seconds remaining before the current transaction will be timed out (Natural Security only).", NUMERIC, 5.0),
+			unmodifiableVariable(SyntaxKind.SV_TIMN, "Returns the current time of the day as numeric format", NUMERIC, 7.0),
 			function(
-				SyntaxKind.TIMD, """
+				SyntaxKind.SV_TIMD, """
 					Returns the time passed since the `SET TIME` statement which is referred to by the first parameter.
 
 					The format returned is: `HHISST` (hour hour minute second second tenth-second).
@@ -51,24 +51,24 @@ public class BuiltInFunctionTable
 				7.0,
 				labelParameter(true)
 			),
-			unmodifiableVariable(SyntaxKind.DATD, "Returns the current date in the format `DD.MM.YY`", ALPHANUMERIC, 8.0),
+			unmodifiableVariable(SyntaxKind.SV_DATD, "Returns the current date in the format `DD.MM.YY`", ALPHANUMERIC, 8.0),
 			unmodifiableVariable(SyntaxKind.SV_DATE, "Returns the current date in the format `DD/MM/YY`", ALPHANUMERIC, 8.0),
-			unmodifiableVariable(SyntaxKind.DAT4E, "Returns the current date in the format `DD/MM/YYYY`", ALPHANUMERIC, 10.0),
-			unmodifiableVariable(SyntaxKind.DATG, "Returns the current date in gregorian format `DDmonthnameYYYY`", ALPHANUMERIC, 15.0),
-			unmodifiableVariable(SyntaxKind.DAT4D, "Returns the current date in the format `DD.MM.YYYY`", ALPHANUMERIC, 10.0),
-			unmodifiableVariable(SyntaxKind.DATI, "Returns the current date in the format `YY-MM-DD`", ALPHANUMERIC, 8.0),
-			unmodifiableVariable(SyntaxKind.DAT4I, "Returns the current date in the format `YYYY-MM-DD`", ALPHANUMERIC, 10.0),
-			unmodifiableVariable(SyntaxKind.DATJ, "Returns the current date in the format `YYJJJ` (Julian date)", ALPHANUMERIC, 5.0),
-			unmodifiableVariable(SyntaxKind.DAT4J, "Returns the current date in the format `YYYYJJJ` (Julian date)", ALPHANUMERIC, 7.0),
-			unmodifiableVariable(SyntaxKind.DATX, "Returns the current date as internal date for mat", DATE, 0.0),
-			unmodifiableVariable(SyntaxKind.DATN, "Returns the current date in the format `YYYYMMDD`", NUMERIC, 8.0),
-			unmodifiableVariable(SyntaxKind.DATU, "Returns the current date in the format `MM/DD/YY`", ALPHANUMERIC, 8.0),
-			unmodifiableVariable(SyntaxKind.DAT4U, "Returns the current date in the format `MM/DD/YYYY`", ALPHANUMERIC, 10.0),
-			unmodifiableVariable(SyntaxKind.DATV, "Returns the current date in the format `DD-MON-YY`, where MON is the name of the month", ALPHANUMERIC, 11.0),
-			unmodifiableVariable(SyntaxKind.DATVS, "Returns the current date in the format `DDMONYYYY`, where MON is the name of the month", ALPHANUMERIC, 9.0),
-			unmodifiableVariable(SyntaxKind.LINESIZE, "Returns the physical line size of the I/O device Natural was started with. For vertical look at `*PAGESIZE`", NUMERIC, 7.0),
-			unmodifiableVariable(SyntaxKind.PAGESIZE, "Returns the physical page size of the I/O device Natural was started with. For horizontal look at `*LINESIZE`", NUMERIC, 7.0),
-			unmodifiableVariable(SyntaxKind.NET_USER, """
+			unmodifiableVariable(SyntaxKind.SV_DAT4E, "Returns the current date in the format `DD/MM/YYYY`", ALPHANUMERIC, 10.0),
+			unmodifiableVariable(SyntaxKind.SV_DATG, "Returns the current date in gregorian format `DDmonthnameYYYY`", ALPHANUMERIC, 15.0),
+			unmodifiableVariable(SyntaxKind.SV_DAT4D, "Returns the current date in the format `DD.MM.YYYY`", ALPHANUMERIC, 10.0),
+			unmodifiableVariable(SyntaxKind.SV_DATI, "Returns the current date in the format `YY-MM-DD`", ALPHANUMERIC, 8.0),
+			unmodifiableVariable(SyntaxKind.SV_DAT4I, "Returns the current date in the format `YYYY-MM-DD`", ALPHANUMERIC, 10.0),
+			unmodifiableVariable(SyntaxKind.SV_DATJ, "Returns the current date in the format `YYJJJ` (Julian date)", ALPHANUMERIC, 5.0),
+			unmodifiableVariable(SyntaxKind.SV_DAT4J, "Returns the current date in the format `YYYYJJJ` (Julian date)", ALPHANUMERIC, 7.0),
+			unmodifiableVariable(SyntaxKind.SV_DATX, "Returns the current date as internal date for mat", DATE, 0.0),
+			unmodifiableVariable(SyntaxKind.SV_DATN, "Returns the current date in the format `YYYYMMDD`", NUMERIC, 8.0),
+			unmodifiableVariable(SyntaxKind.SV_DATU, "Returns the current date in the format `MM/DD/YY`", ALPHANUMERIC, 8.0),
+			unmodifiableVariable(SyntaxKind.SV_DAT4U, "Returns the current date in the format `MM/DD/YYYY`", ALPHANUMERIC, 10.0),
+			unmodifiableVariable(SyntaxKind.SV_DATV, "Returns the current date in the format `DD-MON-YY`, where MON is the name of the month", ALPHANUMERIC, 11.0),
+			unmodifiableVariable(SyntaxKind.SV_DATVS, "Returns the current date in the format `DDMONYYYY`, where MON is the name of the month", ALPHANUMERIC, 9.0),
+			unmodifiableVariable(SyntaxKind.SV_LINESIZE, "Returns the physical line size of the I/O device Natural was started with. For vertical look at `*PAGESIZE`", NUMERIC, 7.0),
+			unmodifiableVariable(SyntaxKind.SV_PAGESIZE, "Returns the physical page size of the I/O device Natural was started with. For horizontal look at `*LINESIZE`", NUMERIC, 7.0),
+			unmodifiableVariable(SyntaxKind.SV_NET_USER, """
 				Contains the complete user ID of an authenticated client request.
 				The ID consists of the domain name and the actual user ID.
 
@@ -77,8 +77,8 @@ public class BuiltInFunctionTable
 				the user ID of this request is passed to the server and placed
 				into *NET-USER. After the request, *NET-USER is reset to the value of *USER.
 				""", ALPHANUMERIC, 253.0),
-			unmodifiableVariable(SyntaxKind.HOSTNAME, "Name of the machine Natural runs on", ALPHANUMERIC, 64.0),
-			unmodifiableVariable(SyntaxKind.MACHINE_CLASS, """
+			unmodifiableVariable(SyntaxKind.SV_HOSTNAME, "Name of the machine Natural runs on", ALPHANUMERIC, 64.0),
+			unmodifiableVariable(SyntaxKind.SV_MACHINE_CLASS, """
 				Returns the name of the machine class Natural was started on
 
 				Possible return values:
@@ -88,15 +88,15 @@ public class BuiltInFunctionTable
 				- `UNIX`
 				- `VMS`
 				""", ALPHANUMERIC, 16.0),
-			modifiableVariable(SyntaxKind.LANGUAGE, "Returns the language code, e.g. 1 for english, 2 for german etc.", INTEGER, 1.0),
-			modifiableVariable(SyntaxKind.STARTUP, "Get or set the name of the program which will be executed when Natural would show the command prompt", ALPHANUMERIC, 8.0),
-			unmodifiableVariable(SyntaxKind.STEPLIB, "Returns the name of the current steplib", ALPHANUMERIC, 8.0),
-			modifiableVariable(SyntaxKind.PAGE_NUMBER, "Get or set the current page number of an report", PACKED, 5.0),
-			unmodifiableVariable(SyntaxKind.LINE_COUNT, "Returns the line number of the current pages's line.", PACKED, 5.0),
-			unmodifiableVariable(SyntaxKind.WINDOW_LS, "Returns the line size of the logical window (without the frame)", NUMERIC, 3.0),
-			unmodifiableVariable(SyntaxKind.WINDOW_PS, "Returns the page size of the logical window (without the frame)", NUMERIC, 3.0),
-			unmodifiableVariable(SyntaxKind.WINDOW_POS, "Returns the position of the upper left corner of the window (from `DEFINE WINDOW`)", NUMERIC, 6.0),
-			unmodifiableVariable(SyntaxKind.LIBRARY_ID, "Returns the ID the the current library. This returns the same as *APPLIC-ID", ALPHANUMERIC, 8.0),
+			modifiableVariable(SyntaxKind.SV_LANGUAGE, "Returns the language code, e.g. 1 for english, 2 for german etc.", INTEGER, 1.0),
+			modifiableVariable(SyntaxKind.SV_STARTUP, "Get or set the name of the program which will be executed when Natural would show the command prompt", ALPHANUMERIC, 8.0),
+			unmodifiableVariable(SyntaxKind.SV_STEPLIB, "Returns the name of the current steplib", ALPHANUMERIC, 8.0),
+			modifiableVariable(SyntaxKind.SV_PAGE_NUMBER, "Get or set the current page number of an report", PACKED, 5.0),
+			unmodifiableVariable(SyntaxKind.SV_LINE_COUNT, "Returns the line number of the current pages's line.", PACKED, 5.0),
+			unmodifiableVariable(SyntaxKind.SV_WINDOW_LS, "Returns the line size of the logical window (without the frame)", NUMERIC, 3.0),
+			unmodifiableVariable(SyntaxKind.SV_WINDOW_PS, "Returns the page size of the logical window (without the frame)", NUMERIC, 3.0),
+			unmodifiableVariable(SyntaxKind.SV_WINDOW_POS, "Returns the position of the upper left corner of the window (from `DEFINE WINDOW`)", NUMERIC, 6.0),
+			unmodifiableVariable(SyntaxKind.SV_LIBRARY_ID, "Returns the ID the the current library. This returns the same as *APPLIC-ID", ALPHANUMERIC, 8.0),
 			unmodifiableVariable(SyntaxKind.TRANSLATE, """
 				Converts the characters passed as first argument into either `LOWER` or `UPPER` case.
 
@@ -112,7 +112,7 @@ public class BuiltInFunctionTable
 			modifiableVariable(SyntaxKind.SV_NUMBER, "Get or set the number of record a FIND or HISTOGRAM statement. Uses the innermost statement if no label identifier is passed.", PACKED, 10),
 			modifiableVariable(SyntaxKind.SV_LENGTH, "This system variable returns the currently used length of a field defined as dynamic variable in terms of code units; for A and B format the size of one code unit is 1 byte and for U format the size of one code unit is 2 bytes (UTF-16). *LENGTH(field) applies to dynamic variables only.", INTEGER, 4),
 			unmodifiableVariable(SyntaxKind.SV_SUBROUTINE, "Returns the name of the current external subroutine. Content will aways be upper case.", ALPHANUMERIC, 32),
-			unmodifiableVariable(SyntaxKind.LINEX, """
+			unmodifiableVariable(SyntaxKind.SV_LINEX, """
 				Returns the line number of the invocation of this variable.
 				When this variable is used within copycodes, it contains the line numbers of all includes leading to this variable.
 
@@ -128,9 +128,9 @@ public class BuiltInFunctionTable
 
 				In this case the variable returns `0100/0200/0300`.
 				""".stripIndent(), ALPHANUMERIC, 100),
-			unmodifiableVariable(SyntaxKind.CURRENT_UNIT, "Returns the name of the current executing unit.", ALPHANUMERIC, 32.0),
+			unmodifiableVariable(SyntaxKind.SV_CURRENT_UNIT, "Returns the name of the current executing unit.", ALPHANUMERIC, 32.0),
 			modifiableVariable(SyntaxKind.SV_ERROR, "Short form of *ERROR-NR (discouraged)", NUMERIC, 7.0),
-			modifiableVariable(SyntaxKind.ERROR_NR, """
+			modifiableVariable(SyntaxKind.SV_ERROR_NR, """
 				Get or set the current error number.
 
 				This contains the number of the ERROR that triggered the `ON ERROR` block.
@@ -141,24 +141,24 @@ public class BuiltInFunctionTable
 
 				Value can only range from 0 to 9999.
 				""", NUMERIC, 7.0),
-			modifiableVariable(SyntaxKind.ERROR_TA, "Get or set the name of the error transaction program which receives control if an error occurs", ALPHANUMERIC, 8.0),
-			unmodifiableVariable(SyntaxKind.LINE, """
+			modifiableVariable(SyntaxKind.SV_ERROR_TA, "Get or set the name of the error transaction program which receives control if an error occurs", ALPHANUMERIC, 8.0),
+			unmodifiableVariable(SyntaxKind.SV_LINE, """
 				Returns the number of the line where this variable is used.
 
 				If this is inside a copycode, it will return the number within the copycode, not the `INCLUDE`.
 				If you want to get all line numbers, including the `INCLUDE`s, use `*LINEX` instead.
 				""", INTEGER, 4.0),
-			unmodifiableVariable(SyntaxKind.ERROR_LINE, "Returns the line of the statement that raised an error", NUMERIC, 4),
+			unmodifiableVariable(SyntaxKind.SV_ERROR_LINE, "Returns the line of the statement that raised an error", NUMERIC, 4),
 			unmodifiableVariable(SyntaxKind.CURSOR, """
 				Position of cursor on input screen at time ENTER or function key is pressed.
 
 				Note: It is recommended that the system variables *CURS-LINE and *CURS-COL be used instead of the *CURSOR command.
 				""", NUMERIC, 6),
-			unmodifiableVariable(SyntaxKind.CURS_FIELD, """
+			unmodifiableVariable(SyntaxKind.SV_CURS_FIELD, """
 				Returns the identification of the field in which the cursor is positioned" +
 				Can only be used together withe the `POS` function.
 				""", INTEGER, 4),
-			modifiableVariable(SyntaxKind.CURS_LINE, """
+			modifiableVariable(SyntaxKind.SV_CURS_LINE, """
 				Get or set the number of the line where the cursor is positioned.
 				To get the cursor column, use `*CURS-COL`.
 
@@ -173,7 +173,7 @@ public class BuiltInFunctionTable
 				- -4: On the lower function-key line
 
 				""", PACKED, 3),
-			modifiableVariable(SyntaxKind.CURS_COL, """
+			modifiableVariable(SyntaxKind.SV_CURS_COL, """
 				Get or set the number of the column where the current cursor is located
 				""", PACKED, 3),
 			function(SyntaxKind.SV_PARSE_COL, "Column where the parser is currently working at", INTEGER, 4, labelParameter(false)),
@@ -181,8 +181,8 @@ public class BuiltInFunctionTable
 			function(SyntaxKind.SV_PARSE_LEVEL, "Contains the current nesting level when parsing XML or JSON", INTEGER, 4, labelParameter(false)),
 			function(SyntaxKind.SV_PARSE_TYPE, "Contains the current syntactic type of the XML or JSON structure", ALPHANUMERIC, 1, labelParameter(false)),
 			function(SyntaxKind.SV_PARSE_INDEX, "Contains the element index within the JSON array being parsed", INTEGER, 4, labelParameter(false)),
-			function(SyntaxKind.SV_PARSE_NAMESPACE, "Contains the element index within the JSON array being parsed", ALPHANUMERIC, 255, labelParameter(false)),
-			unmodifiableVariable(SyntaxKind.BROWSER_IO, """
+			function(SyntaxKind.SV_PARSE_NAMESPACE_URI, "Contains the element index within the JSON array being parsed", ALPHANUMERIC, 255, labelParameter(false)),
+			unmodifiableVariable(SyntaxKind.SV_BROWSER_IO, """
 					Returns whether the application is running in a web browser via WebIO or Natural for Ajax.
 
 					It can contain one of the following values:
@@ -191,7 +191,7 @@ public class BuiltInFunctionTable
 					`WEB`     : The application is running in WebIO
 					`RICHGUI` : The application is running in Natural for Ajax (e.g. HA)
 					""", ALPHANUMERIC, 8),
-			unmodifiableVariable(SyntaxKind.DEVICE, """
+			unmodifiableVariable(SyntaxKind.SV_DEVICE, """
 				Returns the type or mode of the device from which Natural was started.
 
 				It can contain one of the following values:
@@ -201,10 +201,10 @@ public class BuiltInFunctionTable
 				`TTY`: With a teletype or other start/stop device
 				`PC`: Natural connection with profile parameter `PC=ON` or terminal command `%+`
 				""", ALPHANUMERIC, 8),
-			unmodifiableVariable(SyntaxKind.CPU_TIME, """
+			unmodifiableVariable(SyntaxKind.SV_CPU_TIME, """
 				Returns the CPU time currently used by the Natural process in units of 10 ms.
 				""", INTEGER, 4),
-			unmodifiableVariable(SyntaxKind.ETID, """
+			unmodifiableVariable(SyntaxKind.SV_ETID, """
 				Returns the current identifier of transaction data for Adabas.
 
 				The default value is one of the following:
@@ -212,16 +212,16 @@ public class BuiltInFunctionTable
 				- the value of the Natural profile parameter ETID,
 				- the value from the security profile of the currently active user (applies only under Natural Security).
 				""", ALPHANUMERIC, 8),
-			unmodifiableVariable(SyntaxKind.INIT_PROGRAM, """
+			unmodifiableVariable(SyntaxKind.SV_INIT_PROGRAM, """
 				Return the name of program (transaction) currently executing as Natural.
 				""", ALPHANUMERIC, 8),
-			function(SyntaxKind.LBOUND, """
+			function(SyntaxKind.SV_LBOUND, """
 				Returns the current lower boundary (index value) of an array for the specified dimension(s) (1, 2 or 3) or for all dimensions (asterisk (*) notation).
 				""", INTEGER, 4),
-			function(SyntaxKind.UBOUND, """
+			function(SyntaxKind.SV_UBOUND, """
 				Returns the current upper boundary (index value) of an array for the specified dimension(s) (1, 2 or 3) or for all dimensions (asterisk (*) notation).
 				""", INTEGER, 4),
-			unmodifiableVariable(SyntaxKind.SERVER_TYPE, """
+			unmodifiableVariable(SyntaxKind.SV_SERVER_TYPE, """
 				This system variable indicates the server type Natural has been started as. It can contain one of the following values:
 
 				- DB2-SP	Natural DB2 Stored Procedures server
@@ -231,7 +231,7 @@ public class BuiltInFunctionTable
 
 				If Natural is not started as a server, *SERVER-TYPE is set to blanks.
 				""", ALPHANUMERIC, 32),
-			unmodifiableVariable(SyntaxKind.TPSYS, """
+			unmodifiableVariable(SyntaxKind.SV_TPSYS, """
 				Returns the Natural name of the TP monitor or environment.
 
 				Will return `NONE` on Windows, UNIX and OpenVMS platforms.
@@ -252,21 +252,21 @@ public class BuiltInFunctionTable
 				UTM
 				```
 				""", ALPHANUMERIC, 8),
-			unmodifiableVariable(SyntaxKind.OPSYS, """
+			unmodifiableVariable(SyntaxKind.SV_OPSYS, """
 				Returns the Natural name of the operating system.
 
 				More in depth information can be retrieved with a combination of `MACHINE-CLASS`, `*HARDWARE` and `*OS`.
 				""", ALPHANUMERIC, 8),
-			unmodifiableVariable(SyntaxKind.PROGRAM, "Returns the name of the current Natural object", ALPHANUMERIC, 8),
+			unmodifiableVariable(SyntaxKind.SV_PROGRAM, "Returns the name of the current Natural object", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_GROUP, "Returns Group ID or user's own ID taken from Natural Security logon", ALPHANUMERIC, 8),
-			unmodifiableVariable(SyntaxKind.USER_NAME, "Returns the user name of the current user, as taken from Natural Security", ALPHANUMERIC, 32),
+			unmodifiableVariable(SyntaxKind.SV_USER_NAME, "Returns the user name of the current user, as taken from Natural Security", ALPHANUMERIC, 32),
 			unmodifiableVariable(SyntaxKind.SV_USER, "Returns the user id of the current user, as taken from Natural Security", ALPHANUMERIC, 8),
-			unmodifiableVariable(SyntaxKind.INIT_USER, """
+			unmodifiableVariable(SyntaxKind.SV_INIT_USER, """
 				Returns the value of the profile parameter `USER`.
 
 				If the profile parameter is not specified it will return the UNIX uid of the current user.
 				""", ALPHANUMERIC, 8),
-			unmodifiableVariable(SyntaxKind.PF_KEY, """
+			unmodifiableVariable(SyntaxKind.SV_PF_KEY, """
 				Returns the name of the sensitive key that was pressed last.
 
 				If no sensitive key was pressed, will return `ENTR`.
@@ -285,7 +285,7 @@ public class BuiltInFunctionTable
 
 				- If a page break occurs, the value changes to `ENTR`.
 				""", ALPHANUMERIC, 4),
-			unmodifiableVariable(SyntaxKind.PID, "Returns the current process ID as a string", ALPHANUMERIC, 32),
+			unmodifiableVariable(SyntaxKind.SV_PID, "Returns the current process ID as a string", ALPHANUMERIC, 32),
 			function(SyntaxKind.SV_ISN, """
 				Gets or sets the internal sequence number of the current Adabas record initiated by `FIND` or `READ`.
 
@@ -295,7 +295,7 @@ public class BuiltInFunctionTable
 				#ISN := *ISN(R1.)
 				```
 				""", PACKED, 10, labelParameter(false)),
-			function(SyntaxKind.COUNTER, """
+			function(SyntaxKind.SV_COUNTER, """
 				Returns the number of times a processing loop initiated by `FIND`, `READ`, `HISTOGRAM` or `PARSE` has been entered.
 
 				If a record is rejected through a `WHERE`-clause, `*COUNTER` is not incremented.
@@ -309,12 +309,12 @@ public class BuiltInFunctionTable
 				```
 				""", PACKED, 10, labelParameter(false)),
 			function(
-				SyntaxKind.OCCURRENCE, "See `*OCC`", INTEGER, 4,
+				SyntaxKind.SV_OCCURRENCE, "See `*OCC`", INTEGER, 4,
 				new BuiltInFunctionParameter("array", new DataType(DataFormat.NONE, 1), true),
 				new BuiltInFunctionParameter("dimension", new DataType(DataFormat.NONE, 1), false)
 			),
 			function(
-				SyntaxKind.OCC, """
+				SyntaxKind.SV_OCC, """
 					Returns the current length of an array.
 
 					The optional `dimension` parameter handles for which dimension the length is returned. Defaults to 1 if not specified.
@@ -390,7 +390,7 @@ public class BuiltInFunctionTable
 					""", ALPHANUMERIC, DataType.DYNAMIC_LENGTH,
 				new BuiltInFunctionParameter("operand", new DataType(ALPHANUMERIC, DataType.DYNAMIC_LENGTH), true)
 			),
-			modifiableVariable(SyntaxKind.COM, """
+			modifiableVariable(SyntaxKind.SV_COM, """
 				Get or set the value of the communication area which can be used to process data from outside a screen window.
 
 				When a window is active, no data can be entered outside the window.
