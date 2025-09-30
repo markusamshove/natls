@@ -1,9 +1,29 @@
 package org.amshove.natparse.lexing;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 
 class LexerForSystemVariablesShould extends AbstractLexerTest
 {
+
+	@ParameterizedTest
+	@CsvFileSource(resources = {
+		"../app-variables.csv",
+		"../date-time-variables.csv",
+		"../input-output-variables.csv",
+		"../json-variables.csv",
+		"../natural-environment-variables.csv",
+		"../system-environment-variables.csv",
+		"../xml-variables.csv",
+	}, delimiter = '\t')
+	void lexAllVariables(String source, String type, String modify) {
+		var sourceSansParams = source.replaceAll("\\(r\\)", "");
+		var tokenName = "SV_" + sourceSansParams.substring(1).replaceAll("-", "_");
+		var expected = token(SyntaxKind.valueOf(tokenName), sourceSansParams);
+		assertTokens(source, expected);
+	}
+
 	@Test
 	void lexTimX()
 	{
