@@ -231,7 +231,7 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 	@Test
 	void lexParseNamespace()
 	{
-		assertTokens("*PARSE-NAMESPACE", token(SyntaxKind.SV_PARSE_NAMESPACE_URI, "*PARSE-NAMESPACE"));
+		assertTokens("*PARSE-NAMESPACE-URI", token(SyntaxKind.SV_PARSE_NAMESPACE_URI, "*PARSE-NAMESPACE-URI"));
 	}
 
 	@Test
