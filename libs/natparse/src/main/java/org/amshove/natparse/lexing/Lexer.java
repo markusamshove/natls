@@ -554,6 +554,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_LINEX);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("LOAD-LIBRARY-ID"))
+			{
+				createAndAdd(SyntaxKind.SV_LOAD_LIBRARY_ID);
+				return;
+			}
 			// LINE moved to bottom for ordering reasons
 			if (scanner.advanceIfIgnoreCase("NUMBER"))
 			{

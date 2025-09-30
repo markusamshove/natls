@@ -128,6 +128,9 @@ public class BuiltInFunctionTable
 
 				In this case the variable returns `0100/0200/0300`.
 				""".stripIndent(), ALPHANUMERIC, 100),
+			unmodifiableVariable(SyntaxKind.SV_LOAD_LIBRARY_ID, """
+				Returns the library ID where the current executing object was loaded.
+				""", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_CURRENT_UNIT, "Returns the name of the current executing unit.", ALPHANUMERIC, 32.0),
 			modifiableVariable(SyntaxKind.SV_ERROR, "Short form of *ERROR-NR (discouraged)", NUMERIC, 7.0),
 			modifiableVariable(SyntaxKind.SV_ERROR_NR, """

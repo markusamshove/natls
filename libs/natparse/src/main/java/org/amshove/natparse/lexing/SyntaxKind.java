@@ -69,7 +69,7 @@ public enum SyntaxKind
 	SV_LIBRARY_ID(false, true, false),
 	SV_LINE(false, true, false),
 	SV_LINEX(false, true, false),
-	// TODO: SV_LOAD_LIBRARY_ID
+	SV_LOAD_LIBRARY_ID(false, true, false),
 	SV_NUMBER(false, true, true),
 	SV_OCCURRENCE(false, false, true),
 	SV_OCC(false, false, true),
