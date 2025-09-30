@@ -152,7 +152,7 @@ public enum SyntaxKind
 	SV_USER_NAME(false, true, false),
 
 	//    System Environment
-	// TODO: SV_CODEPAGE
+	SV_CODEPAGE(false, true, false),
 	// TODO: SV_HARDWARE
 	SV_HOSTNAME(false, true, false),
 	SV_INIT_ID(false, true, false),

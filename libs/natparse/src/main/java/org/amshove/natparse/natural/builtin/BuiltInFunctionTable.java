@@ -263,6 +263,11 @@ public class BuiltInFunctionTable
 			unmodifiableVariable(SyntaxKind.SV_PROGRAM, "Returns the name of the current Natural object", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_GROUP, "Returns Group ID or user's own ID taken from Natural Security logon", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_USER_NAME, "Returns the user name of the current user, as taken from Natural Security", ALPHANUMERIC, 32),
+			unmodifiableVariable(SyntaxKind.SV_CODEPAGE, """
+				Returns the IANA name of the current default codepage.
+
+				Used for conversions to and from Unicode. Set by profile parameter `CP`.
+				""", ALPHANUMERIC, 64),
 			unmodifiableVariable(SyntaxKind.SV_USER, "Returns the user id of the current user, as taken from Natural Security", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_INIT_USER, """
 				Returns the value of the profile parameter `USER`.

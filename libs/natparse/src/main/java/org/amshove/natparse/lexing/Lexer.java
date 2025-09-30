@@ -857,6 +857,11 @@ public class Lexer
 
 		// System Environment
 		{
+			if (scanner.advanceIfIgnoreCase("CODEPAGE"))
+			{
+				createAndAdd(SyntaxKind.SV_CODEPAGE);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("HOSTNAME"))
 			{
 				createAndAdd(SyntaxKind.SV_HOSTNAME);
