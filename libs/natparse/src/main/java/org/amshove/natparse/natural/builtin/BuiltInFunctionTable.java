@@ -316,6 +316,11 @@ public class BuiltInFunctionTable
 
 				- If a page break occurs, the value changes to `ENTR`.
 				""", ALPHANUMERIC, 4),
+			unmodifiableVariable(SyntaxKind.SV_PF_NAME, """
+				Returns the name of the function key pressed last.
+
+				This allows you to process keys based on their NAMED value.
+				""", ALPHANUMERIC, 10),
 			unmodifiableVariable(SyntaxKind.SV_PID, "Returns the current process ID as a string", ALPHANUMERIC, 32),
 			function(SyntaxKind.SV_ISN, """
 				Gets or sets the internal sequence number of the current Adabas record initiated by `FIND` or `READ`.

@@ -811,6 +811,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_PF_KEY);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("PF-NAME"))
+			{
+				createAndAdd(SyntaxKind.SV_PF_NAME);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("WINDOW-LS"))
 			{
 				createAndAdd(SyntaxKind.SV_WINDOW_LS);

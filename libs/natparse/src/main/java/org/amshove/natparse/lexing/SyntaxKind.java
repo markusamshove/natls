@@ -123,7 +123,7 @@ public enum SyntaxKind
 	SV_PAGE_NUMBER(false, true, true),
 	SV_PAGESIZE(false, true, false),
 	SV_PF_KEY(false, true, false),
-	// TODO: SV_PF_NAME
+	SV_PF_NAME(false, true, false),
 	SV_WINDOW_LS(false, true, false),
 	SV_WINDOW_POS(false, true, false),
 	SV_WINDOW_PS(false, true, false),
