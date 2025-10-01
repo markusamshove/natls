@@ -147,7 +147,7 @@ public enum SyntaxKind
 	SV_PID(false, true, false),
 	SV_SCREEN_IO(false, true, false),
 	SV_SERVER_TYPE(false, true, false),
-	// TODO: SV_UI
+	SV_UI(false, true, false),
 	SV_USER(false, true, false),
 	SV_USER_NAME(false, true, false),
 

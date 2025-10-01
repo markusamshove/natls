@@ -900,6 +900,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_SERVER_TYPE);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("UI"))
+			{
+				createAndAdd(SyntaxKind.SV_UI);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("USER-NAME"))
 			{
 				createAndAdd(SyntaxKind.SV_USER_NAME);

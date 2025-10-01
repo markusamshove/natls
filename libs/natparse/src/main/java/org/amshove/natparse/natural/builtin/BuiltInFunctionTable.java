@@ -302,6 +302,7 @@ public class BuiltInFunctionTable
 
 				Used for conversions to and from Unicode. Set by profile parameter `CP`.
 				""", ALPHANUMERIC, 64),
+			unmodifiableVariable(SyntaxKind.SV_UI, "Returns the type of user interface being used (`CHARACTER` | `GUI`)", ALPHANUMERIC, 16),
 			unmodifiableVariable(SyntaxKind.SV_USER, "Returns the user id of the current user, as taken from Natural Security", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_INIT_USER, """
 				Returns the value of the profile parameter `USER`.
