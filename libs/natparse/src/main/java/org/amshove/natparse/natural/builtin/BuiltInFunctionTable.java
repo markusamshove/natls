@@ -283,6 +283,7 @@ public class BuiltInFunctionTable
 				UTM
 				```
 				""", ALPHANUMERIC, 8),
+			unmodifiableVariable(SyntaxKind.SV_TPVERS, "Returns the version of th TP subsystem Natural is running under", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_OPSYS, """
 				Returns the Natural name of the operating system.
 

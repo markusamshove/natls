@@ -164,7 +164,7 @@ public enum SyntaxKind
 	SV_OSVERS(false, true, false),
 	SV_TP(false, true, false),
 	SV_TPSYS(false, true, false),
-	// TODO: SV_TPVERS
+	SV_TPVERS(false, true, false),
 	// TODO: SV_WINMGR
 	// TODO: SV_WINMGRVERS
 
