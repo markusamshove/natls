@@ -974,6 +974,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_TPSYS);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("TP"))
+			{
+				createAndAdd(SyntaxKind.SV_TP);
+				return;
+			}
 		}
 
 		// XML and JSON parsing

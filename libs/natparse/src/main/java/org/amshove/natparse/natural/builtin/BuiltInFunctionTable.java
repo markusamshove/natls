@@ -261,6 +261,7 @@ public class BuiltInFunctionTable
 
 				If Natural is not started as a server, *SERVER-TYPE is set to blanks.
 				""", ALPHANUMERIC, 32),
+			unmodifiableVariable(SyntaxKind.SV_TP, "Returns the name of the TP subsystem under which Natural is running", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_TPSYS, """
 				Returns the Natural name of the TP monitor or environment.
 
