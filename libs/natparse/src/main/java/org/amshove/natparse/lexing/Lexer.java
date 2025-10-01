@@ -959,6 +959,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_OPSYS);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("OS"))
+			{
+				createAndAdd(SyntaxKind.SV_OS);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("TPSYS"))
 			{
 				createAndAdd(SyntaxKind.SV_TPSYS);
