@@ -1044,31 +1044,34 @@ public class Lexer
 			}
 		}
 
-		if (scanner.advanceIfIgnoreCase("TRIM"))
+		// System Functions
+		//  ... Most of these are not-asterisk
+		//   Loops
+		//   Math
+		//   Misc
 		{
-			createAndAdd(SyntaxKind.TRIM);
-			return;
+			if (scanner.advanceIfIgnoreCase("MINVAL"))
+			{
+				createAndAdd(SyntaxKind.MINVAL);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("MAXVAL"))
+			{
+				createAndAdd(SyntaxKind.MAXVAL);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("TRANSLATE"))
+			{
+				createAndAdd(SyntaxKind.TRANSLATE);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("TRIM"))
+			{
+				createAndAdd(SyntaxKind.TRIM);
+				return;
+			}
 		}
-		if (scanner.advanceIfIgnoreCase("CURSOR"))
-		{
-			createAndAdd(SyntaxKind.CURSOR);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("MAXVAL"))
-		{
-			createAndAdd(SyntaxKind.MAXVAL);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("MINVAL"))
-		{
-			createAndAdd(SyntaxKind.MINVAL);
-			return;
-		}
-		if (scanner.advanceIfIgnoreCase("TRANSLATE"))
-		{
-			createAndAdd(SyntaxKind.TRANSLATE);
-			return;
-		}
+
 		if (scanner.advanceIfIgnoreCase("OUTIN"))
 		{
 			createAndAdd(SyntaxKind.OUTIN_ATTRIBUTE);
