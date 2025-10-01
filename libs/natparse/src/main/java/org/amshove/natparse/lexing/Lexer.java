@@ -617,6 +617,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_SUBROUTINE);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("THIS-OBJECT"))
+			{
+				createAndAdd(SyntaxKind.SV_THIS_OBJECT);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("UBOUND"))
 			{
 				createAndAdd(SyntaxKind.SV_UBOUND);

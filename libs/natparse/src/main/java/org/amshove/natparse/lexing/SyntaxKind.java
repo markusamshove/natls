@@ -81,7 +81,7 @@ public enum SyntaxKind
 	SV_STARTUP(false, true, false),
 	SV_STEPLIB(false, true, false),
 	SV_SUBROUTINE(false, true, false),
-	// TODO: SV_THIS_OBJECT
+	SV_THIS_OBJECT(false, true, false),
 	// TODO: SV_TYPE
 	SV_UBOUND(false, false, true),
 
