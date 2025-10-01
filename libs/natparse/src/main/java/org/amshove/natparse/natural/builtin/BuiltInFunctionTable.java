@@ -282,8 +282,8 @@ public class BuiltInFunctionTable
 				""", NUMERIC, 6),
 			unmodifiableVariable(SyntaxKind.SV_LINE_COUNT, "Returns the line number of the current pages's line.", PACKED, 5.0),
 			unmodifiableVariable(SyntaxKind.SV_LINESIZE, "Returns the physical line size of the I/O device Natural was started with. For vertical look at `*PAGESIZE`", NUMERIC, 7.0),
-			// TODO: LOG_LS
-			// TODO: LOG_PS
+			unmodifiableVariable(SyntaxKind.SV_LOG_LS, "Returns the line size of the *primary* report only", NUMERIC, 3),
+			unmodifiableVariable(SyntaxKind.SV_LOG_PS, "Returns the page size of the *primary* report only", NUMERIC, 3),
 			modifiableVariable(SyntaxKind.SV_PAGE_NUMBER, "Get or set the current page number of an report", PACKED, 5.0),
 			unmodifiableVariable(SyntaxKind.SV_PAGESIZE, "Returns the physical page size of the I/O device Natural was started with. For horizontal look at `*LINESIZE`", NUMERIC, 7.0),
 			unmodifiableVariable(SyntaxKind.SV_PF_KEY, """
@@ -485,7 +485,7 @@ public class BuiltInFunctionTable
 				new BuiltInFunctionParameter("operand3", new DataType(NONE, 1), false)
 			),
 			function(
-				SyntaxKind.SV_MAXVAL, """
+				SyntaxKind.MAXVAL, """
 					Returns the maximum value of all given operand values.
 
 					The result type can be optionally specified with `(IR=`, e.g. `(IR=F8)`. Otherwise the biggest data type of the operands is chosen.
