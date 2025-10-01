@@ -114,6 +114,17 @@ public class BuiltInFunctionTable
 			unmodifiableVariable(SyntaxKind.SV_SUBROUTINE, "Returns the name of the current external subroutine. Content will aways be upper case.", ALPHANUMERIC, 32),
 			// TODO: Support HANDLE OF OBJECT
 			unmodifiableVariable(SyntaxKind.SV_THIS_OBJECT, "", NONE, 0),
+			unmodifiableVariable(SyntaxKind.SV_TYPE, """
+				Contains the type of Natural object currently executing.
+
+				- PROGRAM
+				- FUNCTION
+				- SUBPROGRAM
+				- SUBROUTINE
+				- HELPROUTINE
+				- MAP
+				- ADAPTER
+				""", ALPHANUMERIC, 32),
 			unmodifiableVariable(SyntaxKind.SV_LINEX, """
 				Returns the line number of the invocation of this variable.
 				When this variable is used within copycodes, it contains the line numbers of all includes leading to this variable.

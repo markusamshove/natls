@@ -82,7 +82,7 @@ public enum SyntaxKind
 	SV_STEPLIB(false, true, false),
 	SV_SUBROUTINE(false, true, false),
 	SV_THIS_OBJECT(false, true, false),
-	// TODO: SV_TYPE
+	SV_TYPE(false, true, false),
 	SV_UBOUND(false, false, true),
 
 	//    Date and Time
