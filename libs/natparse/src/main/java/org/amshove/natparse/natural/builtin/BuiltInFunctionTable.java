@@ -468,12 +468,12 @@ public class BuiltInFunctionTable
 
 	private static Map.Entry<SyntaxKind, SystemVariableDefinition> variable(SyntaxKind kind, String documentation, DataFormat format, double length, boolean modifiable)
 	{
-		return Map.entry(kind, new SystemVariableDefinition("*%s".formatted(getName(kind)), documentation, new DataType(format, length), modifiable));
+		return Map.entry(kind, new SystemVariableDefinition(kind.toString(), documentation, new DataType(format, length), modifiable));
 	}
 
 	private static Map.Entry<SyntaxKind, SystemFunctionDefinition> function(SyntaxKind kind, String documentation, DataFormat format, double length, BuiltInFunctionParameter... parameter)
 	{
-		return Map.entry(kind, new SystemFunctionDefinition("*%s".formatted(getName(kind)), documentation, new DataType(format, length), Arrays.asList(parameter)));
+		return Map.entry(kind, new SystemFunctionDefinition(kind.toString(), documentation, new DataType(format, length), Arrays.asList(parameter)));
 	}
 
 	private static String getName(SyntaxKind kind)

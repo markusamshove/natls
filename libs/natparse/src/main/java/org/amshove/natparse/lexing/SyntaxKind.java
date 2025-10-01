@@ -71,8 +71,8 @@ public enum SyntaxKind
 	SV_LINEX(false, true, false),
 	SV_LOAD_LIBRARY_ID(false, true, false),
 	SV_NUMBER(false, true, true),
-	SV_OCCURRENCE(false, false, true),
-	SV_OCC(false, false, true),
+	SV_OCCURRENCE(false, true, true),
+	SV_OCC(false, true, true),
 	SV_PAGE_EVENT(false, true, false),
 	SV_PAGE_LEVEL(false, true, false),
 	SV_PROGRAM(true, true, false),
@@ -901,6 +901,6 @@ public enum SyntaxKind
 	@Override
 	public String toString()
 	{
-		return name().replace("SV_", "*").replace("KW_", "").replace("_", "-");
+		return name().replace("SV_", isSystemVariable ? "*" : "").replace("KW_", "").replace("_", "-");
 	}
 }

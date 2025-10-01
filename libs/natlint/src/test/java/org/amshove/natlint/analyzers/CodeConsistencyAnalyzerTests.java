@@ -27,7 +27,7 @@ public class CodeConsistencyAnalyzerTests extends AbstractAnalyzerTest
 				1 #ARR (A10/*)
 				1 #I (I4)
 				END-DEFINE
-				#I := *%s(1)
+				#I := %s(1)
 				END
 				""")
 		);
