@@ -875,6 +875,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_NET_USER);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("PARM-USER"))
+			{
+				createAndAdd(SyntaxKind.SV_PARM_USER);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("PID"))
 			{
 				createAndAdd(SyntaxKind.SV_PID);

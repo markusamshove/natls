@@ -77,6 +77,7 @@ public class BuiltInFunctionTable
 				the user ID of this request is passed to the server and placed
 				into *NET-USER. After the request, *NET-USER is reset to the value of *USER.
 				""", ALPHANUMERIC, 253.0),
+			unmodifiableVariable(SyntaxKind.SV_PARM_USER, "Returns the name of the parameter file in use", ALPHANUMERIC, 253),
 			unmodifiableVariable(SyntaxKind.SV_NATVERS, """
 				Returns the Natural version e.g. 06.02.01
 

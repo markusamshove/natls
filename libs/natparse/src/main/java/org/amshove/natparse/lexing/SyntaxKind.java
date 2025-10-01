@@ -142,7 +142,7 @@ public enum SyntaxKind
 	SV_LANGUAGE(true, true, false),
 	SV_NATVERS(false, true, false),
 	SV_NET_USER(false, true, false),
-	// TODO: PARM_USER
+	SV_PARM_USER(false, true, false),
 	// TODO: PATCH_LEVEL
 	SV_PID(false, true, false),
 	// TODO: SV_SCREEN_IO
