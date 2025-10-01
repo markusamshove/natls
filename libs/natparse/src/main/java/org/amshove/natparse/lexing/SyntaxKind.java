@@ -140,7 +140,7 @@ public enum SyntaxKind
 	SV_HARDCOPY(false, true, false),
 	SV_INIT_USER(false, true, false),
 	SV_LANGUAGE(true, true, false),
-	// TODO: NATVERS
+	SV_NATVERS(false, true, false),
 	SV_NET_USER(false, true, false),
 	// TODO: PARM_USER
 	// TODO: PATCH_LEVEL

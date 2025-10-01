@@ -77,6 +77,11 @@ public class BuiltInFunctionTable
 				the user ID of this request is passed to the server and placed
 				into *NET-USER. After the request, *NET-USER is reset to the value of *USER.
 				""", ALPHANUMERIC, 253.0),
+			unmodifiableVariable(SyntaxKind.SV_NATVERS, """
+				Returns the Natural version e.g. 06.02.01
+
+				See also : `*PATCH-LEVEL`
+				""", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_HOSTNAME, "Name of the machine Natural runs on", ALPHANUMERIC, 64.0),
 			unmodifiableVariable(SyntaxKind.SV_MACHINE_CLASS, """
 				Returns the name of the machine class Natural was started on

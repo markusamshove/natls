@@ -865,6 +865,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_LANGUAGE);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("NATVERS"))
+			{
+				createAndAdd(SyntaxKind.SV_NATVERS);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("NET-USER"))
 			{
 				createAndAdd(SyntaxKind.SV_NET_USER);
