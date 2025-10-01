@@ -880,6 +880,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_PARM_USER);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("PATCH-LEVEL"))
+			{
+				createAndAdd(SyntaxKind.SV_PATCH_LEVEL);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("PID"))
 			{
 				createAndAdd(SyntaxKind.SV_PID);

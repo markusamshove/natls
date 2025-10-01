@@ -83,6 +83,11 @@ public class BuiltInFunctionTable
 
 				See also : `*PATCH-LEVEL`
 				""", ALPHANUMERIC, 8),
+			unmodifiableVariable(SyntaxKind.SV_PATCH_LEVEL, """
+				Returns the current cumulative fix number
+
+				See also : `*NATVERS`
+				""", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_HOSTNAME, "Name of the machine Natural runs on", ALPHANUMERIC, 64.0),
 			unmodifiableVariable(SyntaxKind.SV_MACHINE_CLASS, """
 				Returns the name of the machine class Natural was started on
