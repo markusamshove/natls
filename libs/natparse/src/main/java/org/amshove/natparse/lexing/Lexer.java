@@ -546,6 +546,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_LENGTH);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("LEVEL"))
+			{
+				createAndAdd(SyntaxKind.SV_LEVEL);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("LIBRARY-ID"))
 			{
 				createAndAdd(SyntaxKind.SV_LIBRARY_ID);
@@ -1039,11 +1044,6 @@ public class Lexer
 			}
 		}
 
-		if (scanner.advanceIfIgnoreCase("LEVEL"))
-		{
-			createAndAdd(SyntaxKind.SV_LEVEL);
-			return;
-		}
 		if (scanner.advanceIfIgnoreCase("TRIM"))
 		{
 			createAndAdd(SyntaxKind.TRIM);

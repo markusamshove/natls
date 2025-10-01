@@ -66,6 +66,7 @@ public enum SyntaxKind
 	SV_ISN(false, true, true),
 	SV_LBOUND(false, false, true),
 	SV_LENGTH(false, false, true),
+	SV_LEVEL(false, true, false),
 	SV_LIBRARY_ID(false, true, false),
 	SV_LINE(false, true, false),
 	SV_LINEX(false, true, false),
@@ -176,7 +177,6 @@ public enum SyntaxKind
 	TRIM(false, false, true),
 	MAXVAL(false, false, true),
 	MINVAL(false, false, true),
-	SV_LEVEL(false, true, false),
 	TRANSLATE(true, false, true),
 
 	// Kcheck reserved keywords
