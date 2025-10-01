@@ -527,9 +527,9 @@ public class BuiltInFunctionTable
 					""", ALPHANUMERIC, DataType.DYNAMIC_LENGTH,
 				new BuiltInFunctionParameter("operand", new DataType(ALPHANUMERIC, DataType.DYNAMIC_LENGTH), true)
 			)
-			// TODO: POS
-			// TODO: RET
-			// TODO: SORTKEY
+		// TODO: POS
+		// TODO: RET
+		// TODO: SORTKEY
 		);
 	}
 
