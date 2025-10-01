@@ -268,6 +268,7 @@ public class BuiltInFunctionTable
 				- REINPUT	Can perform `REINPUT`
 				- UPDATE	Can perform `PROCESS PAGE UPDATE`
 				""", ALPHANUMERIC, 16),
+			unmodifiableVariable(SyntaxKind.SV_ROWCOUNT, "Returns the number of rows affected by the last SQL statement", ALPHANUMERIC, 16),
 			unmodifiableVariable(SyntaxKind.SV_GROUP, "Returns Group ID or user's own ID taken from Natural Security logon", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_USER_NAME, "Returns the user name of the current user, as taken from Natural Security", ALPHANUMERIC, 32),
 			unmodifiableVariable(SyntaxKind.SV_CODEPAGE, """

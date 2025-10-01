@@ -77,7 +77,7 @@ public enum SyntaxKind
 	SV_PAGE_LEVEL(false, true, false),
 	SV_PROGRAM(true, true, false),
 	SV_REINPUT_TYPE(false, true, false),
-	// TODO: SV_ROWCOUNT
+	SV_ROWCOUNT(false, true, false),
 	SV_STARTUP(false, true, false),
 	SV_STEPLIB(false, true, false),
 	SV_SUBROUTINE(false, true, false),
