@@ -284,6 +284,8 @@ public class BuiltInFunctionTable
 				```
 				""", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_TPVERS, "Returns the version of th TP subsystem Natural is running under", ALPHANUMERIC, 8),
+			unmodifiableVariable(SyntaxKind.SV_WINMGR, "Returns the name of the window manager if a GUI is being used", ALPHANUMERIC, 16),
+			unmodifiableVariable(SyntaxKind.SV_WINMGRVERS, "Returnsd the version of the window manager if a GUI is being used", ALPHANUMERIC, 16),
 			unmodifiableVariable(SyntaxKind.SV_OPSYS, """
 				Returns the Natural name of the operating system.
 

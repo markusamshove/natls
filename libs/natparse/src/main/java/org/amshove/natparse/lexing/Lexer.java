@@ -984,6 +984,16 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_TP);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("WINMGRVERS"))
+			{
+				createAndAdd(SyntaxKind.SV_WINMGRVERS);
+				return;
+			}
+			if (scanner.advanceIfIgnoreCase("WINMGR"))
+			{
+				createAndAdd(SyntaxKind.SV_WINMGR);
+				return;
+			}
 		}
 
 		// XML and JSON parsing

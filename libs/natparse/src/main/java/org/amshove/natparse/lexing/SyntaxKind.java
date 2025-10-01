@@ -165,8 +165,8 @@ public enum SyntaxKind
 	SV_TP(false, true, false),
 	SV_TPSYS(false, true, false),
 	SV_TPVERS(false, true, false),
-	// TODO: SV_WINMGR
-	// TODO: SV_WINMGRVERS
+	SV_WINMGR(false, true, false),
+	SV_WINMGRVERS(false, true, false),
 
 	//    XML
 	SV_PARSE_COL(false, false, true),
