@@ -153,7 +153,7 @@ public enum SyntaxKind
 
 	//    System Environment
 	SV_CODEPAGE(false, true, false),
-	// TODO: SV_HARDWARE
+	SV_HARDWARE(false, true, false),
 	SV_HOSTNAME(false, true, false),
 	SV_INIT_ID(false, true, false),
 	SV_INIT_PROGRAM(false, true, false),

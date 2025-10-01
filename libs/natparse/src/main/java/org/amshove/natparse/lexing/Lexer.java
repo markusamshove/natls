@@ -924,6 +924,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_CODEPAGE);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("HARDWARE"))
+			{
+				createAndAdd(SyntaxKind.SV_HARDWARE);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("HOSTNAME"))
 			{
 				createAndAdd(SyntaxKind.SV_HOSTNAME);
