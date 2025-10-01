@@ -115,7 +115,7 @@ public enum SyntaxKind
 	SV_CURS_COL(false, true, false),
 	SV_CURS_FIELD(false, true, false),
 	SV_CURS_LINE(false, true, false),
-	// TODO: SV_CURSOR (CURSOR already exists)
+	SV_CURSOR(false, true, false),
 	SV_LINE_COUNT(false, true, true),
 	SV_LINESIZE(false, true, false),
 	SV_LOG_LS(true, false, false),

@@ -183,7 +183,7 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 	@Test
 	void lexCursor()
 	{
-		assertTokens("*CURSOR", token(SyntaxKind.CURSOR, "*CURSOR"));
+		assertTokens("*CURSOR", token(SyntaxKind.SV_CURSOR, "*CURSOR"));
 	}
 
 	@Test

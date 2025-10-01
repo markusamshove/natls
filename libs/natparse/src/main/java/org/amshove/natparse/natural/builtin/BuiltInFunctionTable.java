@@ -192,6 +192,7 @@ public class BuiltInFunctionTable
 			modifiableVariable(SyntaxKind.SV_CURS_COL, """
 				Get or set the number of the column where the current cursor is located
 				""", PACKED, 3),
+			unmodifiableVariable(SyntaxKind.SV_CURSOR, "Returns the position of the cursor on the input screen at the time ENTER or PF is pressed", NUMERIC, 6),
 			function(SyntaxKind.SV_PARSE_COL, "Column where the parser is currently working at", INTEGER, 4, labelParameter(false)),
 			function(SyntaxKind.SV_PARSE_ROW, "Row where the parser is currently working at", INTEGER, 4, labelParameter(false)),
 			function(SyntaxKind.SV_PARSE_LEVEL, "Contains the current nesting level when parsing XML or JSON", INTEGER, 4, labelParameter(false)),

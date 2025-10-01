@@ -771,6 +771,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_CURS_LINE);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("CURSOR"))
+			{
+				createAndAdd(SyntaxKind.SV_CURSOR);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("LINE-COUNT"))
 			{
 				createAndAdd(SyntaxKind.SV_LINE_COUNT);
