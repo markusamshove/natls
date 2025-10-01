@@ -275,7 +275,7 @@ public class BuiltInFunctionTable
 				- -4: On the lower function-key line
 
 				""", PACKED, 3),
-			unmodifiableVariable(SyntaxKind.CURSOR, """
+			unmodifiableVariable(SyntaxKind.SV_CURSOR, """
 				Position of cursor on input screen at time ENTER or function key is pressed.
 
 				Note: It is recommended that the system variables *CURS-LINE and *CURS-COL be used instead of the *CURSOR command.

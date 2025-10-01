@@ -431,7 +431,7 @@ public enum SyntaxKind
 	COUPLED(true, false, false),
 	CS(true, false, false),
 	CURRENT(true, false, false),
-	CURSOR(true, true, false),
+	CURSOR(true, false, false),
 	CV(false, false, false),
 	DATA(true, false, false),
 	DATAAREA(true, false, false),
