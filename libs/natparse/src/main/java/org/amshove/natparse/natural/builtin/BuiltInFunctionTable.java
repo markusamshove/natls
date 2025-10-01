@@ -342,6 +342,7 @@ public class BuiltInFunctionTable
 				#ISN := *ISN(R1.)
 				```
 				""", PACKED, 10, labelParameter(false)),
+			unmodifiableVariable(SyntaxKind.SV_SCREEN_IO, "Indicates if screen I/O is currently possible", LOGIC, 1),
 			function(SyntaxKind.SV_COUNTER, """
 				Returns the number of times a processing loop initiated by `FIND`, `READ`, `HISTOGRAM` or `PARSE` has been entered.
 

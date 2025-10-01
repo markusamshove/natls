@@ -145,7 +145,7 @@ public enum SyntaxKind
 	SV_PARM_USER(false, true, false),
 	SV_PATCH_LEVEL(false, true, false),
 	SV_PID(false, true, false),
-	// TODO: SV_SCREEN_IO
+	SV_SCREEN_IO(false, true, false),
 	SV_SERVER_TYPE(false, true, false),
 	// TODO: SV_UI
 	SV_USER(false, true, false),

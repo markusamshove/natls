@@ -890,6 +890,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_PID);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("SCREEN-IO"))
+			{
+				createAndAdd(SyntaxKind.SV_SCREEN_IO);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("SERVER-TYPE"))
 			{
 				createAndAdd(SyntaxKind.SV_SERVER_TYPE);
