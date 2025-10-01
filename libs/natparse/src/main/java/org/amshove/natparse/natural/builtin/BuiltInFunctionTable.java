@@ -288,6 +288,7 @@ public class BuiltInFunctionTable
 				More in depth information can be retrieved with a combination of `MACHINE-CLASS`, `*HARDWARE` and `*OS`.
 				""", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_OS, "Returns the name of the operating system Natural is running under", ALPHANUMERIC, 32),
+			unmodifiableVariable(SyntaxKind.SV_OSVERS, ",Returns the version number of the operating system Natural is running under", ALPHANUMERIC, 16),
 			unmodifiableVariable(SyntaxKind.SV_PROGRAM, "Returns the name of the current Natural object", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_REINPUT_TYPE, """
 				Returns whether the app is in a state that allows `REINPUT` or `PROCESS PAGE UPDATE`.

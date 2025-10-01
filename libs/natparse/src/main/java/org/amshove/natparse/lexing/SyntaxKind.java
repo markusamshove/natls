@@ -161,7 +161,7 @@ public enum SyntaxKind
 	SV_MACHINE_CLASS(false, true, false),
 	SV_OPSYS(false, true, false),
 	SV_OS(false, true, false),
-	// TODO: SV_OSVERS
+	SV_OSVERS(false, true, false),
 	// TODO: SV_TP
 	SV_TPSYS(false, true, false),
 	// TODO: SV_TPVERS
