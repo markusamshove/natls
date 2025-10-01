@@ -443,6 +443,8 @@ public class Lexer
 			case 'O':
 			case 'p':
 			case 'P':
+			case 'r':
+			case 'R':
 			case 's':
 			case 'S':
 			case 'u':
