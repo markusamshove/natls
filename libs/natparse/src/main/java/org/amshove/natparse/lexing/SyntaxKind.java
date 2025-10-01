@@ -157,7 +157,7 @@ public enum SyntaxKind
 	SV_HOSTNAME(false, true, false),
 	SV_INIT_ID(false, true, false),
 	SV_INIT_PROGRAM(false, true, false),
-	// TODO: SV_LOCALE
+	SV_LOCALE(false, true, false),
 	SV_MACHINE_CLASS(false, true, false),
 	SV_OPSYS(false, true, false),
 	// TODO: SV_OS

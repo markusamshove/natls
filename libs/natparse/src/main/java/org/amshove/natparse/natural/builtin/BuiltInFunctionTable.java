@@ -90,6 +90,7 @@ public class BuiltInFunctionTable
 				""", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_HARDWARE, "Returns the name of the hardware platform Natural is running on", ALPHANUMERIC, 16),
 			unmodifiableVariable(SyntaxKind.SV_HOSTNAME, "Name of the machine Natural runs on", ALPHANUMERIC, 64.0),
+			unmodifiableVariable(SyntaxKind.SV_LOCALE, "Returns the language and country of the current locale", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_MACHINE_CLASS, """
 				Returns the name of the machine class Natural was started on
 

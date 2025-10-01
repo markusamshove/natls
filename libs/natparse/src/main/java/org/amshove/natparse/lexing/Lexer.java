@@ -944,6 +944,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_INIT_PROGRAM);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("LOCALE"))
+			{
+				createAndAdd(SyntaxKind.SV_LOCALE);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("MACHINE-CLASS"))
 			{
 				createAndAdd(SyntaxKind.SV_MACHINE_CLASS);
