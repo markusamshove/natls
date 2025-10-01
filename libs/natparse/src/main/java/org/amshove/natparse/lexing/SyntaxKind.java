@@ -137,7 +137,7 @@ public enum SyntaxKind
 	SV_BROWSER_IO(false, true, false),
 	SV_DEVICE(false, true, false),
 	SV_GROUP(false, true, false),
-	// TODO: SV_HARDCOPY
+	SV_HARDCOPY(false, true, false),
 	SV_INIT_USER(false, true, false),
 	SV_LANGUAGE(true, true, false),
 	// TODO: NATVERS

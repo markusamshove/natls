@@ -845,6 +845,11 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_GROUP);
 				return;
 			}
+			if (scanner.advanceIfIgnoreCase("HARDCOPY"))
+			{
+				createAndAdd(SyntaxKind.SV_HARDCOPY);
+				return;
+			}
 			if (scanner.advanceIfIgnoreCase("INIT-USER"))
 			{
 				createAndAdd(SyntaxKind.SV_INIT_USER);
