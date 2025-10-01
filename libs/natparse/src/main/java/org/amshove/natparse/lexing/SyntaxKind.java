@@ -173,7 +173,6 @@ public enum SyntaxKind
 	SV_PARSE_NAMESPACE_URI(false, false, true),
 	SV_PARSE_ROW(false, false, true),
 
-
 	TRIM(false, false, true),
 	MAXVAL(false, false, true),
 	MINVAL(false, false, true),

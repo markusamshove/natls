@@ -8,7 +8,8 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 {
 
 	@ParameterizedTest
-	@CsvFileSource(resources = {
+	@CsvFileSource(resources =
+	{
 		"../app-variables.csv",
 		"../date-time-variables.csv",
 		"../input-output-variables.csv",
@@ -17,7 +18,8 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 		"../system-environment-variables.csv",
 		"../xml-variables.csv",
 	}, delimiter = '\t')
-	void lexAllVariables(String source, String type, String modify) {
+	void lexAllVariables(String source, String type, String modify)
+	{
 		var sourceSansParams = source.replaceAll("\\(\\w+\\)$", "");
 		var tokenName = "SV_" + sourceSansParams.substring(1).replaceAll("-", "_");
 		var expected = token(SyntaxKind.valueOf(tokenName), sourceSansParams);
