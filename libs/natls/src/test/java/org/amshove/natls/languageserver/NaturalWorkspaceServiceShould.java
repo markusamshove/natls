@@ -50,9 +50,9 @@ class NaturalWorkspaceServiceShould extends EmptyProjectTest
 	}
 
 	@Test
-	void reparseExternallyChangedModulesIfTheyAreNotOpenedAndParseTheirCallersIfTheyAreOpen()
+	void reparseExternallyChangedModulesAndTheirCallersIfTheyAreOpened()
 	{
-		createOrSaveFile("LIBONE", "MYLDA.NSL", """
+		createOrSaveFileExternally("LIBONE", "MYLDA.NSL", """
 			DEFINE DATA LOCAL
 			* >Natural Source Header 000000
 			* :Mode S
@@ -61,7 +61,7 @@ class NaturalWorkspaceServiceShould extends EmptyProjectTest
 			END-DEFINE
 			""");
 
-		var subprogram = createOrSaveFile("LIBONE", "EXTADD.NSN", """
+		var subprogram = createOrSaveFileExternally("LIBONE", "EXTADD.NSN", """
 			* >Natural Source Header 000000
 			* :Mode S
 			* :CP
