@@ -1,5 +1,8 @@
 package org.amshove.natlint.cli;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.amshove.natlint.api.LinterDiagnostic;
 import org.amshove.natlint.cli.sinks.FileStatusSink;
 import org.amshove.natlint.cli.sinks.FileStatusSink.MessageType;
@@ -33,8 +36,10 @@ public class CliAnalyzer
 	private Path workingDirectory;
 	private final AnalyzerPredicates predicates;
 	private final FileStatusSink fileStatusSink;
+	private final AnalyzerOutputFlags outputFlags;
+	private Map<String, AtomicInteger> totalDiagnosticsById = new HashMap<>();
 
-	public CliAnalyzer(Path workingDirectory, IDiagnosticSink sink, FileStatusSink fileStatusSink, AnalyzerPredicates predicates, boolean disableLinting)
+	public CliAnalyzer(Path workingDirectory, IDiagnosticSink sink, FileStatusSink fileStatusSink, AnalyzerPredicates predicates, boolean disableLinting, AnalyzerOutputFlags outputFlags)
 	{
 		this.workingDirectory = workingDirectory;
 		this.predicates = predicates;
@@ -42,6 +47,7 @@ public class CliAnalyzer
 		diagnosticSink = sink;
 		this.fileStatusSink = fileStatusSink;
 		this.disableLinting = disableLinting;
+		this.outputFlags = outputFlags;
 	}
 
 	public int run()
@@ -161,6 +167,18 @@ public class CliAnalyzer
 					}
 				}
 
+				var totalDiagnosticsInFileById = allDiagnosticsInFile.stream()
+					.collect(Collectors.groupingBy(IDiagnostic::id, Collectors.counting()));
+				for (var diagnosticId : totalDiagnosticsInFileById.keySet())
+				{
+					if (!totalDiagnosticsById.containsKey(diagnosticId))
+					{
+						totalDiagnosticsById.put(diagnosticId, new AtomicInteger());
+					}
+					totalDiagnosticsById.get(diagnosticId)
+						.addAndGet(totalDiagnosticsInFileById.get(diagnosticId).intValue());
+				}
+
 				totalDiagnostics.addAndGet(allDiagnosticsInFile.size());
 				diagnosticSink.printDiagnostics(filesChecked.get(), file.getPath(), allDiagnosticsInFile);
 				fileStatusSink.printStatus(file.getPath(), MessageType.SUCCESS);
@@ -215,8 +233,16 @@ public class CliAnalyzer
 		}
 		System.out.printf("Number of GCs: %d%n", gcs);
 		System.out.printf("GC time: %ds%n", (gcTime / 1000));
-
 		System.out.println();
+		if (outputFlags.showDiagnosticStats())
+		{
+			System.out.println("Total diagnostics by ID");
+			for (var diagnosticId : totalDiagnosticsById.keySet().stream().sorted().toList())
+			{
+				System.out.printf("%s: %,d%n", diagnosticId, totalDiagnosticsById.get(diagnosticId).get());
+			}
+			System.out.println();
+		}
 
 		return totalDiagnostics.get() > 0 ? 1 : 0;
 	}
