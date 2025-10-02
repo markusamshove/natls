@@ -367,7 +367,7 @@ class DefineDataParserShould extends AbstractParserTest<IDefineData>
 		var variable = assertNodeType(defineData.variables().first(), ITypedVariableNode.class);
 		var systemVar = assertNodeType(variable.type().initialValue(), ISystemVariableNode.class);
 		assertThat(systemVar).isNotNull();
-		assertThat(systemVar.systemVariable()).isEqualTo(SyntaxKind.DATN);
+		assertThat(systemVar.systemVariable()).isEqualTo(SyntaxKind.SV_DATN);
 	}
 
 	@Test

@@ -4266,7 +4266,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 					}
 					else
 					{
-						var consumed = consumeAnyMandatory(statement, List.of(SyntaxKind.HELP, SyntaxKind.PROGRAM, SyntaxKind.PGM, SyntaxKind.ON, SyntaxKind.OFF, SyntaxKind.STRING_LITERAL, SyntaxKind.COMMAND, SyntaxKind.DISABLED));
+						var consumed = consumeAnyMandatory(statement, List.of(SyntaxKind.HELP, SyntaxKind.SV_PROGRAM, SyntaxKind.PGM, SyntaxKind.ON, SyntaxKind.OFF, SyntaxKind.STRING_LITERAL, SyntaxKind.COMMAND, SyntaxKind.DISABLED));
 						if (consumed.kind() == SyntaxKind.COMMAND)
 						{
 							consumeAnyMandatory(statement, List.of(SyntaxKind.ON, SyntaxKind.OFF));

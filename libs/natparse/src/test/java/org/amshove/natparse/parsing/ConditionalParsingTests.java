@@ -535,8 +535,8 @@ class ConditionalParsingTests extends AbstractParserTest<IStatementListNode>
 	void parseAConditionSystemFunctions()
 	{
 		var criteria = assertParsesCriteria("*COUNTER(ASD.) = *OCC(#ARR)", IRelationalCriteriaNode.class);
-		assertThat(assertNodeType(criteria.left(), ISystemFunctionNode.class).systemFunction()).isEqualTo(SyntaxKind.COUNTER);
-		assertThat(assertNodeType(criteria.right(), ISystemFunctionNode.class).systemFunction()).isEqualTo(SyntaxKind.OCC);
+		assertThat(assertNodeType(criteria.left(), ISystemFunctionNode.class).systemFunction()).isEqualTo(SyntaxKind.SV_COUNTER);
+		assertThat(assertNodeType(criteria.right(), ISystemFunctionNode.class).systemFunction()).isEqualTo(SyntaxKind.SV_OCC);
 	}
 
 	@Test
@@ -596,7 +596,7 @@ class ConditionalParsingTests extends AbstractParserTest<IStatementListNode>
 		var criteria = assertParsesCriteria("*OCC(#ARR) + 5 = (10 * 2)", IRelationalCriteriaNode.class);
 
 		var leftArithmetic = assertNodeType(criteria.left(), IArithmeticExpressionNode.class);
-		assertThat(assertNodeType(leftArithmetic.left(), ISystemFunctionNode.class).systemFunction()).isEqualTo(SyntaxKind.OCC);
+		assertThat(assertNodeType(leftArithmetic.left(), ISystemFunctionNode.class).systemFunction()).isEqualTo(SyntaxKind.SV_OCC);
 		assertThat(leftArithmetic.operator()).isEqualTo(SyntaxKind.PLUS);
 		assertThat(assertNodeType(leftArithmetic.right(), ILiteralNode.class).token().intValue()).isEqualTo(5);
 

@@ -80,7 +80,7 @@ class LexerForStringsShould extends AbstractLexerTest
 			"MOVE EDITED *TIMX(EM=' 'HH':'II':'SS) TO #RIGHT-PROMPT ",
 			SyntaxKind.MOVE,
 			SyntaxKind.EDITED,
-			SyntaxKind.TIMX,
+			SyntaxKind.SV_TIMX,
 			SyntaxKind.LPAREN,
 			SyntaxKind.EM,
 			SyntaxKind.RPAREN,

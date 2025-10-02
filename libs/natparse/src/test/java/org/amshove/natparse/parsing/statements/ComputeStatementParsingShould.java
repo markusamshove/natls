@@ -49,7 +49,7 @@ class ComputeStatementParsingShould extends StatementParseTest
 			COMPUTE *ERROR-NR := 5
 			""", IComputeStatementNode.class);
 
-		assertThat(assertNodeType(assign.target(), ISystemVariableNode.class).systemVariable()).isEqualTo(SyntaxKind.ERROR_NR);
+		assertThat(assertNodeType(assign.target(), ISystemVariableNode.class).systemVariable()).isEqualTo(SyntaxKind.SV_ERROR_NR);
 	}
 
 	@Test

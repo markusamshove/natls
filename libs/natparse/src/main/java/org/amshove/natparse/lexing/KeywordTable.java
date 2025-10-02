@@ -310,7 +310,7 @@ public class KeywordTable
 			case "keep" -> SyntaxKind.KEEP;
 			case "key" -> SyntaxKind.KEY;
 			case "keys" -> SyntaxKind.KEYS;
-			case "language" -> SyntaxKind.LANGUAGE;
+			case "language" -> SyntaxKind.SV_LANGUAGE;
 			case "last" -> SyntaxKind.LAST;
 			case "lc" -> SyntaxKind.LC;
 			case "lcu" -> SyntaxKind.LCU;
@@ -334,8 +334,8 @@ public class KeywordTable
 			case "local" -> SyntaxKind.LOCAL;
 			case "locks" -> SyntaxKind.LOCKS;
 			case "log" -> SyntaxKind.LOG;
-			case "log-ls" -> SyntaxKind.LOG_LS;
-			case "log-ps" -> SyntaxKind.LOG_PS;
+			case "log-ls" -> SyntaxKind.SV_LOG_LS;
+			case "log-ps" -> SyntaxKind.SV_LOG_PS;
 			case "logical" -> SyntaxKind.LOGICAL;
 			case "loop" -> SyntaxKind.LOOP;
 			case "lower" -> SyntaxKind.LOWER;
@@ -440,7 +440,7 @@ public class KeywordTable
 			case "process" -> SyntaxKind.PROCESS;
 			case "processing" -> SyntaxKind.PROCESSING;
 			case "profile" -> SyntaxKind.PROFILE;
-			case "program" -> SyntaxKind.PROGRAM;
+			case "program" -> SyntaxKind.SV_PROGRAM;
 			case "property" -> SyntaxKind.PROPERTY;
 			case "prototype" -> SyntaxKind.PROTOTYPE;
 			case "prty" -> SyntaxKind.PRTY;
