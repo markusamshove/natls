@@ -21,7 +21,7 @@ class LexerForSystemVariablesShould extends AbstractLexerTest
 	void lexAllVariables(String source, String type, String modify)
 	{
 		var sourceSansParams = source.replaceAll("\\(\\w+\\)$", "");
-		var tokenName = "SV_" + sourceSansParams.substring(1).replaceAll("-", "_");
+		var tokenName = "SV_" + sourceSansParams.substring(1).replace("-", "_");
 		var expected = token(SyntaxKind.valueOf(tokenName), sourceSansParams);
 		assertTokens(sourceSansParams, expected);
 	}
