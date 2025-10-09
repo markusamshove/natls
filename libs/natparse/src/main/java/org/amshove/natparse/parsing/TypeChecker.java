@@ -443,7 +443,7 @@ final class TypeChecker implements ISyntaxNodeVisitor
 		if (parent instanceof ISystemFunctionNode systemFunction)
 		{
 			var theFunction = systemFunction.systemFunction();
-			return theFunction == SyntaxKind.OCC || theFunction == SyntaxKind.OCCURRENCE || theFunction == SyntaxKind.UBOUND || theFunction == SyntaxKind.LBOUND;
+			return theFunction == SyntaxKind.SV_OCC || theFunction == SyntaxKind.SV_OCCURRENCE || theFunction == SyntaxKind.SV_UBOUND || theFunction == SyntaxKind.SV_LBOUND;
 		}
 
 		return parent instanceof IExpandArrayNode
