@@ -3,7 +3,6 @@ package org.amshove.natparse.parsing;
 import org.amshove.natparse.IDiagnostic;
 import org.amshove.natparse.ReadOnlyList;
 import org.amshove.natparse.natural.*;
-import org.amshove.natparse.parsing.TypeInference;
 import org.amshove.natparse.parsing.operandcheck.OperandCheck;
 import org.amshove.natparse.parsing.operandcheck.OperandCheck.BinaryCheck;
 import org.amshove.natparse.parsing.operandcheck.OperandCheck.DefinitionCheck;
@@ -12,22 +11,21 @@ import org.amshove.natparse.parsing.operandcheck.OperandDefinition;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 
 class OperandChecker
 {
 	private final List<IDiagnostic> diagnostics = new ArrayList<>();
 
-	public ReadOnlyList<IDiagnostic> checkOperands(Map<IOperandNode, OperandCheck> operandChecks)
+	public ReadOnlyList<IDiagnostic> checkOperands(List<OperandCheck> operandChecks)
 	{
-		for (var queuedCheck : operandChecks.entrySet())
+		for (var queuedCheck : operandChecks)
 		{
 			// TODO: Type inference is also done in the TypeChecker, so at least twice now
 			//       maybe the typechecker isn't needed anymore if all statements use the
 			//       operator check queue
-			var inferredType = TypeInference.inferType(queuedCheck.getKey());
+			var inferredType = TypeInference.inferType(queuedCheck.lhs());
 			inferredType
-				.ifPresent(type -> check(queuedCheck.getValue(), type));
+				.ifPresent(type -> check(queuedCheck, type));
 		}
 		return ReadOnlyList.from(diagnostics);
 	}
@@ -41,8 +39,24 @@ class OperandChecker
 		else
 			if (operandCheck instanceof BinaryCheck binaryCheck)
 			{
-				check(binaryCheck, type);
+				checkBinary(binaryCheck, type);
 			}
+	}
+
+	private void checkBinary(BinaryCheck binaryCheck, IDataType lhsType)
+	{
+		var inferedRhsType = inferType(binaryCheck.rhs());
+
+		if (inferedRhsType.format() != DataFormat.NONE && !inferedRhsType.hasCompatibleFormat(lhsType))
+		{
+			diagnostics.add(
+				ParserErrors.typeMismatch(
+					"Type mismatch between left and right operand. Left is %s, right is %s"
+						.formatted(lhsType, inferedRhsType),
+					binaryCheck.rhs()
+				)
+			);
+		}
 	}
 
 	private void check(IOperandNode operand, IDataType type, EnumSet<OperandDefinition> definitionTable)
@@ -208,5 +222,11 @@ class OperandChecker
 		}
 
 		return builder.toString();
+	}
+
+	private IDataType inferType(IOperandNode operand)
+	{
+		return TypeInference.inferType(operand)
+			.orElse(new DataType(DataFormat.NONE, IDataType.ONE_GIGABYTE)); // couldn't infer, don't raise something yet
 	}
 }

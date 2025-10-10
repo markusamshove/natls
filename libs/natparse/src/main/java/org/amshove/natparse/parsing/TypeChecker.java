@@ -76,13 +76,8 @@ final class TypeChecker implements ISyntaxNodeVisitor
 		if (statement instanceof IWriteWorkNode writeWork)
 		{
 			checkWriteWork(writeWork);
-			return;
 		}
 
-		if (statement instanceof IDecideOnNode decideOn)
-		{
-			checkDecideOnBranches(decideOn);
-		}
 	}
 
 	private void checkAssign(IAssignmentStatementNode assignment)
@@ -293,34 +288,6 @@ final class TypeChecker implements ISyntaxNodeVisitor
 			if (type != null && type.format() != DataFormat.NONE && type.format() != DataFormat.ALPHANUMERIC && type.format() != DataFormat.UNICODE && type.format() != DataFormat.BINARY)
 			{
 				report(ParserErrors.typeMismatch("Parameter to *TRIM must be of type A, B or U but is %s".formatted(type.toShortString()), parameter), parameter);
-			}
-		}
-	}
-
-	private void checkDecideOnBranches(IDecideOnNode decideOn)
-	{
-		if (!(decideOn.operand()instanceof IVariableReferenceNode target)
-			|| !(target.reference()instanceof ITypedVariableNode typedTarget)
-			|| typedTarget.type() == null)
-		{
-			return;
-		}
-
-		for (var branch : decideOn.branches())
-		{
-			for (var value : branch.values())
-			{
-				var inferredType = inferDataType(value);
-				if (inferredType.format() != DataFormat.NONE && !inferredType.hasCompatibleFormat(typedTarget.type()))
-				{
-					report(
-						ParserErrors.typeMismatch(
-							"Inferred format %s is not compatible with %s (%s)".formatted(inferredType.format(), typedTarget.declaration().symbolName(), typedTarget.type().format()),
-							value
-						),
-						value
-					);
-				}
 			}
 		}
 	}

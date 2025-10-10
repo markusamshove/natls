@@ -31,7 +31,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	private static final List<SyntaxKind> TO_INTO = List.of(SyntaxKind.INTO, SyntaxKind.TO);
 
 	private final List<IReferencableNode> referencableNodes = new ArrayList<>();
-	private final Map<IOperandNode, OperandCheck> operandCheckQueue = new HashMap<>();
+	private final List<OperandCheck> operandCheckQueue = new ArrayList<>();
 
 	private final Set<String> currentModuleCallStack = new HashSet<>();
 	private final Set<String> declaredStatementLabels = new HashSet<>();
@@ -41,7 +41,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		return referencableNodes;
 	}
 
-	public Map<IOperandNode, OperandCheck> operandCheckQueue()
+	public List<OperandCheck> operandCheckQueue()
 	{
 		return operandCheckQueue;
 	}
@@ -2602,7 +2602,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 	private void enqueueOperandCheck(IOperandNode operand, EnumSet<OperandDefinition> rules)
 	{
-		operandCheckQueue.put(operand, new DefinitionCheck(operand, rules));
+		operandCheckQueue.add(new DefinitionCheck(operand, rules));
 	}
 
 	/**
@@ -2610,7 +2610,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	 **/
 	private void enqueueOperandCheck(IOperandNode lhs, IOperandNode rhs)
 	{
-		operandCheckQueue.put(lhs, new BinaryCheck(lhs, rhs));
+		operandCheckQueue.add(new BinaryCheck(lhs, rhs));
 	}
 
 	private static final Set<SyntaxKind> OPTIONAL_DISPLAY_FLAGS = Set.of(SyntaxKind.NOTITLE, SyntaxKind.NOTIT, SyntaxKind.NOHDR, SyntaxKind.AND, SyntaxKind.GIVE, SyntaxKind.SYSTEM, SyntaxKind.FUNCTIONS);
@@ -3492,7 +3492,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 				unresolvedSymbols.addAll(nestedParser.unresolvedSymbols);
 				referencableNodes.addAll(nestedParser.referencableNodes);
-				operandCheckQueue.putAll(nestedParser.operandCheckQueue);
+				operandCheckQueue.addAll(nestedParser.operandCheckQueue);
 				include.setBody(
 					statementList.result(),
 					shouldRelocateDiagnostics()
@@ -4183,7 +4183,9 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	{
 		var branch = new DecideOnBranchNode();
 		var branchStart = consumeAnyMandatory(branch, List.of(SyntaxKind.VALUE, SyntaxKind.VALUES));
-		branch.addOperand(consumeSubstringOrOperand(branch));
+		var decideOnValue = consumeSubstringOrOperand(branch);
+		enqueueOperandCheck(decideTarget, decideOnValue);
+		branch.addOperand(decideOnValue);
 
 		if (consumeOptionally(branch, SyntaxKind.COLON))
 		{
