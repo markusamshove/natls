@@ -218,6 +218,11 @@ public class NaturalParser
 			{
 				moduleBuilder.addDiagnostic(diagnostic);
 			}
+			var operandChecker = new OperandChecker();
+			for (var diagnostic : operandChecker.checkOperands(statementParser.operandCheckQueue()))
+			{
+				moduleBuilder.addDiagnostic(diagnostic);
+			}
 		}
 
 		var theBody = moduleBuilder.body();
