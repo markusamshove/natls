@@ -1,4 +1,4 @@
-package org.amshove.natparse.parsing;
+package org.amshove.natparse.parsing.operandcheck;
 
 import org.amshove.natparse.natural.DataFormat;
 
@@ -48,7 +48,7 @@ public enum OperandDefinition
 		return shortform;
 	}
 
-	static final OperandDefinition[] FORMAT_DEFINITIONS = new OperandDefinition[]
+	public static final OperandDefinition[] FORMAT_DEFINITIONS = new OperandDefinition[]
 	{
 		FORMAT_ALPHANUMERIC_ASCII,
 		FORMAT_ALPHANUMERIC_UNICODE,
@@ -64,7 +64,7 @@ public enum OperandDefinition
 		FORMAT_HANDLE_OF_OBJECT
 	};
 
-	static OperandDefinition forDataFormat(DataFormat format)
+	public static OperandDefinition forDataFormat(DataFormat format)
 	{
 		return switch (format)
 		{

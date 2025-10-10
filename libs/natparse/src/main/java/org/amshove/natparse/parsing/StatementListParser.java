@@ -12,6 +12,10 @@ import org.amshove.natparse.natural.conditionals.ILogicalConditionCriteriaNode;
 import org.amshove.natparse.natural.output.IOutputElementNode;
 import org.amshove.natparse.natural.output.IOutputOperandNode;
 import org.amshove.natparse.natural.project.NaturalFileType;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck.BinaryCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck.DefinitionCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandDefinition;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -19,7 +23,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static org.amshove.natparse.parsing.OperandDefinition.*;
+import static org.amshove.natparse.parsing.operandcheck.OperandDefinition.*;
 
 public class StatementListParser extends AbstractParser<IStatementListNode>
 {
@@ -27,7 +31,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	private static final List<SyntaxKind> TO_INTO = List.of(SyntaxKind.INTO, SyntaxKind.TO);
 
 	private final List<IReferencableNode> referencableNodes = new ArrayList<>();
-	private final Map<IOperandNode, EnumSet<OperandDefinition>> operandCheckQueue = new HashMap<>();
+	private final Map<IOperandNode, OperandCheck> operandCheckQueue = new HashMap<>();
 
 	private final Set<String> currentModuleCallStack = new HashSet<>();
 	private final Set<String> declaredStatementLabels = new HashSet<>();
@@ -37,7 +41,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		return referencableNodes;
 	}
 
-	public Map<IOperandNode, EnumSet<OperandDefinition>> operandCheckQueue()
+	public Map<IOperandNode, OperandCheck> operandCheckQueue()
 	{
 		return operandCheckQueue;
 	}
@@ -2598,7 +2602,15 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 	private void enqueueOperandCheck(IOperandNode operand, EnumSet<OperandDefinition> rules)
 	{
-		operandCheckQueue.put(operand, rules);
+		operandCheckQueue.put(operand, new DefinitionCheck(operand, rules));
+	}
+
+	/**
+	 * Enqueue a check on two operands, where rhs needs to be compatible to lhs.
+	 **/
+	private void enqueueOperandCheck(IOperandNode lhs, IOperandNode rhs)
+	{
+		operandCheckQueue.put(lhs, new BinaryCheck(lhs, rhs));
 	}
 
 	private static final Set<SyntaxKind> OPTIONAL_DISPLAY_FLAGS = Set.of(SyntaxKind.NOTITLE, SyntaxKind.NOTIT, SyntaxKind.NOHDR, SyntaxKind.AND, SyntaxKind.GIVE, SyntaxKind.SYSTEM, SyntaxKind.FUNCTIONS);
@@ -4119,7 +4131,8 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeAnyOptionally(decideOn, DECIDE_ON_VALUE_KEYWORDS);
 		consumeOptionally(decideOn, SyntaxKind.OF);
 
-		decideOn.setOperand(consumeSubstringOrOperand(decideOn));
+		var decideOnTarget = consumeSubstringOrOperand(decideOn);
+		decideOn.setOperand(decideOnTarget);
 
 		while (!isAtEnd() && !peekKind(SyntaxKind.END_DECIDE))
 		{
@@ -4153,7 +4166,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 				continue;
 			}
 
-			decideOn.addBranch(decideOnBranch());
+			decideOn.addBranch(decideOnBranch(decideOnTarget));
 		}
 
 		consumeMandatoryClosing(decideOn, SyntaxKind.END_DECIDE, opening);
@@ -4166,7 +4179,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		return decideOn;
 	}
 
-	private DecideOnBranchNode decideOnBranch() throws ParseError
+	private DecideOnBranchNode decideOnBranch(IOperandNode decideTarget) throws ParseError
 	{
 		var branch = new DecideOnBranchNode();
 		var branchStart = consumeAnyMandatory(branch, List.of(SyntaxKind.VALUE, SyntaxKind.VALUES));
@@ -4175,14 +4188,18 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		if (consumeOptionally(branch, SyntaxKind.COLON))
 		{
 			branch.setHasValueRange();
-			branch.addOperand(consumeSubstringOrOperand(branch));
+			var operand = consumeSubstringOrOperand(branch);
+			enqueueOperandCheck(decideTarget, operand);
+			branch.addOperand(operand);
 		}
 		else
 		{
 			while (!isAtEnd() && peekKind(SyntaxKind.COMMA))
 			{
 				consumeMandatory(branch, SyntaxKind.COMMA);
-				branch.addOperand(consumeSubstringOrOperand(branch));
+				var operand = consumeSubstringOrOperand(branch);
+				enqueueOperandCheck(decideTarget, operand);
+				branch.addOperand(operand);
 			}
 		}
 

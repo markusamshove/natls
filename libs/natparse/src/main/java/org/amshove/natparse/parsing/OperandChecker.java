@@ -3,6 +3,11 @@ package org.amshove.natparse.parsing;
 import org.amshove.natparse.IDiagnostic;
 import org.amshove.natparse.ReadOnlyList;
 import org.amshove.natparse.natural.*;
+import org.amshove.natparse.parsing.TypeInference;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck.BinaryCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck.DefinitionCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandDefinition;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -13,7 +18,7 @@ class OperandChecker
 {
 	private final List<IDiagnostic> diagnostics = new ArrayList<>();
 
-	public ReadOnlyList<IDiagnostic> checkOperands(Map<IOperandNode, EnumSet<OperandDefinition>> operandChecks)
+	public ReadOnlyList<IDiagnostic> checkOperands(Map<IOperandNode, OperandCheck> operandChecks)
 	{
 		for (var queuedCheck : operandChecks.entrySet())
 		{
@@ -22,9 +27,22 @@ class OperandChecker
 			//       operator check queue
 			var inferredType = TypeInference.inferType(queuedCheck.getKey());
 			inferredType
-				.ifPresent(type -> check(queuedCheck.getKey(), type, queuedCheck.getValue()));
+				.ifPresent(type -> check(queuedCheck.getValue(), type));
 		}
 		return ReadOnlyList.from(diagnostics);
+	}
+
+	private void check(OperandCheck operandCheck, IDataType type)
+	{
+		if (operandCheck instanceof DefinitionCheck definitionCheck)
+		{
+			check(definitionCheck.lhs(), type, definitionCheck.definitionTable());
+		}
+		else
+			if (operandCheck instanceof BinaryCheck binaryCheck)
+			{
+				check(binaryCheck, type);
+			}
 	}
 
 	private void check(IOperandNode operand, IDataType type, EnumSet<OperandDefinition> definitionTable)
