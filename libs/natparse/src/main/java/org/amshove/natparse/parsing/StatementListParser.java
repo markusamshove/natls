@@ -26,7 +26,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	private static final Pattern SETKEY_PATTERN = Pattern.compile("(ENTR|CLR|PA[1-3]|PF([1-9]|[0-1][\\d]|2[0-4]))\\b");
 	private static final List<SyntaxKind> TO_INTO = List.of(SyntaxKind.INTO, SyntaxKind.TO);
 
-	private final List<IReferencableNode> referencableNodes = new ArrayList<>();;
+	private final List<IReferencableNode> referencableNodes = new ArrayList<>();
 	private final Map<IOperandNode, EnumSet<OperandDefinition>> operandCheckQueue = new HashMap<>();
 
 	private final Set<String> currentModuleCallStack = new HashSet<>();
