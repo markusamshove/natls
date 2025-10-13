@@ -24,7 +24,7 @@ public class CodeConsistencyAnalyzer extends AbstractAnalyzer
 	@Override
 	public void initialize(ILinterContext context)
 	{
-		registerTokenPreference(context, SyntaxKind.OCCURRENCE, SyntaxKind.OCC);
+		registerTokenPreference(context, SyntaxKind.SV_OCCURRENCE, SyntaxKind.SV_OCC);
 	}
 
 	private void registerTokenPreference(ILinterContext context, SyntaxKind unwantedToken, SyntaxKind preferredToken)

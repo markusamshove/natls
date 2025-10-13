@@ -940,7 +940,7 @@ class StatementListParserShould extends StatementParseTest
 			""", IForLoopNode.class);
 
 		var upperBound = assertNodeType(forLoopNode.upperBound(), ISystemFunctionNode.class);
-		assertThat(upperBound.systemFunction()).isEqualTo(SyntaxKind.OCC);
+		assertThat(upperBound.systemFunction()).isEqualTo(SyntaxKind.SV_OCC);
 		assertThat(upperBound.parameter().first()).isInstanceOf(IVariableReferenceNode.class);
 		assertThat(forLoopNode.body().statements()).hasSize(1);
 		assertThat(forLoopNode.descendants()).hasSize(8);
@@ -4275,15 +4275,15 @@ class StatementListParserShould extends StatementParseTest
 			DEFINE DATA LOCAL
 			1 #I (I4)
 			END-DEFINE
-			
+
 			F1. FOR #I := 1 TO 10
 			IGNORE
 			END-FOR
-			
+
 			F1. FOR #I := 1 TO 10
 			IGNORE
 			END-FOR
-			
+
 			END
 			""", ParserError.DUPLICATED_STATEMENT_LABEL);
 	}

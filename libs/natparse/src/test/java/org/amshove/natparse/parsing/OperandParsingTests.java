@@ -17,7 +17,7 @@ class OperandParsingTests extends AbstractOperandParsingTest
 	{
 		var operand = parseOperand("*LINE");
 		var variable = assertNodeType(operand, ISystemVariableNode.class);
-		assertThat(variable.systemVariable()).isEqualTo(SyntaxKind.LINE);
+		assertThat(variable.systemVariable()).isEqualTo(SyntaxKind.SV_LINE);
 	}
 
 	@Test
@@ -67,7 +67,7 @@ class OperandParsingTests extends AbstractOperandParsingTest
 	{
 		var operand = parseOperand("*OCC(#THE-ARR, 1, 5)");
 		var function = assertNodeType(operand, ISystemFunctionNode.class);
-		assertThat(function.systemFunction()).isEqualTo(SyntaxKind.OCC);
+		assertThat(function.systemFunction()).isEqualTo(SyntaxKind.SV_OCC);
 		assertNodeType(function.parameter().first(), IVariableReferenceNode.class);
 		assertNodeType(function.parameter().get(1), ILiteralNode.class);
 		assertNodeType(function.parameter().get(2), ILiteralNode.class);
@@ -437,7 +437,7 @@ class OperandParsingTests extends AbstractOperandParsingTest
 	void parsePageNumberWithoutRep()
 	{
 		var operand = parseOperand("*PAGE-NUMBER");
-		assertThat(assertNodeType(operand, ISystemVariableNode.class).systemVariable()).isEqualTo(SyntaxKind.PAGE_NUMBER);
+		assertThat(assertNodeType(operand, ISystemVariableNode.class).systemVariable()).isEqualTo(SyntaxKind.SV_PAGE_NUMBER);
 	}
 
 	@Test
@@ -445,7 +445,7 @@ class OperandParsingTests extends AbstractOperandParsingTest
 	{
 		var operand = parseOperand("*PAGE-NUMBER(SV1)");
 		var function = assertNodeType(operand, ISystemFunctionNode.class);
-		assertThat(function.systemFunction()).isEqualTo(SyntaxKind.PAGE_NUMBER);
+		assertThat(function.systemFunction()).isEqualTo(SyntaxKind.SV_PAGE_NUMBER);
 		assertThat(function.parameter()).hasSize(1);
 		var parameter = assertNodeType(function.parameter().get(0), IReportSpecificationOperandNode.class);
 		assertThat(parameter.reportSpecification().symbolName()).isEqualTo("SV1");
@@ -455,7 +455,7 @@ class OperandParsingTests extends AbstractOperandParsingTest
 	void parseLineCountWithoutRep()
 	{
 		var operand = parseOperand("*LINE-COUNT");
-		assertThat(assertNodeType(operand, ISystemVariableNode.class).systemVariable()).isEqualTo(SyntaxKind.LINE_COUNT);
+		assertThat(assertNodeType(operand, ISystemVariableNode.class).systemVariable()).isEqualTo(SyntaxKind.SV_LINE_COUNT);
 	}
 
 	@Test
@@ -463,7 +463,7 @@ class OperandParsingTests extends AbstractOperandParsingTest
 	{
 		var operand = parseOperand("*LINE-COUNT(SV1)");
 		var function = assertNodeType(operand, ISystemFunctionNode.class);
-		assertThat(function.systemFunction()).isEqualTo(SyntaxKind.LINE_COUNT);
+		assertThat(function.systemFunction()).isEqualTo(SyntaxKind.SV_LINE_COUNT);
 		assertThat(function.parameter()).hasSize(1);
 		var parameter = assertNodeType(function.parameter().get(0), IReportSpecificationOperandNode.class);
 		assertThat(parameter.reportSpecification().symbolName()).isEqualTo("SV1");

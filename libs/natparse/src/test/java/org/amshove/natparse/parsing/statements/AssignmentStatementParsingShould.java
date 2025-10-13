@@ -29,7 +29,7 @@ class AssignmentStatementParsingShould extends StatementParseTest
 			*ERROR-NR := 5
 			""", IAssignmentStatementNode.class);
 
-		assertThat(assertNodeType(assign.target(), ISystemVariableNode.class).systemVariable()).isEqualTo(SyntaxKind.ERROR_NR);
+		assertThat(assertNodeType(assign.target(), ISystemVariableNode.class).systemVariable()).isEqualTo(SyntaxKind.SV_ERROR_NR);
 	}
 
 	@Test

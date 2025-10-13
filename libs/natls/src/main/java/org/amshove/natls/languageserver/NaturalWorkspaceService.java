@@ -40,7 +40,7 @@ public class NaturalWorkspaceService implements WorkspaceService
 	{
 		for (var file : params.getFiles())
 		{
-			languageService.createdFile(file.getUri());
+			languageService.fileCreated(file.getUri());
 		}
 	}
 
@@ -59,7 +59,7 @@ public class NaturalWorkspaceService implements WorkspaceService
 				if (isNaturalModule)
 				{
 					changedModules++;
-					handleNaturalModuleChange(filepath, change);
+					handleWatchedFileEvent(filepath, change);
 				}
 			}
 			catch (Exception e)
@@ -76,26 +76,20 @@ public class NaturalWorkspaceService implements WorkspaceService
 		log.fine(() -> "didChangeWatchedFiles end");
 	}
 
-	private void handleNaturalModuleChange(Path filepath, FileEvent change)
+	/**
+	 * Handles events for watched modules. This should only be used for externally changed files.</br>
+	 * Files that are changed or created by the client itself will be handled by the
+	 * {@link org.eclipse.lsp4j.services.TextDocumentService} ({@link NaturalDocumentService}.</br>
+	 * The job of this handler is to keep the project up to date.
+	 */
+	private void handleWatchedFileEvent(Path filepath, FileEvent change)
 	{
-		log.fine(() -> "Handling watched natural module change: %s".formatted(filepath));
+		log.fine(() -> "Handling watched natural module change [%s]: %s".formatted(change.getType(), filepath));
 		switch (change.getType())
 		{
-			case Created ->
-			{
-				log.fine("Module is new, adding to project");
-				languageService.createdFile(change.getUri());
-			}
-			case Changed ->
-			{
-				log.fine("Module is saved or externally changed, reparsing with callers");
-				languageService.fileExternallyChanged(filepath);
-			}
-			case Deleted ->
-			{
-				log.fine("Module is deleted, removing");
-				languageService.fileDeleted(filepath);
-			}
+			case Created -> languageService.fileCreated(change.getUri());
+			case Deleted -> languageService.fileDeleted(filepath);
+			case Changed -> languageService.fileExternallyChanged(filepath);
 		}
 	}
 

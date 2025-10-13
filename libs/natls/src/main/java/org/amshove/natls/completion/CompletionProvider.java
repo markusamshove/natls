@@ -885,7 +885,7 @@ public class CompletionProvider
 			.filter(sk -> sk.isSystemVariable() || sk.isSystemFunction())
 			.map(sk ->
 			{
-				var callableName = sk.toString().replace("SV_", "").replace("_", "-");
+				var callableName = sk.name().replace("SV_", "").replaceAll("_", "-");
 				var completionItem = new CompletionItem();
 				var definition = BuiltInFunctionTable.getDefinition(sk);
 				var label = "*" + callableName;
