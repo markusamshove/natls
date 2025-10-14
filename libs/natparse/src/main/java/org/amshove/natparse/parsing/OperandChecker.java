@@ -9,7 +9,7 @@ import org.amshove.natparse.parsing.operandcheck.OperandCheck.DefinitionCheck;
 import org.amshove.natparse.parsing.operandcheck.OperandDefinition;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
+import java.util.Set;
 import java.util.List;
 
 class OperandChecker
@@ -20,9 +20,6 @@ class OperandChecker
 	{
 		for (var queuedCheck : operandChecks)
 		{
-			// TODO: Type inference is also done in the TypeChecker, so at least twice now
-			//       maybe the typechecker isn't needed anymore if all statements use the
-			//       operator check queue
 			var inferredType = TypeInference.inferType(queuedCheck.lhs());
 			inferredType
 				.ifPresent(type -> check(queuedCheck, type));
@@ -59,7 +56,7 @@ class OperandChecker
 		}
 	}
 
-	private void check(IOperandNode operand, IDataType type, EnumSet<OperandDefinition> definitionTable)
+	private void check(IOperandNode operand, IDataType type, Set<OperandDefinition> definitionTable)
 	{
 		if (OperandDefinition.forDataFormat(type.format())instanceof OperandDefinition definition)
 		{
@@ -128,7 +125,7 @@ class OperandChecker
 
 	private void checkFormatDefinition(
 		IOperandNode operand, OperandDefinition definition,
-		EnumSet<OperandDefinition> definitionTable
+		Set<OperandDefinition> definitionTable
 	)
 	{
 		if (!definitionTable.contains(OperandDefinition.ALL_FORMATS) && !definitionTable.contains(definition))
@@ -142,7 +139,7 @@ class OperandChecker
 		}
 	}
 
-	private static String formatAllowedDataFormats(EnumSet<OperandDefinition> definitionTable)
+	private static String formatAllowedDataFormats(Set<OperandDefinition> definitionTable)
 	{
 		var builder = new StringBuilder();
 		var separator = "";
@@ -160,7 +157,7 @@ class OperandChecker
 		return builder.toString();
 	}
 
-	private static String formatAllowedStructures(EnumSet<OperandDefinition> definitionTable)
+	private static String formatAllowedStructures(Set<OperandDefinition> definitionTable)
 	{
 		var builder = new StringBuilder("It must be one of: ");
 		var separator = "";

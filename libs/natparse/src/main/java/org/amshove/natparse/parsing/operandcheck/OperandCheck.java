@@ -1,6 +1,6 @@
 package org.amshove.natparse.parsing.operandcheck;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 import org.amshove.natparse.natural.IOperandNode;
 
@@ -20,15 +20,15 @@ public sealed class OperandCheck
 
 	public static final class DefinitionCheck extends OperandCheck
 	{
-		final EnumSet<OperandDefinition> definitionTable;
+		final Set<OperandDefinition> definitionTable;
 
-		public DefinitionCheck(IOperandNode lhs, EnumSet<OperandDefinition> definitionTable)
+		public DefinitionCheck(IOperandNode lhs, Set<OperandDefinition> definitionTable)
 		{
 			super(lhs);
 			this.definitionTable = definitionTable;
 		}
 
-		public EnumSet<OperandDefinition> definitionTable()
+		public Set<OperandDefinition> definitionTable()
 		{
 			return definitionTable;
 		}
