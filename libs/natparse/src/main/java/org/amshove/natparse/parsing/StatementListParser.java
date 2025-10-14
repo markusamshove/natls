@@ -5124,7 +5124,15 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 		while (isOperand())
 		{
-			resetNode.addOperand(consumeOperandNode(resetNode));
+			var operand = consumeOperandNode(resetNode);
+			enqueueOperandCheck(
+				operand,
+				EnumSet.of(
+					STRUCTURE_SCALAR, STRUCTURE_ARRAY, STRUCTURE_GROUP, STRUCTURE_MODIFIABLE_SYSTEM_VARIABLE_ONLY, FORMAT_ALPHANUMERIC_ASCII, FORMAT_ALPHANUMERIC_UNICODE, FORMAT_NUMERIC_UNPACKED, FORMAT_NUMERIC_PACKED, FORMAT_INTEGER, FORMAT_FLOATING, FORMAT_BINARY, FORMAT_DATE, FORMAT_TIME, FORMAT_LOGICAL, FORMAT_ATTRIBUTE_CONTROL, FORMAT_HANDLE_OF_OBJECT, REFERENCING_BY_LABEL_PERMITTED,
+					DYNAMIC_DEFINITION_PERMITTED
+				)
+			);
+			resetNode.addOperand(operand);
 		}
 
 		return resetNode;

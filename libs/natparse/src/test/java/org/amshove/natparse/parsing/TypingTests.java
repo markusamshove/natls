@@ -8,6 +8,6 @@ class TypingTests extends ResourceFolderBasedTest
 	@TestFactory
 	Iterable<DynamicTest> testTypings()
 	{
-		return testFolder("typing", "decideOnTyping");
+		return testFolder("typing");
 	}
 }
