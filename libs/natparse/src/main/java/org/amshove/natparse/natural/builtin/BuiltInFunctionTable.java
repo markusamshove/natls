@@ -516,7 +516,7 @@ public class BuiltInFunctionTable
 
 					The content of the passed variable is not modified.
 
-					`LEADING` or `TRIALING` can be specified if only one of them should be trimmed.
+					`LEADING` or `TRAILING` can be specified if only one of them should be trimmed.
 
 					Example:
 
