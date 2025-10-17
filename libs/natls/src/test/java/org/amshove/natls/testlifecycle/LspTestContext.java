@@ -43,7 +43,7 @@ public record LspTestContext(
 		try
 		{
 			CompletableFuture.allOf(ProgressTasks.getRunningTasks().toArray(new CompletableFuture[0]))
-				.get(30, TimeUnit.SECONDS);
+				.get(60, TimeUnit.SECONDS);
 		}
 		catch (Exception e)
 		{

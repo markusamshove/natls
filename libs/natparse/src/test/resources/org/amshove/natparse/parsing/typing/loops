@@ -1,0 +1,26 @@
+DEFINE DATA
+LOCAL
+1 #I (I4)
+1 #A (A4)
+1 #F (F8)
+1 #N (N2)
+END-DEFINE
+
+FOR #I := 1 TO 10
+    IGNORE
+END-FOR
+
+FOR #N := 1 TO 10
+    IGNORE
+END-FOR
+
+FOR #F := 1 TO 10
+    IGNORE
+END-FOR
+
+FOR #A := 1 TO 10 /* !{D:ERROR:NPP037} can't be A
+    IGNORE
+END-FOR
+
+END
+
