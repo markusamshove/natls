@@ -377,6 +377,7 @@ public class BuiltInFunctionTable
 			unmodifiableVariable(SyntaxKind.SV_UI, "Returns the type of user interface being used (`CHARACTER` | `GUI`)", ALPHANUMERIC, 16),
 			unmodifiableVariable(SyntaxKind.SV_USER, "Returns the user id of the current user, as taken from Natural Security", ALPHANUMERIC, 8),
 			unmodifiableVariable(SyntaxKind.SV_USER_NAME, "Returns the user name of the current user, as taken from Natural Security", ALPHANUMERIC, 32),
+			unmodifiableVariable(SyntaxKind.SV_UUID, "This system variable generates a random 128 bit binary each time it is used to assign or compute a value", BINARY, 16),
 
 			//   System Environment
 			unmodifiableVariable(SyntaxKind.SV_CODEPAGE, """
