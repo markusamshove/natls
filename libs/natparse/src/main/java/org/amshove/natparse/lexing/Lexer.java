@@ -920,7 +920,7 @@ public class Lexer
 				createAndAdd(SyntaxKind.SV_USER);
 				return;
 			}
-			if(scanner.advanceIfIgnoreCase("UUID"))
+			if (scanner.advanceIfIgnoreCase("UUID"))
 			{
 				createAndAdd(SyntaxKind.SV_UUID);
 				return;
