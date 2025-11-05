@@ -151,6 +151,7 @@ public enum SyntaxKind
 	SV_UI(false, true, false),
 	SV_USER(false, true, false),
 	SV_USER_NAME(false, true, false),
+	SV_UUID(false, true, false),
 
 	//    System Environment
 	SV_CODEPAGE(false, true, false),
