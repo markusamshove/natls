@@ -3235,7 +3235,6 @@ class StatementListParserShould extends StatementParseTest
 	})
 	void parseResizeDynamic(String combination)
 	{
-		// TODO(type-check): Has to be dynamic typed
 		var resize = assertParsesSingleStatement("RESIZE %s #VAR TO 20".formatted(combination), IResizeDynamicNode.class);
 		assertIsVariableReference(resize.variableToResize(), "#VAR");
 		assertThat(assertNodeType(resize.sizeToResizeTo(), ILiteralNode.class).token().intValue()).isEqualTo(20);
@@ -3261,10 +3260,8 @@ class StatementListParserShould extends StatementParseTest
 	})
 	void parseResizeArray(String combination)
 	{
-		// TODO(type-check): Has to be an x-array
 		var resize = assertParsesSingleStatement("RESIZE %s ARRAY #VAR TO (10)".formatted(combination), IResizeArrayNode.class);
 		assertIsVariableReference(resize.arrayToResize(), "#VAR");
-		// TODO(lexer-mode): Actually parse array dimensions
 		assertThat(resize.findDescendantToken(SyntaxKind.LPAREN)).isNotNull();
 		assertThat(resize.findDescendantToken(SyntaxKind.RPAREN)).isNotNull();
 	}
@@ -3513,7 +3510,6 @@ class StatementListParserShould extends StatementParseTest
 	})
 	void parseReduceDynamic(String combination)
 	{
-		// TODO(type-check): Has to be dynamic typed
 		var reduce = assertParsesSingleStatement("REDUCE %s #VAR TO 20".formatted(combination), IReduceDynamicNode.class);
 		assertIsVariableReference(reduce.variableToReduce(), "#VAR");
 		assertThat(assertNodeType(reduce.sizeToReduceTo(), ILiteralNode.class).token().intValue()).isEqualTo(20);
@@ -3526,7 +3522,6 @@ class StatementListParserShould extends StatementParseTest
 	})
 	void parseReduceDynamicWithVariableSize(String combination)
 	{
-		// TODO(type-check): Has to be dynamic typed
 		var reduce = assertParsesSingleStatement("REDUCE %s #VAR TO #SIZE".formatted(combination), IReduceDynamicNode.class);
 		assertIsVariableReference(reduce.variableToReduce(), "#VAR");
 		assertThat(assertNodeType(reduce.sizeToReduceTo(), IVariableReferenceNode.class).token().symbolName()).isEqualTo("#SIZE");
@@ -3581,7 +3576,6 @@ class StatementListParserShould extends StatementParseTest
 	})
 	void parseExpandDynamicWithVariableSize(String combination)
 	{
-		// TODO(type-check): Has to be dynamic typed
 		var expand = assertParsesSingleStatement("EXPAND %s #VAR TO #SIZE".formatted(combination), IExpandDynamicNode.class);
 		assertIsVariableReference(expand.variableToExpand(), "#VAR");
 		assertThat(assertNodeType(expand.sizeToExpandTo(), IVariableReferenceNode.class).token().symbolName()).isEqualTo("#SIZE");
