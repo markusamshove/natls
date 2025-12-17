@@ -97,7 +97,7 @@ public interface IDataType
 			case LOGIC -> targetFormat == ALPHANUMERIC
 				|| targetFormat == UNICODE;
 			case BINARY -> binaryCompatibility(target);
-			default -> false; // we don't know whats implicitly compatible yet
+			default -> false; // we don't know what is implicitly compatible yet
 		};
 	}
 

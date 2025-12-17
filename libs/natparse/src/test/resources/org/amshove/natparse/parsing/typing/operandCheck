@@ -1,6 +1,8 @@
 DEFINE DATA LOCAL
 1 #A10 (A10)
 1 #N10 (N10)
+1 #DAT (D)
+1 #TIME (T)
 1 #ADYN (A) DYNAMIC
 1 #C-DIRECTION (A1) CONST<'F'>
 1 #A1 (A1)
@@ -38,5 +40,29 @@ EXAMINE DIRECTION 'F' #ADYN FOR 'A' REPLACE 'B' /* 'F' is constant
 EXAMINE DIRECTION #C-DIRECTION #ADYN FOR 'A' REPLACE 'B' /* constant
 EXAMINE DIRECTION #A1 #ADYN FOR 'A' REPLACE 'B' /* scalar
 EXAMINE DIRECTION #N10 #ADYN FOR 'A' REPLACE 'B' /* !{D:ERROR:NPP037} Direction must be Alphanumeric
+
+IF #N10 = #A10 /* !{D:ERROR:NPP037} not same family
+IGNORE
+END-IF
+
+IF #A10 = #N10 /* !{D:ERROR:NPP037} not same family
+IGNORE
+END-IF
+
+IF #N10 = #N10
+IGNORE
+END-IF
+
+IF #A10 = #A10
+IGNORE
+END-IF
+
+IF #N10 = #DAT /* D <-> Numeric is fine in relationals
+IGNORE
+END-IF
+
+IF #N10 = #TIME /* T <-> Numeric is fine in relationals
+IGNORE
+END-IF
 
 END

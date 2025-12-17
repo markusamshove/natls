@@ -4,8 +4,9 @@ import org.amshove.natparse.IDiagnostic;
 import org.amshove.natparse.ReadOnlyList;
 import org.amshove.natparse.natural.*;
 import org.amshove.natparse.parsing.operandcheck.OperandCheck;
-import org.amshove.natparse.parsing.operandcheck.OperandCheck.BinaryCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck.CompatibleBinaryCheck;
 import org.amshove.natparse.parsing.operandcheck.OperandCheck.DefinitionCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck.FamilyBinaryCheck;
 import org.amshove.natparse.parsing.operandcheck.OperandDefinition;
 
 import java.util.ArrayList;
@@ -29,28 +30,45 @@ class OperandChecker
 
 	private void check(OperandCheck operandCheck, IDataType type)
 	{
-		if (operandCheck instanceof DefinitionCheck definitionCheck)
+		switch (operandCheck)
 		{
-			check(definitionCheck.lhs(), type, definitionCheck.definitionTable());
+			case DefinitionCheck definitionCheck ->
+				check(definitionCheck.lhs(), type, definitionCheck.definitionTable());
+			case CompatibleBinaryCheck compatibleBinaryCheck ->
+				checkBinary(compatibleBinaryCheck, type);
+			case FamilyBinaryCheck familyBinaryCheck ->
+				checkBinary(familyBinaryCheck, type);
+			default -> {}
 		}
-		else
-			if (operandCheck instanceof BinaryCheck binaryCheck)
-			{
-				checkBinary(binaryCheck, type);
-			}
 	}
 
-	private void checkBinary(BinaryCheck binaryCheck, IDataType lhsType)
+	private void checkBinary(CompatibleBinaryCheck binaryCheck, IDataType lhsType)
 	{
-		var inferedRhsType = inferType(binaryCheck.rhs());
+		var inferredRhsType = inferType(binaryCheck.rhs());
 
-		if (inferedRhsType.format() != DataFormat.NONE && !inferedRhsType.hasCompatibleFormat(lhsType))
+		if (inferredRhsType.format() != DataFormat.NONE && !inferredRhsType.hasCompatibleFormat(lhsType))
 		{
 			diagnostics.add(
 				ParserErrors.typeMismatch(
 					"Type mismatch between left and right operand. Left is %s, right is %s"
-						.formatted(lhsType, inferedRhsType),
+						.formatted(lhsType.toShortString(), inferredRhsType.toShortString()),
 					binaryCheck.rhs()
+				)
+			);
+		}
+	}
+
+	private void checkBinary(FamilyBinaryCheck familyBinaryCheck, IDataType lhsType)
+	{
+		var inferredRhsType = inferType(familyBinaryCheck.rhs());
+
+		if (inferredRhsType.format() != DataFormat.NONE && !inferredRhsType.hasCompatibleFormat(lhsType))
+		{
+			diagnostics.add(
+				ParserErrors.typeMismatch(
+					"Type family mismatch between left and right operand. Left is %s, right is %s"
+						.formatted(lhsType.toShortString(), inferredRhsType.toShortString()),
+					familyBinaryCheck.rhs()
 				)
 			);
 		}

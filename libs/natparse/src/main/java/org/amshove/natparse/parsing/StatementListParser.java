@@ -13,8 +13,9 @@ import org.amshove.natparse.natural.output.IOutputElementNode;
 import org.amshove.natparse.natural.output.IOutputOperandNode;
 import org.amshove.natparse.natural.project.NaturalFileType;
 import org.amshove.natparse.parsing.operandcheck.OperandCheck;
-import org.amshove.natparse.parsing.operandcheck.OperandCheck.BinaryCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck.CompatibleBinaryCheck;
 import org.amshove.natparse.parsing.operandcheck.OperandCheck.DefinitionCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck.FamilyBinaryCheck;
 import org.amshove.natparse.parsing.operandcheck.OperandDefinition;
 
 import java.io.IOException;
@@ -2608,9 +2609,17 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	/**
 	 * Enqueue a check on two operands, where rhs needs to be compatible to lhs.
 	 **/
-	private void enqueueOperandCheck(IOperandNode lhs, IOperandNode rhs)
+	private void enqueueCompatabilityOperandCheck(IOperandNode lhs, IOperandNode rhs)
 	{
-		operandCheckQueue.add(new BinaryCheck(lhs, rhs));
+		operandCheckQueue.add(new CompatibleBinaryCheck(lhs, rhs));
+	}
+
+	/**
+	 * Enqueue a check on two operands, where rhs needs to have the same family as lhs.
+	 **/
+	private void enqueueFamilyOperandCheck(IOperandNode lhs, IOperandNode rhs)
+	{
+		operandCheckQueue.add(new FamilyBinaryCheck(lhs, rhs));
 	}
 
 	private static final Set<SyntaxKind> OPTIONAL_DISPLAY_FLAGS = Set.of(SyntaxKind.NOTITLE, SyntaxKind.NOTIT, SyntaxKind.NOHDR, SyntaxKind.AND, SyntaxKind.GIVE, SyntaxKind.SYSTEM, SyntaxKind.FUNCTIONS);
@@ -3887,6 +3896,8 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		var rhs = consumeRelationalCriteriaRightHandSide(expression);
 		expression.setRight(rhs);
 
+		enqueueFamilyOperandCheck(lhs, rhs);
+
 		if (peekKind(SyntaxKind.OR) && (peekAny(1, List.of(SyntaxKind.EQUALS_SIGN, SyntaxKind.EQ, SyntaxKind.EQUAL))))
 		{
 			if (expression.operator() != ComparisonOperator.EQUAL)
@@ -4184,14 +4195,14 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		var branch = new DecideOnBranchNode();
 		var branchStart = consumeAnyMandatory(branch, List.of(SyntaxKind.VALUE, SyntaxKind.VALUES));
 		var decideOnValue = consumeSubstringOrOperand(branch);
-		enqueueOperandCheck(decideTarget, decideOnValue);
+		enqueueCompatabilityOperandCheck(decideTarget, decideOnValue);
 		branch.addOperand(decideOnValue);
 
 		if (consumeOptionally(branch, SyntaxKind.COLON))
 		{
 			branch.setHasValueRange();
 			var operand = consumeSubstringOrOperand(branch);
-			enqueueOperandCheck(decideTarget, operand);
+			enqueueCompatabilityOperandCheck(decideTarget, operand);
 			branch.addOperand(operand);
 		}
 		else
@@ -4200,7 +4211,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 			{
 				consumeMandatory(branch, SyntaxKind.COMMA);
 				var operand = consumeSubstringOrOperand(branch);
-				enqueueOperandCheck(decideTarget, operand);
+				enqueueCompatabilityOperandCheck(decideTarget, operand);
 				branch.addOperand(operand);
 			}
 		}

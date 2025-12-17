@@ -1,12 +1,12 @@
 package org.amshove.natparse.parsing.operandcheck;
 
-import java.util.Set;
-
 import org.amshove.natparse.natural.IOperandNode;
+
+import java.util.Set;
 
 public sealed class OperandCheck
 {
-	private IOperandNode lhs;
+	private final IOperandNode lhs;
 
 	OperandCheck(IOperandNode lhs)
 	{
@@ -34,11 +34,34 @@ public sealed class OperandCheck
 		}
 	}
 
-	public static final class BinaryCheck extends OperandCheck
+	/**
+	 * Checks if two operands have compatible types. RHS must be implicitly convertible to LHS.
+	 */
+	public static final class CompatibleBinaryCheck extends OperandCheck
 	{
 		final IOperandNode rhs;
 
-		public BinaryCheck(IOperandNode lhs, IOperandNode rhs)
+		public CompatibleBinaryCheck(IOperandNode lhs, IOperandNode rhs)
+		{
+			super(lhs);
+			this.rhs = rhs;
+		}
+
+		public IOperandNode rhs()
+		{
+			return rhs;
+		}
+	}
+
+	/**
+	 * Checks if two operands have strictly the same family.
+	 */
+	public static final class FamilyBinaryCheck extends OperandCheck
+	{
+
+		final IOperandNode rhs;
+
+		public FamilyBinaryCheck(IOperandNode lhs, IOperandNode rhs)
 		{
 			super(lhs);
 			this.rhs = rhs;
