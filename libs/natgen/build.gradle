@@ -1,0 +1,79 @@
+plugins {
+    id 'com.vanniktech.maven.publish'
+}
+
+dependencies {
+    implementation project(':natparse')
+    implementation libraries.picocli
+    implementation libraries.gson
+
+    testImplementation project(':testhelpers')
+}
+
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'org.amshove.natgen.App',
+            'Implementation-Title': project.name,
+            'Implementation-Version': project.version
+        )
+    }
+}
+
+tasks.register('fatJar', Jar) {
+    manifest {
+        attributes(
+                'Main-Class': 'org.amshove.natgen.App',
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version
+        )
+    }
+    archiveFileName = 'natgen.jar'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn(':natparse:jar')
+    from {configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+mavenPublishing {
+    coordinates(project.group, 'natgen', project.version)
+
+    publishToMavenCentral()
+    signAllPublications()
+
+    pom {
+        name = project.name
+            description = 'Code generator for Software AGs Natural language'
+            url = 'https://github.com/MarkusAmshove/natls'
+            scm {
+                connection = 'scm:git:https://github.com/MarkusAmshove/natls.git'
+                developerConnection = 'scm:git:git@github.com:MarkusAmshove/natls.git'
+                url = 'https://github.com/MarkusAmshove/natls'
+            }
+
+        licenses {
+            license {
+                name = 'MIT'
+                url = 'https://github.com/MarkusAmshove/natls/blob/main/LICENSE'
+            }
+        }
+
+        developers {
+            developer {
+                id = 'markusamshove'
+                name = 'Markus Amshove'
+            }
+        }
+    }
+}
+
+signing {
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications
+}
+
+artifacts {
+    jar
+}

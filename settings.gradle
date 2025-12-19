@@ -13,6 +13,9 @@ project(':libs/natparse').name = 'natparse'
 include 'libs/natlint'
 project(':libs/natlint').name = 'natlint'
 
+include 'libs/natgen'
+project(':libs/natgen').name = 'natgen'
+
 include 'libs/natls'
 project(':libs/natls').name = 'natls'
 

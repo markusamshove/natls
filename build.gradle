@@ -16,6 +16,7 @@ ext {
 	libraries = [
 		// Implementation
 		guava : 'com.google.guava:guava:33.4.8-jre',
+		gson : 'com.google.code.gson:gson:2.13.2',
 		lsp4j : 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.24.0',
 		dom4j : 'org.dom4j:dom4j:2.2.0',
 		slf4j_api	: "org.slf4j:slf4j-api:${SLF4J_VERSION}",
