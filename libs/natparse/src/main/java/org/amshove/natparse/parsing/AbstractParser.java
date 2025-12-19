@@ -1018,7 +1018,7 @@ abstract class AbstractParser<T>
 			return consumeTranslateSystemFunction(node);
 		}
 
-		if (peek().kind() == SyntaxKind.PAGE_NUMBER || peek().kind() == SyntaxKind.LINE_COUNT)
+		if (peek().kind() == SyntaxKind.SV_PAGE_NUMBER || peek().kind() == SyntaxKind.SV_LINE_COUNT)
 		// TODO: Get the entry for the function from BuiltInFunctionTable and check if it takes one parameter that is rep
 		{
 			return consumeSystemFunctionWithRepParameter(node, peek().kind());
@@ -1045,11 +1045,13 @@ abstract class AbstractParser<T>
 			}
 			consumeMandatory(systemFunction, SyntaxKind.RPAREN);
 		}
-		systemFunction.addParameter(consumeOperandNode(systemFunction));
-		while (consumeOptionally(systemFunction, SyntaxKind.COMMA))
+
+		do
 		{
 			systemFunction.addParameter(consumeOperandNode(systemFunction));
 		}
+		while (consumeOptionally(systemFunction, SyntaxKind.COMMA));
+
 		consumeMandatory(systemFunction, SyntaxKind.RPAREN);
 		node.addNode(systemFunction);
 		return systemFunction;

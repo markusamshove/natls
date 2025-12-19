@@ -128,6 +128,12 @@ public class NaturalParser
 				functionReturnVariable.setDeclaration(new TokenNode(functionName));
 
 				tokens.advance(); // RETURNS
+
+				if (tokens.peek().kind() == SyntaxKind.IDENTIFIER)
+				{
+					functionReturnVariable.setDeclaration(new TokenNode(tokens.advance()));
+				}
+
 				if (tokens.peek().kind() == SyntaxKind.LPAREN)
 				{
 					tokens.advance(); // (
@@ -209,6 +215,11 @@ public class NaturalParser
 		{
 			var typer = new TypeChecker();
 			for (var diagnostic : typer.check(moduleBuilder.getDefineData()))
+			{
+				moduleBuilder.addDiagnostic(diagnostic);
+			}
+			var operandChecker = new OperandChecker();
+			for (var diagnostic : operandChecker.checkOperands(statementParser.operandCheckQueue()))
 			{
 				moduleBuilder.addDiagnostic(diagnostic);
 			}

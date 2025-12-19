@@ -12,6 +12,10 @@ import org.amshove.natparse.natural.conditionals.ILogicalConditionCriteriaNode;
 import org.amshove.natparse.natural.output.IOutputElementNode;
 import org.amshove.natparse.natural.output.IOutputOperandNode;
 import org.amshove.natparse.natural.project.NaturalFileType;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck.BinaryCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandCheck.DefinitionCheck;
+import org.amshove.natparse.parsing.operandcheck.OperandDefinition;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -19,12 +23,15 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static org.amshove.natparse.parsing.operandcheck.OperandDefinition.*;
+
 public class StatementListParser extends AbstractParser<IStatementListNode>
 {
 	private static final Pattern SETKEY_PATTERN = Pattern.compile("(ENTR|CLR|PA[1-3]|PF([1-9]|[0-1][\\d]|2[0-4]))\\b");
 	private static final List<SyntaxKind> TO_INTO = List.of(SyntaxKind.INTO, SyntaxKind.TO);
 
-	private List<IReferencableNode> referencableNodes;
+	private final List<IReferencableNode> referencableNodes = new ArrayList<>();
+	private final List<OperandCheck> operandCheckQueue = new ArrayList<>();
 
 	private final Set<String> currentModuleCallStack = new HashSet<>();
 	private final Set<String> declaredStatementLabels = new HashSet<>();
@@ -32,6 +39,11 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	public List<IReferencableNode> getReferencableNodes()
 	{
 		return referencableNodes;
+	}
+
+	public List<OperandCheck> operandCheckQueue()
+	{
+		return operandCheckQueue;
 	}
 
 	public StatementListParser(IModuleProvider moduleProvider)
@@ -42,7 +54,6 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	@Override
 	protected IStatementListNode parseInternal()
 	{
-		referencableNodes = new ArrayList<>();
 		var statementList = statementList();
 		resolveUnresolvedInternalPerforms();
 		if (!shouldRelocateDiagnostics())
@@ -1091,10 +1102,19 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 					consume((BaseSyntaxNode) operand);
 				}
 			}
+
+			enqueueOperandCheck(
+				operand,
+				EnumSet.of(
+					STRUCTURE_CONSTANT, STRUCTURE_SCALAR, STRUCTURE_ARRAY, STRUCTURE_GROUP, STRUCTURE_SYSTEM_VARIABLE, FORMAT_ALPHANUMERIC_ASCII, FORMAT_ALPHANUMERIC_UNICODE, FORMAT_NUMERIC_UNPACKED, FORMAT_NUMERIC_PACKED, FORMAT_INTEGER, FORMAT_FLOATING, FORMAT_BINARY, FORMAT_DATE, FORMAT_TIME, FORMAT_LOGICAL, FORMAT_HANDLE_OF_OBJECT, REFERENCING_BY_LABEL_PERMITTED,
+					DYNAMIC_DEFINITION_NOT_PERMITTED
+				)
+			);
 		}
 
 		consumeAnyMandatory(compress, TO_INTO); // TO not documented but okay
 		compress.setIntoTarget(consumeSubstringOrOperand(compress));
+		enqueueOperandCheck(compress.intoTarget(), EnumSet.of(STRUCTURE_SCALAR, FORMAT_ALPHANUMERIC_ASCII, FORMAT_ALPHANUMERIC_UNICODE, FORMAT_BINARY, REFERENCING_BY_LABEL_PERMITTED, DYNAMIC_DEFINITION_PERMITTED));
 
 		var consumedLeaving = consumeOptionally(compress, SyntaxKind.LEAVING);
 		if (consumedLeaving)
@@ -1123,6 +1143,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 					}
 				}
 				compress.setDelimiter(delimiter);
+				enqueueOperandCheck(delimiter, EnumSet.of(STRUCTURE_CONSTANT, STRUCTURE_SCALAR, FORMAT_ALPHANUMERIC_ASCII, FORMAT_ALPHANUMERIC_UNICODE, FORMAT_BINARY, REFERENCING_BY_LABEL_PERMITTED, DYNAMIC_DEFINITION_NOT_PERMITTED));
 			}
 			compress.setLeavingSpace(false);
 			compress.setWithDelimiters(true);
@@ -1428,6 +1449,16 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		return numFound;
 	}
 
+	private static final EnumSet<OperandDefinition> RESIZE_EXPAND_REDUCE_ARRAY_OPERAND_TABLE = EnumSet.of(
+		STRUCTURE_ARRAY, STRUCTURE_GROUP, ALL_FORMATS, REFERENCING_BY_LABEL_PERMITTED,
+		DYNAMIC_DEFINITION_NOT_PERMITTED
+	);
+
+	private static final EnumSet<OperandDefinition> RESIZE_EXPAND_REDUCE_DYNAMIC_OPERAND_TABLE = EnumSet.of(
+		STRUCTURE_SCALAR, STRUCTURE_ARRAY, FORMAT_ALPHANUMERIC_ASCII, FORMAT_ALPHANUMERIC_UNICODE,
+		FORMAT_BINARY, REFERENCING_BY_LABEL_NOT_PERMITTED, DYNAMIC_DEFINITION_NOT_PERMITTED
+	);
+
 	private StatementNode reduce() throws ParseError
 	{
 		if (peekAny(1, List.of(SyntaxKind.SIZE, SyntaxKind.DYNAMIC)))
@@ -1445,6 +1476,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(reduce, SyntaxKind.ARRAY);
 		var array = consumeVariableReferenceNode(reduce);
 		reduce.setArrayToReduce(array);
+		enqueueOperandCheck(array, RESIZE_EXPAND_REDUCE_ARRAY_OPERAND_TABLE);
 		consumeMandatory(reduce, SyntaxKind.TO);
 
 		if (consumeOptionally(reduce, SyntaxKind.LPAREN))
@@ -1485,6 +1517,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 		var toReduce = consumeVariableReferenceNode(reduce);
 		reduce.setVariableToResize(toReduce);
+		enqueueOperandCheck(toReduce, RESIZE_EXPAND_REDUCE_DYNAMIC_OPERAND_TABLE);
 		consumeMandatory(reduce, SyntaxKind.TO);
 		var newSize = consumeOperandNode(reduce);
 		reduce.setSizeToResizeTo(newSize);
@@ -1514,6 +1547,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(expand, SyntaxKind.ARRAY);
 		var array = consumeVariableReferenceNode(expand);
 		expand.setArrayToExpand(array);
+		enqueueOperandCheck(array, RESIZE_EXPAND_REDUCE_ARRAY_OPERAND_TABLE);
 		consumeMandatory(expand, SyntaxKind.TO);
 
 		consumeMandatory(expand, SyntaxKind.LPAREN);
@@ -1544,8 +1578,9 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(expand, SyntaxKind.DYNAMIC);
 		consumeOptionally(expand, SyntaxKind.VARIABLE);
 
-		var toReduce = consumeVariableReferenceNode(expand);
-		expand.setVariableToResize(toReduce);
+		var toExpand = consumeVariableReferenceNode(expand);
+		expand.setVariableToResize(toExpand);
+		enqueueOperandCheck(toExpand, RESIZE_EXPAND_REDUCE_DYNAMIC_OPERAND_TABLE);
 		consumeMandatory(expand, SyntaxKind.TO);
 		var newSize = consumeOperandNode(expand);
 		expand.setSizeToResizeTo(newSize);
@@ -1580,6 +1615,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(resize, SyntaxKind.ARRAY);
 		var array = consumeVariableReferenceNode(resize);
 		resize.setArrayToResize(array);
+		enqueueOperandCheck(array, RESIZE_EXPAND_REDUCE_ARRAY_OPERAND_TABLE);
 		consumeMandatory(resize, SyntaxKind.TO);
 
 		consumeMandatory(resize, SyntaxKind.LPAREN);
@@ -1611,6 +1647,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeOptionally(resize, SyntaxKind.VARIABLE);
 		var toResize = consumeVariableReferenceNode(resize);
 		resize.setVariableToResize(toResize);
+		enqueueOperandCheck(toResize, RESIZE_EXPAND_REDUCE_DYNAMIC_OPERAND_TABLE);
 		consumeMandatory(resize, SyntaxKind.TO);
 		var newSize = consumeOperandNode(resize);
 		resize.setSizeToResizeTo(newSize);
@@ -2095,7 +2132,8 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		if (consumeOptionally(examine, SyntaxKind.DIRECTION) && !consumeAnyOptionally(examine, List.of(SyntaxKind.FORWARD, SyntaxKind.BACKWARD)))
 		{
 			// Direction can be specified as an operand (TODO: Type-check A1 or string literal of length 1)
-			consumeOperandNode(examine);
+			var directionOperand = consumeOperandNode(examine);
+			enqueueOperandCheck(directionOperand, EnumSet.of(STRUCTURE_CONSTANT, STRUCTURE_SCALAR, FORMAT_ALPHANUMERIC_ASCII, REFERENCING_BY_LABEL_PERMITTED, DYNAMIC_DEFINITION_NOT_PERMITTED));
 		}
 
 		if (consumeOptionally(examine, SyntaxKind.FULL))
@@ -2363,6 +2401,9 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		}
 		consumeMandatory(node, SyntaxKind.RPAREN);
 
+		substring.startPosition().ifPresent(sp -> enqueueOperandCheck(sp, EnumSet.of(STRUCTURE_CONSTANT, STRUCTURE_SCALAR, FORMAT_NUMERIC_UNPACKED, FORMAT_NUMERIC_PACKED, FORMAT_INTEGER, FORMAT_BINARY, REFERENCING_BY_LABEL_PERMITTED, DYNAMIC_DEFINITION_NOT_PERMITTED)));
+		substring.length().ifPresent(length -> enqueueOperandCheck(length, EnumSet.of(STRUCTURE_CONSTANT, STRUCTURE_SCALAR, FORMAT_NUMERIC_UNPACKED, FORMAT_NUMERIC_PACKED, FORMAT_INTEGER, FORMAT_BINARY, REFERENCING_BY_LABEL_PERMITTED, DYNAMIC_DEFINITION_NOT_PERMITTED)));
+
 		return substring;
 	}
 
@@ -2557,6 +2598,19 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		}
 
 		return write;
+	}
+
+	private void enqueueOperandCheck(IOperandNode operand, EnumSet<OperandDefinition> rules)
+	{
+		operandCheckQueue.add(new DefinitionCheck(operand, rules));
+	}
+
+	/**
+	 * Enqueue a check on two operands, where rhs needs to be compatible to lhs.
+	 **/
+	private void enqueueOperandCheck(IOperandNode lhs, IOperandNode rhs)
+	{
+		operandCheckQueue.add(new BinaryCheck(lhs, rhs));
 	}
 
 	private static final Set<SyntaxKind> OPTIONAL_DISPLAY_FLAGS = Set.of(SyntaxKind.NOTITLE, SyntaxKind.NOTIT, SyntaxKind.NOHDR, SyntaxKind.AND, SyntaxKind.GIVE, SyntaxKind.SYSTEM, SyntaxKind.FUNCTIONS);
@@ -3074,6 +3128,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 		var opening = consumeMandatory(loopNode, SyntaxKind.FOR);
 		loopNode.setLoopControl(consumeVariableReferenceNode(loopNode));
+		enqueueOperandCheck(loopNode.loopControl(), EnumSet.of(STRUCTURE_SCALAR, FORMAT_NUMERIC_UNPACKED, FORMAT_NUMERIC_PACKED, FORMAT_INTEGER, FORMAT_FLOATING, REFERENCING_BY_LABEL_PERMITTED, DYNAMIC_DEFINITION_PERMITTED));
 		consumeAnyOptionally(loopNode, List.of(SyntaxKind.COLON_EQUALS_SIGN, SyntaxKind.EQUALS_SIGN, SyntaxKind.EQ, SyntaxKind.FROM));
 		consumeArithmeticExpression(loopNode);
 		consumeAnyOptionally(loopNode, List.of(SyntaxKind.TO, SyntaxKind.THRU)); // According to the documentation, either TO or THRU is mandatory. However, FOR #I 1 10 also just works :)
@@ -3437,6 +3492,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 				unresolvedSymbols.addAll(nestedParser.unresolvedSymbols);
 				referencableNodes.addAll(nestedParser.referencableNodes);
+				operandCheckQueue.addAll(nestedParser.operandCheckQueue);
 				include.setBody(
 					statementList.result(),
 					shouldRelocateDiagnostics()
@@ -4075,7 +4131,8 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeAnyOptionally(decideOn, DECIDE_ON_VALUE_KEYWORDS);
 		consumeOptionally(decideOn, SyntaxKind.OF);
 
-		decideOn.setOperand(consumeSubstringOrOperand(decideOn));
+		var decideOnTarget = consumeSubstringOrOperand(decideOn);
+		decideOn.setOperand(decideOnTarget);
 
 		while (!isAtEnd() && !peekKind(SyntaxKind.END_DECIDE))
 		{
@@ -4109,7 +4166,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 				continue;
 			}
 
-			decideOn.addBranch(decideOnBranch());
+			decideOn.addBranch(decideOnBranch(decideOnTarget));
 		}
 
 		consumeMandatoryClosing(decideOn, SyntaxKind.END_DECIDE, opening);
@@ -4122,23 +4179,29 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		return decideOn;
 	}
 
-	private DecideOnBranchNode decideOnBranch() throws ParseError
+	private DecideOnBranchNode decideOnBranch(IOperandNode decideTarget) throws ParseError
 	{
 		var branch = new DecideOnBranchNode();
 		var branchStart = consumeAnyMandatory(branch, List.of(SyntaxKind.VALUE, SyntaxKind.VALUES));
-		branch.addOperand(consumeSubstringOrOperand(branch));
+		var decideOnValue = consumeSubstringOrOperand(branch);
+		enqueueOperandCheck(decideTarget, decideOnValue);
+		branch.addOperand(decideOnValue);
 
 		if (consumeOptionally(branch, SyntaxKind.COLON))
 		{
 			branch.setHasValueRange();
-			branch.addOperand(consumeSubstringOrOperand(branch));
+			var operand = consumeSubstringOrOperand(branch);
+			enqueueOperandCheck(decideTarget, operand);
+			branch.addOperand(operand);
 		}
 		else
 		{
 			while (!isAtEnd() && peekKind(SyntaxKind.COMMA))
 			{
 				consumeMandatory(branch, SyntaxKind.COMMA);
-				branch.addOperand(consumeSubstringOrOperand(branch));
+				var operand = consumeSubstringOrOperand(branch);
+				enqueueOperandCheck(decideTarget, operand);
+				branch.addOperand(operand);
 			}
 		}
 
@@ -4266,7 +4329,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 					}
 					else
 					{
-						var consumed = consumeAnyMandatory(statement, List.of(SyntaxKind.HELP, SyntaxKind.PROGRAM, SyntaxKind.PGM, SyntaxKind.ON, SyntaxKind.OFF, SyntaxKind.STRING_LITERAL, SyntaxKind.COMMAND, SyntaxKind.DISABLED));
+						var consumed = consumeAnyMandatory(statement, List.of(SyntaxKind.HELP, SyntaxKind.SV_PROGRAM, SyntaxKind.PGM, SyntaxKind.ON, SyntaxKind.OFF, SyntaxKind.STRING_LITERAL, SyntaxKind.COMMAND, SyntaxKind.DISABLED));
 						if (consumed.kind() == SyntaxKind.COMMAND)
 						{
 							consumeAnyMandatory(statement, List.of(SyntaxKind.ON, SyntaxKind.OFF));
@@ -4828,6 +4891,13 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		return get;
 	}
 
+	private static final EnumSet<OperandDefinition> ASSIGN_COMPUTE_TARGET_OPERAND_DEFINITION_TABLE = EnumSet.of(
+		STRUCTURE_SCALAR, STRUCTURE_ARRAY, STRUCTURE_MODIFIABLE_SYSTEM_VARIABLE_ONLY,
+		FORMAT_ALPHANUMERIC_ASCII, FORMAT_ALPHANUMERIC_UNICODE, FORMAT_NUMERIC_UNPACKED, FORMAT_NUMERIC_PACKED, FORMAT_INTEGER, FORMAT_FLOATING, FORMAT_BINARY, FORMAT_DATE, FORMAT_TIME, FORMAT_LOGICAL, FORMAT_ATTRIBUTE_CONTROL, FORMAT_HANDLE_OF_OBJECT,
+		REFERENCING_BY_LABEL_PERMITTED,
+		DYNAMIC_DEFINITION_PERMITTED
+	);
+
 	private List<StatementNode> assignmentsOrIdentifierReference() throws ParseError
 	{
 		// TODO: this whole lookahead can be simplified when we understand more statements
@@ -4839,6 +4909,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 		var assignment = new AssignmentStatementNode();
 		assignment.setTarget(consumeOperandNode(assignment));
+		enqueueOperandCheck(assignment.target(), ASSIGN_COMPUTE_TARGET_OPERAND_DEFINITION_TABLE);
 		consumeMandatory(assignment, SyntaxKind.COLON_EQUALS_SIGN);
 		assignment.setOperand(consumeControlLiteralOrSubstringOrOperand(assignment));
 
@@ -4873,6 +4944,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(statement, kind);
 		statement.setRounded(consumeOptionally(statement, SyntaxKind.ROUNDED));
 		statement.setTarget(consumeOperandNode(statement));
+		enqueueOperandCheck(statement.target(), ASSIGN_COMPUTE_TARGET_OPERAND_DEFINITION_TABLE);
 		consumeAnyMandatory(statement, ASSIGN_COMPUTE_EQUALS_SIGNS);
 		statement.setOperand(consumeControlLiteralOrSubstringOrOperand(statement));
 
@@ -5052,7 +5124,15 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 		while (isOperand())
 		{
-			resetNode.addOperand(consumeOperandNode(resetNode));
+			var operand = consumeOperandNode(resetNode);
+			enqueueOperandCheck(
+				operand,
+				EnumSet.of(
+					STRUCTURE_SCALAR, STRUCTURE_ARRAY, STRUCTURE_GROUP, STRUCTURE_MODIFIABLE_SYSTEM_VARIABLE_ONLY, FORMAT_ALPHANUMERIC_ASCII, FORMAT_ALPHANUMERIC_UNICODE, FORMAT_NUMERIC_UNPACKED, FORMAT_NUMERIC_PACKED, FORMAT_INTEGER, FORMAT_FLOATING, FORMAT_BINARY, FORMAT_DATE, FORMAT_TIME, FORMAT_LOGICAL, FORMAT_ATTRIBUTE_CONTROL, FORMAT_HANDLE_OF_OBJECT, REFERENCING_BY_LABEL_PERMITTED,
+					DYNAMIC_DEFINITION_PERMITTED
+				)
+			);
+			resetNode.addOperand(operand);
 		}
 
 		return resetNode;
