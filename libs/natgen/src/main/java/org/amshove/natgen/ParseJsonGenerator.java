@@ -3,6 +3,7 @@ package org.amshove.natgen;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import org.amshove.natparse.natural.VariableScope;
 
 import java.util.ArrayList;
 
@@ -14,22 +15,42 @@ public class ParseJsonGenerator
 	private static final String START_ARRAY = "(";
 	private static final String END_ARRAY = ")";
 	private static final String PARSED_DATA = "$";
+	private Variable jsonPath;
+	private Variable jsonName;
+	private Variable jsonValue;
+	private Variable jsonErrCode;
+	private Variable jsonErrSubcode;
 
 	public String generate(String json)
 	{
 		var gson = new Gson();
 		var rootElement = gson.fromJson(json, JsonElement.class);
 		var parseBranches = parseDecideForJsonElement(rootElement, "");
+		var generator = new CodeGenerator();
+
+		var jsonVariableGroup = generator.addVariable(VariableScope.LOCAL, "##JSON", "");
+		jsonPath = jsonVariableGroup.addVariable("PATH", "(A) DYNAMIC");
+		jsonName = jsonVariableGroup.addVariable("NAME", "(A) DYNAMIC");
+		jsonValue = jsonVariableGroup.addVariable("VALUE", "(A) DYNAMIC");
+		jsonErrCode = jsonVariableGroup.addVariable("ERR-CODE", "(I4)");
+		jsonErrSubcode = jsonVariableGroup.addVariable("ERR-SUBCODE", "(I4)");
 
 		return """
-			PARSE JSON ##RESPONSE-BODY INTO PATH ##JSON.##PATH NAME ##JSON.##NAME VALUE ##JSON.##VALUE GIVING ##JSON.##ERR SUBCODE ##JSON.##ERR-SUBCODE
-			  DECIDE ON FIRST VALUE OF ##JSON.##PATH
+			%s
+			  DECIDE ON FIRST VALUE OF %s
 			    %s
 			    NONE
 			      IGNORE
 			  END-DECIDE
 			END-PARSE
-			""".formatted(parseBranches);
+			""".formatted(generateParseJsonHeader(), jsonPath, parseBranches);
+	}
+
+	private String generateParseJsonHeader()
+	{
+		// TODO: Response body must be different
+		return "PARSE JSON ##RESPONSE-BODY INTO PATH %s NAME %s VALUE %s GIVING %s SUBCODE %s"
+			.formatted(jsonPath, jsonName, jsonValue, jsonErrCode, jsonErrSubcode);
 	}
 
 	private static String parseDecideForJsonElement(JsonElement element, String currentJsonPath)

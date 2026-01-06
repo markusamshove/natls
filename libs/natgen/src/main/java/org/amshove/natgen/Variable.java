@@ -12,6 +12,7 @@ public final class Variable
 	private final String name;
 	private final String type;
 	private final List<Variable> childVariables = new ArrayList<>();
+	private Variable parent;
 
 	public Variable(int level, VariableScope scope, String name, String type)
 	{
@@ -41,8 +42,28 @@ public final class Variable
 		return type;
 	}
 
-	public void addVariable(String name, String type)
+	public Variable addVariable(String name, String type)
 	{
-		childVariables.add(new Variable(level + 1, scope, name, type));
+		var variable = new Variable(level + 1, scope, name, type);
+		variable.parent = this;
+		childVariables.add(variable);
+		return variable;
+	}
+
+	@Override
+	public String toString()
+	{
+		if (level == 1)
+		{
+			return name;
+		}
+
+		var firstLevelVariable = this;
+		while (firstLevelVariable.level > 1)
+		{
+			firstLevelVariable = firstLevelVariable.parent;
+		}
+
+		return "%s.%s".formatted(firstLevelVariable, name);
 	}
 }
