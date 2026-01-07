@@ -12,10 +12,10 @@ class DefineDataGeneratorShould
 	@Test
 	void generateASimpleDefineDataWithOneLocalVariable()
 	{
-		var generator = new CodeGenerator();
-		generator.addVariable(VariableScope.LOCAL, "#VARIABLE", VariableType.alphanumeric(10));
+		var context = new CodeGenerationContext();
+		context.addVariable(VariableScope.LOCAL, "#VARIABLE", VariableType.alphanumeric(10));
 
-		assertThat(sut.generate(generator))
+		assertThat(sut.generate(context))
 			.isEqualTo("""
 				DEFINE DATA
 				LOCAL
@@ -26,11 +26,11 @@ class DefineDataGeneratorShould
 	@Test
 	void generateADefineDataWithTwoLocalVariables()
 	{
-		var generator = new CodeGenerator();
-		generator.addVariable(VariableScope.LOCAL, "#VARIABLE", VariableType.alphanumeric(10));
-		generator.addVariable(VariableScope.LOCAL, "#SECOND", VariableType.alphanumericDynamic());
+		var context = new CodeGenerationContext();
+		context.addVariable(VariableScope.LOCAL, "#VARIABLE", VariableType.alphanumeric(10));
+		context.addVariable(VariableScope.LOCAL, "#SECOND", VariableType.alphanumericDynamic());
 
-		assertThat(sut.generate(generator))
+		assertThat(sut.generate(context))
 			.isEqualTo("""
 				DEFINE DATA
 				LOCAL
@@ -42,11 +42,11 @@ class DefineDataGeneratorShould
 	@Test
 	void generateADefineDataWithMixedScope()
 	{
-		var generator = new CodeGenerator();
-		generator.addVariable(VariableScope.LOCAL, "#VARIABLE", VariableType.alphanumeric(10));
-		generator.addVariable(VariableScope.PARAMETER, "#PARAM", VariableType.alphanumericDynamic());
+		var context = new CodeGenerationContext();
+		context.addVariable(VariableScope.LOCAL, "#VARIABLE", VariableType.alphanumeric(10));
+		context.addVariable(VariableScope.PARAMETER, "#PARAM", VariableType.alphanumericDynamic());
 
-		assertThat(sut.generate(generator))
+		assertThat(sut.generate(context))
 			.isEqualTo("""
 				DEFINE DATA
 				PARAMETER
@@ -59,13 +59,13 @@ class DefineDataGeneratorShould
 	@Test
 	void generateScopesInCorrectOrder()
 	{
-		var generator = new CodeGenerator();
-		generator.addVariable(VariableScope.LOCAL, "#VARIABLE", VariableType.alphanumeric(10));
-		generator.addVariable(VariableScope.INDEPENDENT, "+AIV-VARIABLE", VariableType.alphanumeric(10));
-		generator.addVariable(VariableScope.PARAMETER, "#PARAM", VariableType.alphanumericDynamic());
-		generator.addVariable(VariableScope.GLOBAL, "#G-GLOBAL", VariableType.alphanumeric(10));
+		var context = new CodeGenerationContext();
+		context.addVariable(VariableScope.LOCAL, "#VARIABLE", VariableType.alphanumeric(10));
+		context.addVariable(VariableScope.INDEPENDENT, "+AIV-VARIABLE", VariableType.alphanumeric(10));
+		context.addVariable(VariableScope.PARAMETER, "#PARAM", VariableType.alphanumericDynamic());
+		context.addVariable(VariableScope.GLOBAL, "#G-GLOBAL", VariableType.alphanumeric(10));
 
-		assertThat(sut.generate(generator))
+		assertThat(sut.generate(context))
 			.isEqualTo("""
 				DEFINE DATA
 				GLOBAL
@@ -83,11 +83,11 @@ class DefineDataGeneratorShould
 	void generateSubVariables()
 	{
 
-		var generator = new CodeGenerator();
-		var group = generator.addVariable(VariableScope.LOCAL, "#GRP", VariableType.group());
+		var context = new CodeGenerationContext();
+		var group = context.addVariable(VariableScope.LOCAL, "#GRP", VariableType.group());
 		group.addVariable("#VAR", VariableType.integer(4));
 
-		assertThat(sut.generate(generator))
+		assertThat(sut.generate(context))
 			.isEqualTo("""
 				DEFINE DATA
 				LOCAL

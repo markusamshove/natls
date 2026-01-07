@@ -26,9 +26,9 @@ public class ParseJsonGenerator
 		var gson = new Gson();
 		var rootElement = gson.fromJson(json, JsonElement.class);
 		var parseBranches = parseDecideForJsonElement(rootElement, "");
-		var generator = new CodeGenerator();
+		var context = new CodeGenerationContext();
 
-		var jsonVariableGroup = generator.addVariable(VariableScope.LOCAL, "##JSON", VariableType.group());
+		var jsonVariableGroup = context.addVariable(VariableScope.LOCAL, "##JSON", VariableType.group());
 		jsonPath = jsonVariableGroup.addVariable("PATH", VariableType.alphanumericDynamic());
 		jsonName = jsonVariableGroup.addVariable("NAME", VariableType.alphanumericDynamic());
 		jsonValue = jsonVariableGroup.addVariable("VALUE", VariableType.alphanumericDynamic());

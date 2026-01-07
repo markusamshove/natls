@@ -7,7 +7,7 @@ import java.util.List;
 
 /// Holds the building blocks for code that is going to be generated.
 /// TODO: call different methods to generate variables, subroutines (and statements?)
-public class CodeGenerator
+public class CodeGenerationContext
 {
 	private final List<Variable> variables = new ArrayList<>();
 

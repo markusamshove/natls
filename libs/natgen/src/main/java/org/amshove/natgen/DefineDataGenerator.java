@@ -9,18 +9,18 @@ import java.util.stream.Collectors;
 
 public class DefineDataGenerator
 {
-	public String generate(CodeGenerator generator)
+	public String generate(CodeGenerationContext context)
 	{
 		return """
 			DEFINE DATA%s
-			END-DEFINE""".formatted(generateVariables(generator));
+			END-DEFINE""".formatted(generateVariables(context));
 	}
 
-	private String generateVariables(CodeGenerator generator)
+	private String generateVariables(CodeGenerationContext context)
 	{
 		var code = new StringBuilder();
 
-		var groupedByScope = generator.variables().stream().collect(Collectors.groupingBy(Variable::scope));
+		var groupedByScope = context.variables().stream().collect(Collectors.groupingBy(Variable::scope));
 
 		generateScoped(code, VariableScope.GLOBAL, groupedByScope);
 		generateScoped(code, VariableScope.PARAMETER, groupedByScope);
