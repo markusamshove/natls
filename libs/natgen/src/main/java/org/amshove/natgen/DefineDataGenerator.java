@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 public class DefineDataGenerator
 {
+	/// Generates a DEFINE DATA block with all variables
+	/// from {@code CodeGenerationContext}.
 	public String generate(CodeGenerationContext context)
 	{
 		return """
@@ -16,7 +18,9 @@ public class DefineDataGenerator
 			END-DEFINE""".formatted(generateVariables(context));
 	}
 
-	private String generateVariables(CodeGenerationContext context)
+	/// Generates all variables from {@code CodeGenerationContext}
+	/// without `DEFINE DATA` and `END-DEFINE` blocks.
+	public String generateVariables(CodeGenerationContext context)
 	{
 		var code = new StringBuilder();
 
