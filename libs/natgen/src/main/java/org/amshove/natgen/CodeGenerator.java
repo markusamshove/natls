@@ -11,7 +11,7 @@ public class CodeGenerator
 {
 	private final List<Variable> variables = new ArrayList<>();
 
-	public Variable addVariable(VariableScope scope, String name, String type)
+	public Variable addVariable(VariableScope scope, String name, VariableType type)
 	{
 		var variable = new Variable(1, scope, name, type);
 		variables.add(variable);

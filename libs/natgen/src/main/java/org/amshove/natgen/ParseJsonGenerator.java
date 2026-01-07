@@ -28,12 +28,12 @@ public class ParseJsonGenerator
 		var parseBranches = parseDecideForJsonElement(rootElement, "");
 		var generator = new CodeGenerator();
 
-		var jsonVariableGroup = generator.addVariable(VariableScope.LOCAL, "##JSON", "");
-		jsonPath = jsonVariableGroup.addVariable("PATH", "(A) DYNAMIC");
-		jsonName = jsonVariableGroup.addVariable("NAME", "(A) DYNAMIC");
-		jsonValue = jsonVariableGroup.addVariable("VALUE", "(A) DYNAMIC");
-		jsonErrCode = jsonVariableGroup.addVariable("ERR-CODE", "(I4)");
-		jsonErrSubcode = jsonVariableGroup.addVariable("ERR-SUBCODE", "(I4)");
+		var jsonVariableGroup = generator.addVariable(VariableScope.LOCAL, "##JSON", VariableType.group());
+		jsonPath = jsonVariableGroup.addVariable("PATH", VariableType.alphanumericDynamic());
+		jsonName = jsonVariableGroup.addVariable("NAME", VariableType.alphanumericDynamic());
+		jsonValue = jsonVariableGroup.addVariable("VALUE", VariableType.alphanumericDynamic());
+		jsonErrCode = jsonVariableGroup.addVariable("ERR-CODE", VariableType.integer(4));
+		jsonErrSubcode = jsonVariableGroup.addVariable("ERR-SUBCODE", VariableType.integer(4));
 
 		return """
 			%s

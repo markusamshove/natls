@@ -10,11 +10,11 @@ public final class Variable
 	private final int level;
 	private final VariableScope scope;
 	private final String name;
-	private final String type;
+	private final VariableType type;
 	private final List<Variable> childVariables = new ArrayList<>();
 	private Variable parent;
 
-	public Variable(int level, VariableScope scope, String name, String type)
+	public Variable(int level, VariableScope scope, String name, VariableType type)
 	{
 		this.level = level;
 		this.scope = scope;
@@ -37,12 +37,17 @@ public final class Variable
 		return name;
 	}
 
-	public String type()
+	public List<Variable> children()
+	{
+		return childVariables;
+	}
+
+	public VariableType type()
 	{
 		return type;
 	}
 
-	public Variable addVariable(String name, String type)
+	public Variable addVariable(String name, VariableType type)
 	{
 		var variable = new Variable(level + 1, scope, name, type);
 		variable.parent = this;
