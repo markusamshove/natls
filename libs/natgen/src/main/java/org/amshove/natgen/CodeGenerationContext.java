@@ -2,14 +2,14 @@ package org.amshove.natgen;
 
 import org.amshove.natparse.natural.VariableScope;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /// Holds the building blocks for code that is going to be generated.
 /// TODO: call different methods to generate variables, subroutines (and statements?)
 public class CodeGenerationContext
 {
 	private final List<Variable> variables = new ArrayList<>();
+	private final Map<VariableScope, Set<String>> usings = new HashMap<>();
 
 	public Variable addVariable(VariableScope scope, String name, VariableType type)
 	{
@@ -21,5 +21,17 @@ public class CodeGenerationContext
 	public List<Variable> variables()
 	{
 		return variables;
+	}
+
+	public void addUsing(VariableScope scope, String name)
+	{
+		usings
+			.computeIfAbsent(scope, _ -> new HashSet<>())
+			.add(name);
+	}
+
+	public Map<VariableScope, Set<String>> usings()
+	{
+		return usings;
 	}
 }

@@ -5,6 +5,7 @@ import org.amshove.natparse.natural.VariableScope;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DefineDataGenerator
@@ -26,12 +27,33 @@ public class DefineDataGenerator
 
 		var groupedByScope = context.variables().stream().collect(Collectors.groupingBy(Variable::scope));
 
+		generateUsings(code, VariableScope.GLOBAL, context.usings());
 		generateScoped(code, VariableScope.GLOBAL, groupedByScope);
+
+		generateUsings(code, VariableScope.PARAMETER, context.usings());
 		generateScoped(code, VariableScope.PARAMETER, groupedByScope);
+
+		generateUsings(code, VariableScope.LOCAL, context.usings());
 		generateScoped(code, VariableScope.LOCAL, groupedByScope);
+
 		generateScoped(code, VariableScope.INDEPENDENT, groupedByScope);
 
 		return code.toString();
+	}
+
+	private void generateUsings(StringBuilder code, VariableScope scope, Map<VariableScope, Set<String>> usings)
+	{
+		var usingsOfScope = usings.get(scope);
+
+		if (usingsOfScope == null)
+		{
+			return;
+		}
+
+		for (var using : usingsOfScope)
+		{
+			code.append(System.lineSeparator()).append(scope).append(" USING ").append(using);
+		}
 	}
 
 	private void generateScoped(StringBuilder code, VariableScope scope, Map<VariableScope, List<Variable>> variablesByScope)
