@@ -158,4 +158,22 @@ class DefineDataGeneratorShould
 				END-DEFINE"""
 			);
 	}
+
+	@Test
+	void retainTheInsertionOrderOfUsings()
+	{
+		context.addUsing(VariableScope.LOCAL, "ZZZ");
+		context.addUsing(VariableScope.LOCAL, "AAA");
+		context.addUsing(VariableScope.LOCAL, "HHH");
+		context.addUsing(VariableScope.LOCAL, "AA01");
+
+		assertThat(sut.generate(context))
+			.isEqualTo("""
+				DEFINE DATA
+				LOCAL USING ZZZ
+				LOCAL USING AAA
+				LOCAL USING HHH
+				LOCAL USING AA01
+				END-DEFINE""");
+	}
 }

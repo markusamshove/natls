@@ -23,10 +23,11 @@ public class CodeGenerationContext
 		return variables;
 	}
 
+	/// Adds a USING to the generator. Insertion order of USINGs are preserved within their scope
 	public void addUsing(VariableScope scope, String name)
 	{
 		usings
-			.computeIfAbsent(scope, _ -> new HashSet<>())
+			.computeIfAbsent(scope, _ -> new LinkedHashSet<>())
 			.add(name);
 	}
 
