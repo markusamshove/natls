@@ -3,6 +3,7 @@ package org.amshove.natgen;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import org.amshove.natgen.generatable.Variable;
 import org.amshove.natparse.natural.VariableScope;
 
 import java.util.ArrayList;

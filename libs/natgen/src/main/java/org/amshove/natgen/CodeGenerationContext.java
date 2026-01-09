@@ -1,5 +1,6 @@
 package org.amshove.natgen;
 
+import org.amshove.natgen.generatable.Variable;
 import org.amshove.natparse.natural.VariableScope;
 
 import java.util.*;

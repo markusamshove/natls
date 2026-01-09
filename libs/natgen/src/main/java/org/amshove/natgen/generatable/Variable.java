@@ -1,11 +1,12 @@
-package org.amshove.natgen;
+package org.amshove.natgen.generatable;
 
+import org.amshove.natgen.VariableType;
 import org.amshove.natparse.natural.VariableScope;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Variable
+public final class Variable implements IGeneratable
 {
 	private final int level;
 	private final VariableScope scope;
@@ -56,7 +57,7 @@ public final class Variable
 	}
 
 	@Override
-	public String toString()
+	public String generate()
 	{
 		if (level == 1)
 		{
@@ -70,5 +71,11 @@ public final class Variable
 		}
 
 		return "%s.%s".formatted(firstLevelVariable, name);
+	}
+
+	@Override
+	public String toString()
+	{
+		return generate();
 	}
 }
