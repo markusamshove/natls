@@ -38,7 +38,7 @@ public class WorkspaceEditBuilder
 
 	public WorkspaceEditBuilder changesText(IPosition position, String newText)
 	{
-		var edits = textEdits.computeIfAbsent(LspUtil.pathToUri(position.filePath()), u -> new ArrayList<>());
+		var edits = textEdits.computeIfAbsent(LspUtil.pathToUri(position.filePath()), _ -> new ArrayList<>());
 
 		var edit = new TextEdit();
 		edit.setRange(LspUtil.toRange(position));
@@ -62,7 +62,7 @@ public class WorkspaceEditBuilder
 
 	public WorkspaceEditBuilder changesText(String fileUri, Range range, String newText)
 	{
-		var edits = textEdits.computeIfAbsent(fileUri, u -> new ArrayList<>());
+		var edits = textEdits.computeIfAbsent(fileUri, _ -> new ArrayList<>());
 
 		var edit = new TextEdit();
 		edit.setRange(range);
@@ -77,7 +77,7 @@ public class WorkspaceEditBuilder
 		var fileEdit = FileEdits.addUsing(file, new UsingToAdd(using, scope));
 		if (fileEdit != null)
 		{
-			var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), u -> new ArrayList<>());
+			var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), _ -> new ArrayList<>());
 			edits.add(fileEdit.textEdit());
 		}
 
@@ -92,7 +92,7 @@ public class WorkspaceEditBuilder
 		}
 
 		var fileEdit = FileEdits.addVariable(file, name, type, scope);
-		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), u -> new ArrayList<>());
+		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), _ -> new ArrayList<>());
 		edits.add(fileEdit.textEdit());
 		return this;
 	}
@@ -112,7 +112,7 @@ public class WorkspaceEditBuilder
 		}
 
 		var fileEdit = FileEdits.addSubroutine(file, name, source);
-		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), u -> new ArrayList<>());
+		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), _ -> new ArrayList<>());
 		edits.add(fileEdit.textEdit());
 
 		return this;
@@ -120,7 +120,7 @@ public class WorkspaceEditBuilder
 
 	public WorkspaceEditBuilder changesRange(LanguageServerFile file, Range range, String source)
 	{
-		var edits = textEdits.computeIfAbsent(file.getUri(), u -> new ArrayList<>());
+		var edits = textEdits.computeIfAbsent(file.getUri(), _ -> new ArrayList<>());
 		edits.add(new TextEdit(range, source));
 		return this;
 	}
@@ -128,7 +128,7 @@ public class WorkspaceEditBuilder
 	public WorkspaceEditBuilder addPrototype(LanguageServerFile file, IFunction calledFunction)
 	{
 		var fileEdit = FileEdits.addPrototype(file, calledFunction);
-		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), u -> new ArrayList<>());
+		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), _ -> new ArrayList<>());
 		edits.add(fileEdit.textEdit());
 		return this;
 	}
