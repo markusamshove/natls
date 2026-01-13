@@ -25,6 +25,32 @@ class DefinitionEndpointTests extends LanguageServerTest
 	private static LspTestContext context;
 
 	@Test
+	void definitionShouldReturnTheLocationOfAFunctionThatAPrototypePointsTo()
+	{
+		var function = createOrSaveFile("LIBONE", "FUNC.NS7", """
+			DEFINE FUNCTION FUNC
+			RETURNS (L)
+			DEFINE DATA LOCAL
+			END-DEFINE
+			END-FUNCTION
+			""");
+
+		var definitions = getDefinitions("""
+			DEFINE DATA LOCAL
+			END-DEFINE
+			
+			DEFINE PROTOTYPE FU${}$NC RETURNS (L)
+			DEFINE DATA LOCAL
+			END-DEFINE
+			END-PROTOTYPE
+			END
+			""");
+
+		assertThat(definitions).hasSize(1);
+		assertThat(definitions.getFirst().getUri()).isEqualTo(function.getUri());
+	}
+
+	@Test
 	void definitionShouldReturnTheLocationOfAnExternalSubroutine()
 	{
 		var externalIdentifier = createOrSaveFile("LIBONE", "EXT.NSS", """
@@ -41,7 +67,7 @@ class DefinitionEndpointTests extends LanguageServerTest
 						DEFINE DATA
 						LOCAL
 						END-DEFINE
-						
+			
 						PERFORM EXTE${}$RNAL-SUBROUTINE 'ABC'
 						END
 			""");
@@ -70,7 +96,7 @@ class DefinitionEndpointTests extends LanguageServerTest
 						DEFINE SUBROUTINE EXTERNAL-AND-LOCAL-SUBROUTINE
 						IGNORE
 						END-SUBROUTINE
-						
+	
 						PERFORM EXTERN${}$AL-AND-LOCAL-SUBROUTINE
 						END
 			""");
@@ -88,7 +114,7 @@ class DefinitionEndpointTests extends LanguageServerTest
 		var called = createOrSaveFile("LIBONE", "CALLED.NSN", """
 						DEFINE DATA LOCAL
 						END-DEFINE
-											
+		
 						END
 			""");
 

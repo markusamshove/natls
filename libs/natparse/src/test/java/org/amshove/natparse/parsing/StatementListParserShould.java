@@ -3639,6 +3639,7 @@ class StatementListParserShould extends StatementParseTest
 	@Test
 	void parseDefinePrototype()
 	{
+		ignoreModuleProvider();
 		var prototype = assertParsesSingleStatement("""
 			DEFINE PROTOTYPE HI RETURNS (L)
 			END-PROTOTYPE
