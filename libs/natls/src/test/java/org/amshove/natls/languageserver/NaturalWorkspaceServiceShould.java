@@ -84,6 +84,9 @@ class NaturalWorkspaceServiceShould extends EmptyProjectTest
 			)
 		);
 
+		// Wait for didOpen Task to finish
+		getContext().waitForRunningTasksToFinish();
+
 		// The subprogram is open and should have a diagnostic indicating that #VAR is not resolved
 		assertThat(getContext().client().getPublishedDiagnostics(subprogram))
 			.as("Unresolved Reference diagnostic should be present, because the variable is not declared")
@@ -99,6 +102,7 @@ class NaturalWorkspaceServiceShould extends EmptyProjectTest
 			END-DEFINE
 			""");
 
+		// Wait for reparseOpenFiles Tasks to finish
 		getContext().waitForRunningTasksToFinish();
 		assertThat(getContext().client().getPublishedDiagnostics(subprogram))
 			.as("Diagnostic should have gone away, because it was externally added to the LDA")
