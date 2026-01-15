@@ -750,7 +750,9 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		var opening = consumeMandatory(prototype, SyntaxKind.DEFINE);
 		consumeMandatory(prototype, SyntaxKind.PROTOTYPE);
 
-		var name = consumeMandatoryIdentifier(prototype); // TODO: Sideload
+		var name = consumeMandatoryIdentifier(prototype);
+		var resolvedFunction = sideloadModule(name.symbolName(), name, NaturalFileType.FUNCTION);
+		prototype.setReferencedFunction(resolvedFunction);
 		prototype.setPrototype(name);
 		while (!isAtEnd() && !peekKind(SyntaxKind.END_PROTOTYPE))
 		{

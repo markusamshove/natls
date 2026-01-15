@@ -10,6 +10,7 @@ class DefinePrototypeAnalyzerShould extends AbstractAnalyzerTest
 	@Test
 	void beRaisedWhenMoreThanOnePrototypeForTheSameFunctionIsDefined()
 	{
+		allowParserError(ParserError.UNRESOLVED_MODULE.id());
 		testDiagnostics(
 			"""
 			DEFINE DATA LOCAL
@@ -30,6 +31,7 @@ class DefinePrototypeAnalyzerShould extends AbstractAnalyzerTest
 	@Test
 	void notBeRaisedWhenUniquePrototypesAreDefined()
 	{
+		allowParserError(ParserError.UNRESOLVED_MODULE.id());
 		testDiagnostics(
 			"""
 			DEFINE DATA LOCAL

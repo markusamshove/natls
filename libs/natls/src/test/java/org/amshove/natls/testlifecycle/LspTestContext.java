@@ -44,6 +44,7 @@ public record LspTestContext(
 		{
 			CompletableFuture.allOf(ProgressTasks.getRunningTasks().toArray(new CompletableFuture[0]))
 				.get(60, TimeUnit.SECONDS);
+			Thread.sleep(20); // Try to fix flaky test :-(
 		}
 		catch (Exception e)
 		{
