@@ -14,6 +14,8 @@ import org.amshove.natparse.natural.INaturalModule;
 import org.amshove.natparse.natural.ISyntaxNode;
 import org.amshove.natparse.natural.project.NaturalFileType;
 
+import java.util.List;
+
 public class DefinePrototypeAnalyzer extends AbstractAnalyzer
 {
 	public static final DiagnosticDescription PROTOTYPE_DEFINED_MORE_THAN_ONCE = DiagnosticDescription.create(
@@ -108,14 +110,22 @@ public class DefinePrototypeAnalyzer extends AbstractAnalyzer
 		var prototype = ((IDefinePrototypeNode) node);
 		var prototypesInModule = NodeUtil.findNodesOfType(context.getModule().syntaxTree(), IDefinePrototypeNode.class);
 
-		for (var otherPrototype : prototypesInModule)
+		checkForRedundantPrototypeDefinitions(context, prototypesInModule, prototype);
+	}
+
+	private static void checkForRedundantPrototypeDefinitions(
+		IAnalyzeContext context, List<IDefinePrototypeNode> definedPrototypes,
+		IDefinePrototypeNode currentPrototype
+	)
+	{
+		for (var otherPrototype : definedPrototypes)
 		{
-			if (otherPrototype == prototype)
+			if (otherPrototype == currentPrototype)
 			{
 				continue;
 			}
 
-			if (otherPrototype.nameToken().symbolName().equals(prototype.nameToken().symbolName()))
+			if (otherPrototype.nameToken().symbolName().equals(currentPrototype.nameToken().symbolName()))
 			{
 				context.report(
 					PROTOTYPE_DEFINED_MORE_THAN_ONCE.createFormattedDiagnostic(

@@ -3,8 +3,6 @@ package org.amshove.natparse.natural;
 import org.amshove.natparse.lexing.SyntaxToken;
 import org.jspecify.annotations.Nullable;
 
-// TODO(labels): Use this interface for statements that can be labeled
-
 /**
  * Statements implementing this interface can be labeled with a
  * {@link org.amshove.natparse.lexing.SyntaxKind::LABEL_IDENTIFIER}

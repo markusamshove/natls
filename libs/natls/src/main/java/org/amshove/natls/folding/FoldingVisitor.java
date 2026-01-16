@@ -44,7 +44,8 @@ public class FoldingVisitor implements ISyntaxNodeVisitor
 		if (node instanceof IStatementWithBodyNode
 			|| node instanceof IDecideOnNode
 			|| node instanceof IDecideForConditionNode
-			|| node instanceof IDefineData)
+			|| node instanceof IDefineData
+			|| node instanceof IDefinePrototypeNode)
 		{
 			createFolding(node);
 		}
