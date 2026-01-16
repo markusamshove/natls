@@ -1,5 +1,12 @@
 package org.amshove.natgen.generatable;
 
+import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.DefineDataGenerator;
+import org.amshove.natgen.VariableType;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
+@NullMarked
 public class NaturalCode implements IGeneratable
 {
 	private final String code;
@@ -17,6 +24,18 @@ public class NaturalCode implements IGeneratable
 	public static NaturalCode assignment(IGeneratable lhs, IGeneratable rhs)
 	{
 		return new NaturalCode("%s := %s".formatted(lhs.generate(), rhs.generate()));
+	}
+
+	public static NaturalCode definePrototype(IGeneratable name, @Nullable VariableType returnType, CodeGenerationContext context)
+	{
+		var returnCode = returnType != null ? " RETURNS %s".formatted(returnType) : "";
+		var defineData = context.usings().isEmpty() && context.variables().isEmpty()
+			? ""
+			: new DefineDataGenerator().generate(context) + System.lineSeparator();
+
+		return new NaturalCode("""
+			DEFINE PROTOTYPE %s%s
+			%sEND-PROTOTYPE""".formatted(name.generate(), returnCode, defineData));
 	}
 
 	public static NaturalCode val(IGeneratable val)

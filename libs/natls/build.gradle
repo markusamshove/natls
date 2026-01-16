@@ -4,6 +4,7 @@ dependencies {
 	implementation libraries.slf4j_utillogging
     implementation project(':natparse')
     implementation project(':natlint')
+    implementation project(':natgen')
 
     testImplementation project(':testhelpers')
     testImplementation libraries.slf4j_nop
@@ -20,7 +21,7 @@ tasks.register('fatJar', Jar) {
     }
     archiveFileName = 'natls.jar'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dependsOn(':natparse:jar', ':natlint:jar')
+    dependsOn(':natparse:jar', ':natlint:jar', ':natgen:jar')
     from {configurations.runtimeClasspath.collect { (it.isDirectory() ? it : zipTree(it)).matching { exclude "**/*.SF", "**/*.DSA", "**/*.RSA" } } }
     with jar
 }

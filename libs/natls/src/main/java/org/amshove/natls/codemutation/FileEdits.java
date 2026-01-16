@@ -1,9 +1,10 @@
 package org.amshove.natls.codemutation;
 
+import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natls.project.LanguageServerFile;
 import org.amshove.natparse.natural.*;
-
-import java.util.stream.Collectors;
 
 public class FileEdits
 {
@@ -69,42 +70,30 @@ public class FileEdits
 	{
 		var insertion = rangeFinder.findInsertionPositionForStatementAtStart(inFile);
 
-		var defineDataBlock = "";
+		var codegenContext = new CodeGenerationContext();
+
+		var returnType = calledFunction.returnType();
 		var parameter = calledFunction.defineData().declaredParameterInOrder();
-		if (!parameter.isEmpty())
+		parameter.forEach(p ->
 		{
-			defineDataBlock = """
-				%n  DEFINE DATA
-				%s
-				  END-DEFINE""".formatted(
-				calledFunction.defineData().declaredParameterInOrder().stream().map(p ->
-				{
-					if (p instanceof IUsingNode using)
-					{
-						return "PARAMETER USING %s".formatted(using.target().symbolName());
-					}
-					var parameterVariable = (IVariableNode) p;
-					if (parameterVariable instanceof ITypedVariableNode typedParameter)
-					{
-						return "PARAMETER %d %s %s".formatted(typedParameter.level(), typedParameter.name(), typedParameter.formatTypeForDisplay());
-					}
+			if (p instanceof IUsingNode using)
+			{
+				codegenContext.addUsing(VariableScope.PARAMETER, using.target().symbolName());
+				return;
+			}
 
-					return "PARAMETER %d %s".formatted(parameterVariable.level(), ((IVariableNode) p).name());
-				})
-					.map(p -> "    " + p)
-					.collect(Collectors.joining(System.lineSeparator()))
-			);
-		}
+			var variable = (IVariableNode) p;
+			if (variable instanceof ITypedVariableNode typedParameter)
+			{
+				codegenContext.addVariable(VariableScope.PARAMETER, typedParameter.name(), VariableType.fromDataType(typedParameter.type()));
+				return;
+			}
+		});
 
+		var type = returnType == null ? null : VariableType.fromDataType(returnType);
 		return insertion.toFileEdit(
-			"""
-			DEFINE PROTOTYPE %s RETURNS %s%s
-			END-PROTOTYPE
-			""".formatted(
-				calledFunction.name(),
-				calledFunction.returnType().toShortString(),
-				defineDataBlock
-			)
+			NaturalCode.definePrototype(NaturalCode.plain(calledFunction.name()), type, codegenContext).generate()
+				+ System.lineSeparator()
 		);
 	}
 
