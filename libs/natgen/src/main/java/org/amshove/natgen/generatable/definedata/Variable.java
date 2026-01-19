@@ -1,12 +1,13 @@
-package org.amshove.natgen.generatable;
+package org.amshove.natgen.generatable.definedata;
 
 import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natparse.natural.VariableScope;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Variable implements IGeneratable
+public final class Variable implements IGeneratable, GeneratableDefineDataElement
 {
 	private final int level;
 	private final VariableScope scope;

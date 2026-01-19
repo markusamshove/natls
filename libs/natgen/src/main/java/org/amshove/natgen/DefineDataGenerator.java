@@ -1,6 +1,7 @@
 package org.amshove.natgen;
 
-import org.amshove.natgen.generatable.Variable;
+import org.amshove.natgen.generatable.definedata.Using;
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.DataFormat;
 import org.amshove.natparse.natural.VariableScope;
 
@@ -42,7 +43,7 @@ public class DefineDataGenerator
 		return code.toString();
 	}
 
-	private void generateUsings(StringBuilder code, VariableScope scope, Map<VariableScope, Set<String>> usings)
+	private void generateUsings(StringBuilder code, VariableScope scope, Map<VariableScope, Set<Using>> usings)
 	{
 		var usingsOfScope = usings.get(scope);
 
@@ -53,7 +54,7 @@ public class DefineDataGenerator
 
 		for (var using : usingsOfScope)
 		{
-			code.append(System.lineSeparator()).append(scope).append(" USING ").append(using);
+			code.append(System.lineSeparator()).append(scope).append(" ").append(using.generate());
 		}
 	}
 

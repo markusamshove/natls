@@ -176,4 +176,30 @@ class DefineDataGeneratorShould
 				LOCAL USING AA01
 				END-DEFINE""");
 	}
+
+	@Test
+	void retainTheInsertionOrderOfParameter()
+	{
+		var group = context.addVariable(VariableScope.PARAMETER, "#P-GROUP", VariableType.group());
+		group.addVariable("#P-SUB", VariableType.logical());
+		context.addUsing(VariableScope.PARAMETER, "MYPDA");
+		context.addVariable(VariableScope.LOCAL, "#LOCAL", VariableType.integer(4));
+		context.addVariable(VariableScope.PARAMETER, "#PARM2", VariableType.control());
+		context.addUsing(VariableScope.PARAMETER, "MYPDA2");
+
+		assertThat(sut.generate(context))
+			.isEqualTo("""
+				DEFINE DATA
+				PARAMETER
+				1 #P-GROUP
+				2 #P-SUB (L)
+				PARAMETER USING MYPDA
+				PARAMETER
+				1 #PARM2 (C)
+				PARAMETER USING MYPDA2
+				LOCAL
+				1 #LOCAL (I4)
+				END-DEFINE
+				""");
+	}
 }
