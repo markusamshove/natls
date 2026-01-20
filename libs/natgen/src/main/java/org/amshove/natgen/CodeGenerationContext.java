@@ -21,6 +21,19 @@ public class CodeGenerationContext
 		return addVariable(VariableScope.PARAMETER, name, type);
 	}
 
+	public Variable addVariable(Variable variable)
+	{
+		if (variable.scope().isParameter())
+		{
+			parameter.add(variable);
+		}
+		else
+		{
+			variables.add(variable);
+		}
+		return variable;
+	}
+
 	public Variable addVariable(VariableScope scope, String name, VariableType type)
 	{
 		var variable = new Variable(1, scope, name, type);

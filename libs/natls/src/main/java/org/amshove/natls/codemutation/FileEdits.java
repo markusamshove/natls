@@ -3,6 +3,7 @@ package org.amshove.natls.codemutation;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natls.project.LanguageServerFile;
 import org.amshove.natparse.natural.*;
 
@@ -83,10 +84,10 @@ public class FileEdits
 			}
 
 			var variable = (IVariableNode) p;
-			if (variable instanceof ITypedVariableNode typedParameter)
+			if (variable.level() == 1)
 			{
-				codegenContext.addVariable(VariableScope.PARAMETER, typedParameter.name(), VariableType.fromDataType(typedParameter.type()));
-				return;
+				// fromParsedVariable already adds the child variables
+				codegenContext.addVariable(Variable.fromParsedVariable(variable));
 			}
 		});
 

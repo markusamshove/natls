@@ -29,7 +29,7 @@ public class NaturalCode implements IGeneratable
 	public static NaturalCode definePrototype(IGeneratable name, @Nullable VariableType returnType, CodeGenerationContext context)
 	{
 		var returnCode = returnType != null ? " RETURNS %s".formatted(returnType) : "";
-		var defineData = context.usings().isEmpty() && context.variables().isEmpty()
+		var defineData = context.parameter().isEmpty()
 			? ""
 			: new DefineDataGenerator().generate(context) + System.lineSeparator();
 

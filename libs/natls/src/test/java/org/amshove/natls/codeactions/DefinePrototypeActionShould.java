@@ -172,7 +172,7 @@ class DefinePrototypeActionShould extends CodeActionTest
 			DEFINE DATA
 			PARAMETER
 			1 #PARMGRP
-			2 #GRPVAR (A10)
+			  2 #GRPVAR (A10)
 			PARAMETER USING APDA
 			END-DEFINE
 			END-PROTOTYPE

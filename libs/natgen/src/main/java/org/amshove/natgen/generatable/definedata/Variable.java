@@ -2,6 +2,9 @@ package org.amshove.natgen.generatable.definedata;
 
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.IGeneratable;
+import org.amshove.natparse.natural.IGroupNode;
+import org.amshove.natparse.natural.ITypedVariableNode;
+import org.amshove.natparse.natural.IVariableNode;
 import org.amshove.natparse.natural.VariableScope;
 
 import java.util.ArrayList;
@@ -22,6 +25,35 @@ public final class Variable implements IGeneratable, IGeneratableDefineDataEleme
 		this.scope = scope;
 		this.name = name;
 		this.type = type;
+	}
+
+	/// Creates a Variable for code generation from a parsed Variable from Natural source.
+	/// Child variables get added as well.
+	public static Variable fromParsedVariable(IVariableNode variableNode)
+	{
+		Variable variable = switch (variableNode)
+		{
+			case ITypedVariableNode typedVar -> new Variable(variableNode.level(), variableNode.scope(), variableNode.name(), VariableType.fromDataType(typedVar.type()));
+			case IGroupNode _ -> new Variable(variableNode.level(), variableNode.scope(), variableNode.name(), VariableType.group());
+
+			default -> throw new IllegalStateException("Unexpected IVariableNode type: " + variableNode.getClass().getName());
+		};
+
+		addChildVariables(variable, variableNode);
+		return variable;
+	}
+
+	private static void addChildVariables(Variable variable, IVariableNode variableNode)
+	{
+		if (!(variableNode.isGroup()))
+		{
+			return;
+		}
+
+		for (var childNode : ((IGroupNode) variableNode).variables())
+		{
+			variable.childVariables.add(fromParsedVariable(childNode));
+		}
 	}
 
 	public int level()
