@@ -147,9 +147,9 @@ class DefineDataGeneratorShould
 				GLOBAL USING GDA
 				GLOBAL
 				1 #GLBL (A7)
-				PARAMETER USING PDA
 				PARAMETER
 				1 PARAM (I4)
+				PARAMETER USING PDA
 				LOCAL USING LDA
 				LOCAL
 				1 #LCL (A5)
@@ -192,14 +192,13 @@ class DefineDataGeneratorShould
 				DEFINE DATA
 				PARAMETER
 				1 #P-GROUP
-				2 #P-SUB (L)
+				  2 #P-SUB (L)
 				PARAMETER USING MYPDA
 				PARAMETER
 				1 #PARM2 (C)
 				PARAMETER USING MYPDA2
 				LOCAL
 				1 #LOCAL (I4)
-				END-DEFINE
-				""");
+				END-DEFINE""");
 	}
 }

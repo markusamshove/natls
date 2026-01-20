@@ -7,7 +7,7 @@ import org.amshove.natparse.natural.VariableScope;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Variable implements IGeneratable, GeneratableDefineDataElement
+public final class Variable implements IGeneratable, IGeneratableDefineDataElement
 {
 	private final int level;
 	private final VariableScope scope;

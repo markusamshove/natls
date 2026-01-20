@@ -1,5 +1,6 @@
 package org.amshove.natgen;
 
+import org.amshove.natgen.generatable.definedata.IGeneratableDefineDataElement;
 import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.DataFormat;
@@ -32,8 +33,7 @@ public class DefineDataGenerator
 		generateUsings(code, VariableScope.GLOBAL, context.usings());
 		generateScoped(code, VariableScope.GLOBAL, groupedByScope);
 
-		generateUsings(code, VariableScope.PARAMETER, context.usings());
-		generateScoped(code, VariableScope.PARAMETER, groupedByScope);
+		generateParameter(code, context.parameter());
 
 		generateUsings(code, VariableScope.LOCAL, context.usings());
 		generateScoped(code, VariableScope.LOCAL, groupedByScope);
@@ -41,6 +41,35 @@ public class DefineDataGenerator
 		generateScoped(code, VariableScope.INDEPENDENT, groupedByScope);
 
 		return code.toString();
+	}
+
+	private void generateParameter(StringBuilder code, List<IGeneratableDefineDataElement> parameter)
+	{
+		if (parameter.isEmpty())
+		{
+			return;
+		}
+
+		var needsScopeToStart = true;
+		for (var element : parameter)
+		{
+			switch (element)
+			{
+				case Using using -> {
+					code.append(System.lineSeparator()).append(using.generate());
+					needsScopeToStart = true;
+				}
+				case Variable variable ->
+				{
+					if (needsScopeToStart)
+					{
+						code.append(System.lineSeparator()).append("PARAMETER");
+					}
+					generateSubVariables(code, List.of(variable));
+					needsScopeToStart = false;
+				}
+			}
+		}
 	}
 
 	private void generateUsings(StringBuilder code, VariableScope scope, Map<VariableScope, Set<Using>> usings)
@@ -54,11 +83,14 @@ public class DefineDataGenerator
 
 		for (var using : usingsOfScope)
 		{
-			code.append(System.lineSeparator()).append(scope).append(" ").append(using.generate());
+			code.append(System.lineSeparator()).append(using.generate());
 		}
 	}
 
-	private void generateScoped(StringBuilder code, VariableScope scope, Map<VariableScope, List<Variable>> variablesByScope)
+	private void generateScoped(
+		StringBuilder code, VariableScope scope,
+		Map<VariableScope, List<Variable>> variablesByScope
+	)
 	{
 		if (!variablesByScope.containsKey(scope))
 		{

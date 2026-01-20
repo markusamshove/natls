@@ -1,6 +1,6 @@
 package org.amshove.natgen;
 
-import org.amshove.natgen.generatable.definedata.GeneratableDefineDataElement;
+import org.amshove.natgen.generatable.definedata.IGeneratableDefineDataElement;
 import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
@@ -14,7 +14,7 @@ public class CodeGenerationContext
 	private final List<Variable> variables = new ArrayList<>();
 	private final Map<VariableScope, Set<Using>> usings = new HashMap<>();
 
-	private final List<GeneratableDefineDataElement> parameter = new ArrayList<>();
+	private final List<IGeneratableDefineDataElement> parameter = new ArrayList<>();
 
 	public Variable addParameter(String name, VariableType type)
 	{
@@ -43,7 +43,7 @@ public class CodeGenerationContext
 
 	///  Returns all DEFINE DATA elements with scope PARAMETER in the order
 	///  they've been defined.
-	public List<GeneratableDefineDataElement> parameter()
+	public List<IGeneratableDefineDataElement> parameter()
 	{
 		return parameter;
 	}
