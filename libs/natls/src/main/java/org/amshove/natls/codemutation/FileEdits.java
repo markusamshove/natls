@@ -4,6 +4,7 @@ import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.DefineDataGenerator;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natls.project.LanguageServerFile;
 import org.amshove.natparse.natural.*;
@@ -14,12 +15,6 @@ public class FileEdits
 
 	private FileEdits()
 	{}
-
-	// TODO: Remove this overload?
-	public static FileEdit addVariable(LanguageServerFile file, String variableName, VariableType variableType, VariableScope scope)
-	{
-		return addVariable(file, new Variable(1, scope, variableName, variableType));
-	}
 
 	public static FileEdit addVariable(LanguageServerFile file, Variable variable)
 	{
@@ -54,7 +49,7 @@ public class FileEdits
 		return insertion.toFileEdit("1 %s%n2 %s %s".formatted(groupPart, variablePart, variableType));
 	}
 
-	public static FileEdit addUsing(LanguageServerFile file, UsingToAdd neededUsing)
+	public static FileEdit addUsing(LanguageServerFile file, Using neededUsing)
 	{
 		if (alreadyHasUsing(neededUsing.name(), file))
 		{
@@ -104,7 +99,7 @@ public class FileEdits
 		);
 	}
 
-	private static FileEdit createUsingInsert(UsingToAdd using, LanguageServerFile file)
+	private static FileEdit createUsingInsert(Using using, LanguageServerFile file)
 	{
 		var insertion = rangeFinder.findInsertionPositionToInsertUsing(file, using.scope());
 		return insertion.toFileEdit("%s USING %s".formatted(using.scope(), using.name()));

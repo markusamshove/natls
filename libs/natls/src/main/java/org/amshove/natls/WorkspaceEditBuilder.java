@@ -1,9 +1,9 @@
 package org.amshove.natls;
 
 import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natls.codemutation.FileEdits;
-import org.amshove.natls.codemutation.UsingToAdd;
 import org.amshove.natls.languageserver.LspUtil;
 import org.amshove.natls.project.LanguageServerFile;
 import org.amshove.natparse.IPosition;
@@ -76,7 +76,7 @@ public class WorkspaceEditBuilder
 
 	public WorkspaceEditBuilder addsUsing(LanguageServerFile file, String using, VariableScope scope)
 	{
-		var fileEdit = FileEdits.addUsing(file, new UsingToAdd(using, scope));
+		var fileEdit = FileEdits.addUsing(file, new Using(scope, using));
 		if (fileEdit != null)
 		{
 			var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), _ -> new ArrayList<>());
