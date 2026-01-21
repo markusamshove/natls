@@ -1,5 +1,6 @@
 package org.amshove.natls.quickfixes;
 
+import org.amshove.natgen.VariableType;
 import org.amshove.natls.WorkspaceEditBuilder;
 import org.amshove.natls.codeactions.AbstractQuickFix;
 import org.amshove.natls.codeactions.QuickFixContext;
@@ -45,8 +46,8 @@ public class UnresolvedReferenceQuickFix extends AbstractQuickFix
 	private Stream<CodeAction> createDeclareVariableEdit(QuickFixContext context, String unresolvedReference)
 	{
 		var inferredType = TypeInference.inferTypeForTokenInStatement(context.tokenUnderCursor(), context.statementAtPosition())
-			.map(IDataType::toShortString)
-			.orElse("(A) DYNAMIC");
+			.map(VariableType::fromDataType)
+			.orElse(VariableType.alphanumericDynamic());
 
 		return Stream.of(
 			new CodeActionBuilder("Declare local variable %s".formatted(unresolvedReference), CodeActionKind.QuickFix)

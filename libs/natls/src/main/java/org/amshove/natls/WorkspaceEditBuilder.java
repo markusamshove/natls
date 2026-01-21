@@ -1,5 +1,7 @@
 package org.amshove.natls;
 
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natls.codemutation.FileEdits;
 import org.amshove.natls.codemutation.UsingToAdd;
 import org.amshove.natls.languageserver.LspUtil;
@@ -84,17 +86,22 @@ public class WorkspaceEditBuilder
 		return this;
 	}
 
-	public WorkspaceEditBuilder addsVariable(LanguageServerFile file, String name, String type, VariableScope scope)
+	public WorkspaceEditBuilder addsVariable(LanguageServerFile file, Variable variable)
 	{
-		if (file.module()instanceof IHasDefineData hasDefineData && hasDefineData.defineData() != null && hasDefineData.defineData().findVariable(name) != null)
+		if (file.module()instanceof IHasDefineData hasDefineData && hasDefineData.defineData() != null && hasDefineData.defineData().findVariable(variable.name()) != null)
 		{
 			return this;
 		}
 
-		var fileEdit = FileEdits.addVariable(file, name, type, scope);
+		var fileEdit = FileEdits.addVariable(file, variable);
 		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), _ -> new ArrayList<>());
 		edits.add(fileEdit.textEdit());
 		return this;
+	}
+
+	public WorkspaceEditBuilder addsVariable(LanguageServerFile file, String name, VariableType type, VariableScope scope)
+	{
+		return addsVariable(file, new Variable(1, scope, name, type));
 	}
 
 	public WorkspaceEdit build()

@@ -1,6 +1,7 @@
 package org.amshove.natls.codemutation;
 
 import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.DefineDataGenerator;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.definedata.Variable;
@@ -14,8 +15,18 @@ public class FileEdits
 	private FileEdits()
 	{}
 
-	public static FileEdit addVariable(LanguageServerFile file, String variableName, String variableType, VariableScope scope)
+	// TODO: Remove this overload?
+	public static FileEdit addVariable(LanguageServerFile file, String variableName, VariableType variableType, VariableScope scope)
 	{
+		return addVariable(file, new Variable(1, scope, variableName, variableType));
+	}
+
+	public static FileEdit addVariable(LanguageServerFile file, Variable variable)
+	{
+		var variableType = variable.type();
+		var scope = variable.scope();
+		var variableName = variable.name();
+
 		if (variableName.contains("."))
 		{
 			var split = variableName.split("\\.");
@@ -24,10 +35,13 @@ public class FileEdits
 			return addVariableToGroup(file, groupPart, variablePart, variableType, scope);
 		}
 		var variableInsert = rangeFinder.findInsertionPositionToInsertVariable(file, scope);
-		return variableInsert.toFileEdit("%d %s %s".formatted(1, variableName, variableType));
+
+		var theDeclaration = new DefineDataGenerator().generateVariableDeclarationWithoutScope(variable);
+		return variableInsert.toFileEdit(theDeclaration);
+
 	}
 
-	private static FileEdit addVariableToGroup(LanguageServerFile file, String groupPart, String variablePart, String variableType, VariableScope scope)
+	private static FileEdit addVariableToGroup(LanguageServerFile file, String groupPart, String variablePart, VariableType variableType, VariableScope scope)
 	{
 		var group = ((IHasDefineData) file.module()).defineData().findVariable(groupPart);
 		if (group instanceof IGroupNode groupNode)

@@ -1,5 +1,6 @@
 package org.amshove.natgen;
 
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -200,5 +201,24 @@ class DefineDataGeneratorShould
 				LOCAL
 				1 #LOCAL (I4)
 				END-DEFINE""");
+	}
+
+	@Test
+	void generateASingleVariable()
+	{
+		var variable = new Variable(1, VariableScope.LOCAL, "#MYVAR", VariableType.alphanumericDynamic());
+		assertThat(sut.generateVariableDeclarationWithoutScope(variable))
+			.isEqualTo("1 #MYVAR (A) DYNAMIC");
+	}
+
+	@Test
+	void generateASingleConstant()
+	{
+		var variable = new Variable(1, VariableScope.LOCAL, "#MYVAR", VariableType.alphanumericDynamic());
+
+		variable.withConstantValue("'Hello'");
+
+		assertThat(sut.generateVariableDeclarationWithoutScope(variable))
+			.isEqualTo("1 #MYVAR (A) DYNAMIC CONST<'Hello'>");
 	}
 }

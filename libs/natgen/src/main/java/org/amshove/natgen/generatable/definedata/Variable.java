@@ -1,16 +1,15 @@
 package org.amshove.natgen.generatable.definedata;
 
 import org.amshove.natgen.VariableType;
-import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natparse.natural.IGroupNode;
 import org.amshove.natparse.natural.ITypedVariableNode;
 import org.amshove.natparse.natural.IVariableNode;
 import org.amshove.natparse.natural.VariableScope;
-
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Variable implements IGeneratable, IGeneratableDefineDataElement
+public final class Variable implements IGeneratableDefineDataElement
 {
 	private final int level;
 	private final VariableScope scope;
@@ -19,12 +18,28 @@ public final class Variable implements IGeneratable, IGeneratableDefineDataEleme
 	private final List<Variable> childVariables = new ArrayList<>();
 	private Variable parent;
 
+	private String constValue = null;
+
 	public Variable(int level, VariableScope scope, String name, VariableType type)
 	{
 		this.level = level;
 		this.scope = scope;
 		this.name = name;
 		this.type = type;
+	}
+
+	/// CONST literal value to be generated within DEFINE DATA
+	@Nullable
+	public String constValue()
+	{
+		return constValue;
+	}
+
+	/// Sets the value that will be generated in a CONST block in DEFINE DATA
+	public Variable withConstantValue(String value)
+	{
+		constValue = value;
+		return this;
 	}
 
 	/// Creates a Variable for code generation from a parsed Variable from Natural source.
