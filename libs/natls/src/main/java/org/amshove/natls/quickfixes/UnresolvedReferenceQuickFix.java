@@ -1,6 +1,7 @@
 package org.amshove.natls.quickfixes;
 
 import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natls.WorkspaceEditBuilder;
 import org.amshove.natls.codeactions.AbstractQuickFix;
 import org.amshove.natls.codeactions.QuickFixContext;
@@ -54,14 +55,14 @@ public class UnresolvedReferenceQuickFix extends AbstractQuickFix
 				.fixesDiagnostic(context.diagnostic())
 				.appliesWorkspaceEdit(
 					new WorkspaceEditBuilder()
-						.addsVariable(context.file(), unresolvedReference, inferredType, VariableScope.LOCAL)
+						.addsVariable(context.file(), new Variable(1, VariableScope.LOCAL, unresolvedReference, inferredType))
 				)
 				.build(),
 			new CodeActionBuilder("Declare parameter %s".formatted(unresolvedReference), CodeActionKind.QuickFix)
 				.fixesDiagnostic(context.diagnostic())
 				.appliesWorkspaceEdit(
 					new WorkspaceEditBuilder()
-						.addsVariable(context.file(), unresolvedReference, inferredType, VariableScope.PARAMETER)
+						.addsVariable(context.file(), new Variable(1, VariableScope.PARAMETER, unresolvedReference, inferredType))
 				)
 				.build()
 		);
