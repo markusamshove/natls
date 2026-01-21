@@ -16,6 +16,12 @@ public class NaturalCode implements IGeneratable
 		this.code = code;
 	}
 
+	@Override
+	public String generate()
+	{
+		return code;
+	}
+
 	public static NaturalCode plain(String plaintext)
 	{
 		return new NaturalCode(plaintext);
@@ -43,9 +49,13 @@ public class NaturalCode implements IGeneratable
 		return new NaturalCode("VAL(%s)".formatted(val.generate()));
 	}
 
-	@Override
-	public String generate()
+	public static Subroutine subroutine(String name)
 	{
-		return code;
+		return new Subroutine(name);
+	}
+
+	public static NaturalCode ignore()
+	{
+		return new NaturalCode("IGNORE");
 	}
 }

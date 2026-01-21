@@ -52,19 +52,11 @@ public class FileEdits
 
 	public static FileEdit addSubroutine(LanguageServerFile file, String name, String source)
 	{
-
-		var subroutine = """
-			/***********************************************************************
-			DEFINE SUBROUTINE %s
-			/***********************************************************************
-
-			%s
-
-			END-SUBROUTINE
-			""".formatted(name, source);
+		var subroutine = NaturalCode.subroutine(name);
+		subroutine.addToBody(NaturalCode.plain(source));
 
 		var insertion = rangeFinder.findInsertionPositionForStatementAtEnd(file);
-		return insertion.toFileEdit(subroutine);
+		return insertion.toFileEdit(subroutine.generate());
 	}
 
 	public static FileEdit addPrototype(LanguageServerFile inFile, IFunction calledFunction)
