@@ -58,4 +58,11 @@ public class NaturalCode implements IGeneratable
 	{
 		return new NaturalCode("IGNORE");
 	}
+
+	/// Create a new PARSE JSON statement. `referenceToJsonSource` is the Natural variable containing the JSON to
+	/// parse.
+	public static ParseJson parseJson(IGeneratable referenceToJsonSource)
+	{
+		return new ParseJson(referenceToJsonSource);
+	}
 }

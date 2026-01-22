@@ -1,13 +1,8 @@
 package org.amshove.natgen.generatable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class Subroutine implements IGeneratable
+public class Subroutine extends GeneratableWithBody<Subroutine> implements IGeneratable
 {
 	private final String name;
-	private final List<IGeneratable> bodyParts = new ArrayList<>();
 
 	public Subroutine(String name)
 	{
@@ -17,12 +12,6 @@ public class Subroutine implements IGeneratable
 	public String name()
 	{
 		return name;
-	}
-
-	public Subroutine addToBody(IGeneratable generatable)
-	{
-		bodyParts.add(generatable);
-		return this;
 	}
 
 	@Override
@@ -39,8 +28,4 @@ public class Subroutine implements IGeneratable
 			""".formatted(name, body());
 	}
 
-	private String body()
-	{
-		return bodyParts.stream().map(IGeneratable::generate).collect(Collectors.joining(System.lineSeparator()));
-	}
 }

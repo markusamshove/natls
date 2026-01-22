@@ -22,6 +22,10 @@ public class ParseJsonGenerator
 	private Variable jsonErrCode;
 	private Variable jsonErrSubcode;
 
+	public void generate(CodeGenerationContext context, String json)
+	{
+	}
+
 	public String generate(String json)
 	{
 		var gson = new Gson();

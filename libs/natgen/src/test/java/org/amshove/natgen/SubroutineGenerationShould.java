@@ -14,14 +14,31 @@ class SubroutineGenerationShould
 		var subroutine = new Subroutine("simple");
 		assertThat(subroutine.generate())
 			.isEqualTo("""
-            /***********************************************************************
-            DEFINE SUBROUTINE simple
-            /***********************************************************************
+			/***********************************************************************
+			DEFINE SUBROUTINE simple
+			/***********************************************************************
 
+			IGNORE
 
+			END-SUBROUTINE
+			""");
+	}
 
-            END-SUBROUTINE
-            """);
+	@Test
+	void notGenerateTheIgnoreWhenAStatementHasBeenAdded()
+	{
+		var subroutine = new Subroutine("simple");
+		subroutine.addToBody(NaturalCode.assignment(NaturalCode.plain("#VAR"), NaturalCode.plain("#VAR")));
+		assertThat(subroutine.generate())
+			.isEqualTo("""
+			/***********************************************************************
+			DEFINE SUBROUTINE simple
+			/***********************************************************************
+
+			#VAR := #VAR
+
+			END-SUBROUTINE
+			""");
 	}
 
 	@Test
@@ -33,14 +50,14 @@ class SubroutineGenerationShould
 
 		assertThat(subroutine.generate())
 			.isEqualTo("""
-            /***********************************************************************
-            DEFINE SUBROUTINE MULT
-            /***********************************************************************
+			/***********************************************************************
+			DEFINE SUBROUTINE MULT
+			/***********************************************************************
 
-            IGNORE
-            #VAR := #VAR
+			IGNORE
+			#VAR := #VAR
 
-            END-SUBROUTINE
-            """);
+			END-SUBROUTINE
+			""");
 	}
 }
