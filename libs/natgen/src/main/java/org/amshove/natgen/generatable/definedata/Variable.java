@@ -16,6 +16,7 @@ public final class Variable implements IGeneratableDefineDataElement
 	private final String name;
 	private final VariableType type;
 	private final List<Variable> childVariables = new ArrayList<>();
+	private final List<Redefinition> redefitions = new ArrayList<>();
 	private Variable parent;
 
 	private String constValue = null;
@@ -40,6 +41,15 @@ public final class Variable implements IGeneratableDefineDataElement
 	{
 		constValue = value;
 		return this;
+	}
+
+	/// Creates a new `Redefinition` for this variable.
+	/// Calling this method will *create a new* `Redefinition` every time!
+	public Redefinition newRedefine()
+	{
+		var redefinition = new Redefinition(this);
+		redefitions.add(redefinition);
+		return redefinition;
 	}
 
 	/// Creates a Variable for code generation from a parsed Variable from Natural source.
@@ -89,6 +99,11 @@ public final class Variable implements IGeneratableDefineDataElement
 	public List<Variable> children()
 	{
 		return childVariables;
+	}
+
+	public List<Redefinition> redefinitions()
+	{
+		return redefitions;
 	}
 
 	public VariableType type()

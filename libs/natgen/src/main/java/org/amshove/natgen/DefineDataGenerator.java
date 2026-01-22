@@ -140,10 +140,20 @@ public class DefineDataGenerator
 			code.append(" CONST<").append(variable.constValue()).append(">");
 		}
 
-		for (var i = 0; i < variable.children().size(); i++)
+		for (var redefinition : variable.redefinitions())
 		{
 			code.append(System.lineSeparator());
-			var child = variable.children().get(i);
+			code.append(variable.level()).append(" REDEFINE ").append(variable.name());
+			for (var redefineChild : redefinition.members())
+			{
+				code.append(System.lineSeparator());
+				generateVariable(code, redefineChild);
+			}
+		}
+
+		for (var child : variable.children())
+		{
+			code.append(System.lineSeparator());
 			generateVariable(code, child);
 		}
 	}

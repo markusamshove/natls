@@ -1,6 +1,7 @@
 package org.amshove.natgen;
 
 import org.amshove.natgen.generatable.definedata.IGeneratableDefineDataElement;
+import org.amshove.natgen.generatable.definedata.Redefinition;
 import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
@@ -8,7 +9,6 @@ import org.amshove.natparse.natural.VariableScope;
 import java.util.*;
 
 /// Holds the building blocks for code that is going to be generated.
-/// TODO: call different methods to generate variables, subroutines (and statements?)
 public class CodeGenerationContext
 {
 	private final List<Variable> variables = new ArrayList<>();

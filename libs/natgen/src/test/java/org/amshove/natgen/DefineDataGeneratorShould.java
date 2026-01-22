@@ -221,4 +221,53 @@ class DefineDataGeneratorShould
 		assertThat(sut.generateVariableDeclarationWithoutScope(variable))
 			.isEqualTo("1 #MYVAR (A) DYNAMIC CONST<'Hello'>");
 	}
+
+	@Test
+	void generateRedefinitions()
+	{
+		var variable = new Variable(1, VariableScope.LOCAL, "#TO-REDEFINE", VariableType.numeric(20));
+
+		context.addVariable(variable);
+
+		variable
+			.newRedefine()
+			.withMember("#HALF-A", VariableType.alphanumeric(10))
+			.withMember("#HALF-N", VariableType.numeric(10));
+
+		assertThat(sut.generate(context))
+			.isEqualTo("""
+				DEFINE DATA
+				LOCAL
+				1 #TO-REDEFINE (N20)
+				1 REDEFINE #TO-REDEFINE
+				  2 #HALF-A (A10)
+				  2 #HALF-N (N10)
+				END-DEFINE""");
+	}
+
+	@Test
+	void beAbleToRedefineAVariableMultipleTImes()
+	{
+		var variable = new Variable(1, VariableScope.LOCAL, "#TO-REDEFINE", VariableType.numeric(20));
+
+		context.addVariable(variable);
+
+		variable
+			.newRedefine()
+			.withMember("#HALF-A", VariableType.alphanumeric(10));
+		variable
+			.newRedefine()
+			.withMember("#HALF-N", VariableType.numeric(10));
+
+		assertThat(sut.generate(context))
+			.isEqualTo("""
+				DEFINE DATA
+				LOCAL
+				1 #TO-REDEFINE (N20)
+				1 REDEFINE #TO-REDEFINE
+				  2 #HALF-A (A10)
+				1 REDEFINE #TO-REDEFINE
+				  2 #HALF-N (N10)
+				END-DEFINE""");
+	}
 }
