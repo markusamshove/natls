@@ -3,6 +3,7 @@ package org.amshove.natgen.generatable;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.DefineDataGenerator;
 import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.DecideOn.DecideOnValueCheck;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -64,5 +65,17 @@ public class NaturalCode implements IGeneratable
 	public static ParseJson parseJson(IGeneratable referenceToJsonSource)
 	{
 		return new ParseJson(referenceToJsonSource);
+	}
+
+	/// Create a new DECIDE ON statement for checking the *FIRST* value of the given field.
+	public static DecideOn decideOnFirst(IGeneratable reference)
+	{
+		return new DecideOn(reference, DecideOnValueCheck.FIRST);
+	}
+
+	/// Create a new DECIDE ON statement for checking the *EVERY* value of the given field.
+	public static DecideOn decideOnEvery(IGeneratable reference)
+	{
+		return new DecideOn(reference, DecideOnValueCheck.EVERY);
 	}
 }

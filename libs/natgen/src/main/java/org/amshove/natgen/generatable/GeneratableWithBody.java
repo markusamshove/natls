@@ -23,7 +23,22 @@ class GeneratableWithBody<T extends IGeneratable>
 		{
 			return NaturalCode.ignore().generate();
 		}
+
 		return bodyParts.stream().map(IGeneratable::generate).collect(Collectors.joining(System.lineSeparator()));
+	}
+
+	/// Generate the body with the given indentation.
+	protected String bodyWithIndentation(String indentation)
+	{
+		if (bodyParts.isEmpty())
+		{
+			return indentation + NaturalCode.ignore().generate();
+		}
+
+		return bodyParts.stream()
+			.map(IGeneratable::generate)
+			.map(line -> indentation + line)
+			.collect(Collectors.joining(System.lineSeparator()));
 	}
 }
 
