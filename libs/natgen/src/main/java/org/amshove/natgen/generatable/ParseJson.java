@@ -55,13 +55,28 @@ public class ParseJson extends GeneratableWithBody<ParseJson> implements IGenera
 		if (pathVariable != null)
 		{
 			hasInto = appendInto(code, hasInto);
-			code.append("PATH ").append(pathVariable.generate());
+			code.append(" PATH ").append(pathVariable.generate());
 		}
 
 		if (nameVariable != null)
 		{
 			hasInto = appendInto(code, hasInto);
-			code.append("NAME ").append(nameVariable.generate());
+			code.append(" NAME ").append(nameVariable.generate());
+		}
+
+		if (valueVariable != null)
+		{
+			hasInto = appendInto(code, hasInto);
+			code.append(" VALUE ").append(valueVariable.generate());
+		}
+
+		if (errorCodeVariable != null)
+		{
+			code.append(" GIVING ").append(errorCodeVariable.generate());
+			if (errorSubcodeVariable != null)
+			{
+				code.append(" SUBCODE ").append(errorSubcodeVariable.generate());
+			}
 		}
 
 		code.append(System.lineSeparator());
@@ -78,7 +93,7 @@ public class ParseJson extends GeneratableWithBody<ParseJson> implements IGenera
 			return true;
 		}
 
-		code.append(" INTO ");
+		code.append(" INTO");
 		return true;
 	}
 }
