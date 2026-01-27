@@ -41,4 +41,3 @@ class GeneratableWithBody<T extends IGeneratable>
 			.collect(Collectors.joining(System.lineSeparator()));
 	}
 }
-

@@ -98,12 +98,14 @@ public class DecideOn implements IGeneratable
 			{
 				return "%s VALUE%n%s".formatted(
 					specialBranchName,
-					bodyWithIndentation("    "));
+					bodyWithIndentation("    ")
+				);
 			}
 
 			return "VALUE %s%n%s".formatted(
 				String.join(", ", Arrays.stream(valuesToCheck).map(IGeneratable::generate).toList()),
-				bodyWithIndentation("    "));
+				bodyWithIndentation("    ")
+			);
 		}
 	}
 
