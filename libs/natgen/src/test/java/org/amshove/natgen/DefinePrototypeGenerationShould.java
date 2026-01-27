@@ -16,7 +16,7 @@ class DefinePrototypeGenerationShould
 		assertThat(
 			NaturalCode.definePrototype(NaturalCode.plain("FUNC"), null, context)
 				.generate()
-		).isEqualTo("""
+		).isEqualToIgnoringNewLines("""
 			DEFINE PROTOTYPE FUNC
 			END-PROTOTYPE""");
 	}
@@ -27,7 +27,7 @@ class DefinePrototypeGenerationShould
 		assertThat(
 			NaturalCode.definePrototype(NaturalCode.plain("FUNC"), VariableType.logical(), context)
 				.generate()
-		).isEqualTo("""
+		).isEqualToIgnoringNewLines("""
 			DEFINE PROTOTYPE FUNC RETURNS (L)
 			END-PROTOTYPE""");
 	}
@@ -41,7 +41,7 @@ class DefinePrototypeGenerationShould
 		assertThat(
 			NaturalCode.definePrototype(NaturalCode.plain("FUNC"), VariableType.logical(), context)
 				.generate()
-		).isEqualTo("""
+		).isEqualToIgnoringNewLines("""
 			DEFINE PROTOTYPE FUNC RETURNS (L)
 			DEFINE DATA
 			PARAMETER

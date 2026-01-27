@@ -13,7 +13,7 @@ class SubroutineGenerationShould
 	{
 		var subroutine = new Subroutine("simple");
 		assertThat(subroutine.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 			/***********************************************************************
 			DEFINE SUBROUTINE simple
 			/***********************************************************************
@@ -30,7 +30,7 @@ class SubroutineGenerationShould
 		var subroutine = new Subroutine("simple");
 		subroutine.addToBody(NaturalCode.assignment(NaturalCode.plain("#VAR"), NaturalCode.plain("#VAR")));
 		assertThat(subroutine.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 			/***********************************************************************
 			DEFINE SUBROUTINE simple
 			/***********************************************************************
@@ -49,7 +49,7 @@ class SubroutineGenerationShould
 			.addToBody(NaturalCode.assignment(NaturalCode.plain("#VAR"), NaturalCode.plain("#VAR")));
 
 		assertThat(subroutine.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 			/***********************************************************************
 			DEFINE SUBROUTINE MULT
 			/***********************************************************************

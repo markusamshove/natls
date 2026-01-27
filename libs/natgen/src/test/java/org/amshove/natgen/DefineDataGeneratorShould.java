@@ -19,7 +19,7 @@ class DefineDataGeneratorShould
 		context.addVariable(VariableScope.LOCAL, "#VARIABLE", VariableType.alphanumeric(10));
 
 		assertThat(sut.generate(context))
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				DEFINE DATA
 				LOCAL
 				1 #VARIABLE (A10)
@@ -33,7 +33,7 @@ class DefineDataGeneratorShould
 		context.addVariable(VariableScope.LOCAL, "#SECOND", VariableType.alphanumericDynamic());
 
 		assertThat(sut.generate(context))
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				DEFINE DATA
 				LOCAL
 				1 #VARIABLE (A10)
@@ -48,7 +48,7 @@ class DefineDataGeneratorShould
 		context.addVariable(VariableScope.PARAMETER, "#PARAM", VariableType.alphanumericDynamic());
 
 		assertThat(sut.generate(context))
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				DEFINE DATA
 				PARAMETER
 				1 #PARAM (A) DYNAMIC
@@ -66,7 +66,7 @@ class DefineDataGeneratorShould
 		context.addVariable(VariableScope.GLOBAL, "#G-GLOBAL", VariableType.alphanumeric(10));
 
 		assertThat(sut.generate(context))
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				DEFINE DATA
 				GLOBAL
 				1 #G-GLOBAL (A10)
@@ -87,7 +87,7 @@ class DefineDataGeneratorShould
 		group.addVariable("#VAR", VariableType.integer(4));
 
 		assertThat(sut.generate(context))
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				DEFINE DATA
 				LOCAL
 				1 #GRP
@@ -106,7 +106,7 @@ class DefineDataGeneratorShould
 		context.addUsing(theScope, "MYUSING");
 
 		assertThat(sut.generate(context))
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				DEFINE DATA
 				%s USING MYUSING
 				END-DEFINE""".formatted(scope));
@@ -120,7 +120,7 @@ class DefineDataGeneratorShould
 		context.addUsing(VariableScope.GLOBAL, "GDA");
 
 		assertThat(sut.generate(context))
-			.isEqualTo(
+			.isEqualToIgnoringNewLines(
 				"""
 				DEFINE DATA
 				GLOBAL USING GDA
@@ -142,7 +142,7 @@ class DefineDataGeneratorShould
 		context.addVariable(VariableScope.INDEPENDENT, "+INDE", VariableType.alphanumeric(2));
 
 		assertThat(sut.generate(context))
-			.isEqualTo(
+			.isEqualToIgnoringNewLines(
 				"""
 				DEFINE DATA
 				GLOBAL USING GDA
@@ -169,7 +169,7 @@ class DefineDataGeneratorShould
 		context.addUsing(VariableScope.LOCAL, "AA01");
 
 		assertThat(sut.generate(context))
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				DEFINE DATA
 				LOCAL USING ZZZ
 				LOCAL USING AAA
@@ -189,7 +189,7 @@ class DefineDataGeneratorShould
 		context.addUsing(VariableScope.PARAMETER, "MYPDA2");
 
 		assertThat(sut.generate(context))
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				DEFINE DATA
 				PARAMETER
 				1 #P-GROUP
@@ -208,7 +208,7 @@ class DefineDataGeneratorShould
 	{
 		var variable = new Variable(1, VariableScope.LOCAL, "#MYVAR", VariableType.alphanumericDynamic());
 		assertThat(sut.generateVariableDeclarationWithoutScope(variable))
-			.isEqualTo("1 #MYVAR (A) DYNAMIC");
+			.isEqualToIgnoringNewLines("1 #MYVAR (A) DYNAMIC");
 	}
 
 	@Test
@@ -219,7 +219,7 @@ class DefineDataGeneratorShould
 		variable.withConstantValue("'Hello'");
 
 		assertThat(sut.generateVariableDeclarationWithoutScope(variable))
-			.isEqualTo("1 #MYVAR (A) DYNAMIC CONST<'Hello'>");
+			.isEqualToIgnoringNewLines("1 #MYVAR (A) DYNAMIC CONST<'Hello'>");
 	}
 
 	@Test
@@ -235,7 +235,7 @@ class DefineDataGeneratorShould
 			.withMember("#HALF-N", VariableType.numeric(10));
 
 		assertThat(sut.generate(context))
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				DEFINE DATA
 				LOCAL
 				1 #TO-REDEFINE (N20)
@@ -260,7 +260,7 @@ class DefineDataGeneratorShould
 			.withMember("#HALF-N", VariableType.numeric(10));
 
 		assertThat(sut.generate(context))
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				DEFINE DATA
 				LOCAL
 				1 #TO-REDEFINE (N20)

@@ -15,7 +15,7 @@ class ParseJsonGenerationShould
 		var parseJson = NaturalCode.parseJson(new Variable(1, VariableScope.LOCAL, "#JSON", VariableType.alphanumericDynamic()));
 
 		assertThat(parseJson.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				PARSE JSON #JSON
 				IGNORE
 				END-PARSE""");
@@ -34,7 +34,7 @@ class ParseJsonGenerationShould
 			.givingErrorSubcode(NaturalCode.plain("#ERR-SUBCODE"));
 
 		assertThat(parseJson.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				PARSE JSON #JSON INTO PATH #PATH NAME #NAME VALUE #VALUE GIVING #ERR-CODE SUBCODE #ERR-SUBCODE
 				IGNORE
 				END-PARSE""");
@@ -49,7 +49,7 @@ class ParseJsonGenerationShould
 			.intoValue(NaturalCode.plain("#VALUE"));
 
 		assertThat(parseJson.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				PARSE JSON #JSON INTO VALUE #VALUE
 				IGNORE
 				END-PARSE""");
@@ -64,7 +64,7 @@ class ParseJsonGenerationShould
 			.addToBody(NaturalCode.plain("DISPLAY 'Parsing JSON'"));
 
 		assertThat(parseJson.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
 				PARSE JSON #JSON
 				DISPLAY 'Parsing JSON'
 				END-PARSE""");

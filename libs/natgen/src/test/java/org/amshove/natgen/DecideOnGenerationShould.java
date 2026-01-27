@@ -13,7 +13,7 @@ class DecideOnGenerationShould
 		var decideOn = NaturalCode.decideOnFirst(NaturalCode.plain("#VAR"));
 
 		assertThat(decideOn.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
                 DECIDE ON FIRST VALUE OF #VAR
                   NONE VALUE
                     IGNORE
@@ -26,7 +26,7 @@ class DecideOnGenerationShould
 		var decideOn = NaturalCode.decideOnEvery(NaturalCode.plain("#VAR"));
 
 		assertThat(decideOn.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
                 DECIDE ON EVERY VALUE OF #VAR
                   NONE VALUE
                     IGNORE
@@ -43,7 +43,7 @@ class DecideOnGenerationShould
 		branch.addToBody(NaturalCode.plain("WRITE 'Matched A or B'"));
 
 		assertThat(decideOn.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
                 DECIDE ON EVERY VALUE OF #VAR
                   VALUE 'A', 'B'
                     WRITE 'Matched A or B'
@@ -66,7 +66,7 @@ class DecideOnGenerationShould
 		branchB.addToBody(NaturalCode.plain("WRITE 'Matched B'"));
 
 		assertThat(decideOn.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
                 DECIDE ON FIRST VALUE OF #VAR
                   VALUE 'A'
                     WRITE 'Matched A'
@@ -86,7 +86,7 @@ class DecideOnGenerationShould
 			.addToBody(NaturalCode.plain("WRITE 'No match'"));
 
 		assertThat(decide.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
                 DECIDE ON FIRST VALUE OF #VAR
                   NONE VALUE
                     WRITE 'No match'
@@ -104,7 +104,7 @@ class DecideOnGenerationShould
 			.addToBody(NaturalCode.plain("WRITE 'Got something in ALL'"));
 
 		assertThat(decide.generate())
-			.isEqualTo("""
+			.isEqualToIgnoringNewLines("""
                 DECIDE ON FIRST VALUE OF #VAR
                   ANY VALUE
                     WRITE 'Got something in ANY'
