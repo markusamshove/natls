@@ -66,7 +66,7 @@ public class ParseJson extends GeneratableWithBody<ParseJson> implements IGenera
 
 		if (valueVariable != null)
 		{
-			hasInto = appendInto(code, hasInto);
+			appendInto(code, hasInto);
 			code.append(" VALUE ").append(valueVariable.generate());
 		}
 
@@ -88,12 +88,11 @@ public class ParseJson extends GeneratableWithBody<ParseJson> implements IGenera
 
 	private boolean appendInto(StringBuilder code, boolean hasInto)
 	{
-		if (hasInto)
+		if (!hasInto)
 		{
-			return true;
+			code.append(" INTO");
 		}
 
-		code.append(" INTO");
 		return true;
 	}
 }

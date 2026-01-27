@@ -1,7 +1,6 @@
 package org.amshove.natgen;
 
 import org.amshove.natgen.generatable.definedata.IGeneratableDefineDataElement;
-import org.amshove.natgen.generatable.definedata.Redefinition;
 import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
@@ -12,7 +11,7 @@ import java.util.*;
 public class CodeGenerationContext
 {
 	private final List<Variable> variables = new ArrayList<>();
-	private final Map<VariableScope, Set<Using>> usings = new HashMap<>();
+	private final EnumMap<VariableScope, Set<Using>> usings = new EnumMap<>(VariableScope.class);
 
 	private final List<IGeneratableDefineDataElement> parameter = new ArrayList<>();
 
