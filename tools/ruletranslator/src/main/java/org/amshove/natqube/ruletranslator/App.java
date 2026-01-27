@@ -35,7 +35,7 @@ public class App
 	{
 		if (!path.toFile().exists())
 		{
-			var ignored = path.toFile().mkdirs();
+			var _ = path.toFile().mkdirs();
 		}
 	}
 }

@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import org.amshove.natparse.DiagnosticSeverity;
-
 public record DiagnosticRule(String id, String name, String description, String priority, List<String> tags, String type)
 {
 	public String toSonarRuleXml()

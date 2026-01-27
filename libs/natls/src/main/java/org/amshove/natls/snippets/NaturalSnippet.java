@@ -1,7 +1,7 @@
 package org.amshove.natls.snippets;
 
+import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natls.codemutation.FileEdits;
-import org.amshove.natls.codemutation.UsingToAdd;
 import org.amshove.natls.project.LanguageServerFile;
 import org.amshove.natparse.natural.IHasDefineData;
 import org.amshove.natparse.natural.VariableScope;
@@ -16,8 +16,8 @@ import java.util.function.Predicate;
 public class NaturalSnippet
 {
 	private final String label;
-	private final List<UsingToAdd> neededLocalUsings = new ArrayList<>();
-	private final List<UsingToAdd> neededParameterUsings = new ArrayList<>();
+	private final List<Using> neededLocalUsings = new ArrayList<>();
+	private final List<Using> neededParameterUsings = new ArrayList<>();
 	private final List<Predicate<LanguageServerFile>> fileConstraints = new ArrayList<>();
 	private final List<NaturalFileType> fileTypeConstraints = new ArrayList<>();
 	private String textToInsert = null;
@@ -40,13 +40,13 @@ public class NaturalSnippet
 
 	public NaturalSnippet needsLocalUsing(String using)
 	{
-		neededLocalUsings.add(new UsingToAdd(using, VariableScope.LOCAL));
+		neededLocalUsings.add(new Using(VariableScope.LOCAL, using));
 		return this;
 	}
 
 	public NaturalSnippet needsParameterUsing(String using)
 	{
-		neededParameterUsings.add(new UsingToAdd(using, VariableScope.PARAMETER));
+		neededParameterUsings.add(new Using(VariableScope.PARAMETER, using));
 		return this;
 	}
 
@@ -104,7 +104,7 @@ public class NaturalSnippet
 		return item;
 	}
 
-	private List<TextEdit> addUsings(LanguageServerFile file, List<UsingToAdd> usings, StringBuilder documentationBuilder)
+	private List<TextEdit> addUsings(LanguageServerFile file, List<Using> usings, StringBuilder documentationBuilder)
 	{
 		var textEdits = new ArrayList<TextEdit>();
 		for (var using : usings)

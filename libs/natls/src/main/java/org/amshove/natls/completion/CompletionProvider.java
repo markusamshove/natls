@@ -1,5 +1,7 @@
 package org.amshove.natls.completion;
 
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natls.WorkspaceEditBuilder;
 import org.amshove.natls.config.LSConfiguration;
 import org.amshove.natls.hover.HoverContext;
@@ -448,8 +450,8 @@ public class CompletionProvider
 		var item = createSnippetPostfixCompletionItem("for", edit, deleteEdit);
 		var editBuilder = new WorkspaceEditBuilder();
 		editBuilder
-			.addsVariable(file, "#S-%s".formatted(sanitizedName), "(I4)", VariableScope.LOCAL)
-			.addsVariable(file, "#I-%s".formatted(sanitizedName), "(I4)", VariableScope.LOCAL);
+			.addsVariable(file, new Variable(1, VariableScope.LOCAL, "#S-%s".formatted(sanitizedName), VariableType.integer(4)))
+			.addsVariable(file, new Variable(1, VariableScope.LOCAL, "#I-%s".formatted(sanitizedName), VariableType.integer(4)));
 		var workspaceEdit = editBuilder.build();
 		if (workspaceEdit.getChanges().containsKey(file.getUri()))
 		{

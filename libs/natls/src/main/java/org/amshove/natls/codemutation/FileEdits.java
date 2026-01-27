@@ -1,9 +1,13 @@
 package org.amshove.natls.codemutation;
 
+import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.DefineDataGenerator;
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natgen.generatable.definedata.Using;
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natls.project.LanguageServerFile;
 import org.amshove.natparse.natural.*;
-
-import java.util.stream.Collectors;
 
 public class FileEdits
 {
@@ -12,8 +16,12 @@ public class FileEdits
 	private FileEdits()
 	{}
 
-	public static FileEdit addVariable(LanguageServerFile file, String variableName, String variableType, VariableScope scope)
+	public static FileEdit addVariable(LanguageServerFile file, Variable variable)
 	{
+		var variableType = variable.type();
+		var scope = variable.scope();
+		var variableName = variable.name();
+
 		if (variableName.contains("."))
 		{
 			var split = variableName.split("\\.");
@@ -22,10 +30,13 @@ public class FileEdits
 			return addVariableToGroup(file, groupPart, variablePart, variableType, scope);
 		}
 		var variableInsert = rangeFinder.findInsertionPositionToInsertVariable(file, scope);
-		return variableInsert.toFileEdit("%d %s %s".formatted(1, variableName, variableType));
+
+		var theDeclaration = new DefineDataGenerator().generateVariableDeclarationWithoutScope(variable);
+		return variableInsert.toFileEdit(theDeclaration);
+
 	}
 
-	private static FileEdit addVariableToGroup(LanguageServerFile file, String groupPart, String variablePart, String variableType, VariableScope scope)
+	private static FileEdit addVariableToGroup(LanguageServerFile file, String groupPart, String variablePart, VariableType variableType, VariableScope scope)
 	{
 		var group = ((IHasDefineData) file.module()).defineData().findVariable(groupPart);
 		if (group instanceof IGroupNode groupNode)
@@ -38,7 +49,7 @@ public class FileEdits
 		return insertion.toFileEdit("1 %s%n2 %s %s".formatted(groupPart, variablePart, variableType));
 	}
 
-	public static FileEdit addUsing(LanguageServerFile file, UsingToAdd neededUsing)
+	public static FileEdit addUsing(LanguageServerFile file, Using neededUsing)
 	{
 		if (alreadyHasUsing(neededUsing.name(), file))
 		{
@@ -50,65 +61,45 @@ public class FileEdits
 
 	public static FileEdit addSubroutine(LanguageServerFile file, String name, String source)
 	{
-
-		var subroutine = """
-			/***********************************************************************
-			DEFINE SUBROUTINE %s
-			/***********************************************************************
-
-			%s
-
-			END-SUBROUTINE
-			""".formatted(name, source);
+		var subroutine = NaturalCode.subroutine(name);
+		subroutine.addToBody(NaturalCode.plain(source));
 
 		var insertion = rangeFinder.findInsertionPositionForStatementAtEnd(file);
-		return insertion.toFileEdit(subroutine);
+		return insertion.toFileEdit(subroutine.generate());
 	}
 
 	public static FileEdit addPrototype(LanguageServerFile inFile, IFunction calledFunction)
 	{
 		var insertion = rangeFinder.findInsertionPositionForStatementAtStart(inFile);
 
-		var defineDataBlock = "";
+		var codegenContext = new CodeGenerationContext();
+
+		var returnType = calledFunction.returnType();
 		var parameter = calledFunction.defineData().declaredParameterInOrder();
-		if (!parameter.isEmpty())
+		parameter.forEach(p ->
 		{
-			defineDataBlock = """
-				%n  DEFINE DATA
-				%s
-				  END-DEFINE""".formatted(
-				calledFunction.defineData().declaredParameterInOrder().stream().map(p ->
-				{
-					if (p instanceof IUsingNode using)
-					{
-						return "PARAMETER USING %s".formatted(using.target().symbolName());
-					}
-					var parameterVariable = (IVariableNode) p;
-					if (parameterVariable instanceof ITypedVariableNode typedParameter)
-					{
-						return "PARAMETER %d %s %s".formatted(typedParameter.level(), typedParameter.name(), typedParameter.formatTypeForDisplay());
-					}
+			if (p instanceof IUsingNode using)
+			{
+				codegenContext.addUsing(VariableScope.PARAMETER, using.target().symbolName());
+				return;
+			}
 
-					return "PARAMETER %d %s".formatted(parameterVariable.level(), ((IVariableNode) p).name());
-				})
-					.map(p -> "    " + p)
-					.collect(Collectors.joining(System.lineSeparator()))
-			);
-		}
+			var variable = (IVariableNode) p;
+			if (variable.level() == 1)
+			{
+				// fromParsedVariable already adds the child variables
+				codegenContext.addVariable(Variable.fromParsedVariable(variable));
+			}
+		});
 
+		var type = returnType == null ? null : VariableType.fromDataType(returnType);
 		return insertion.toFileEdit(
-			"""
-			DEFINE PROTOTYPE %s RETURNS %s%s
-			END-PROTOTYPE
-			""".formatted(
-				calledFunction.name(),
-				calledFunction.returnType().toShortString(),
-				defineDataBlock
-			)
+			NaturalCode.definePrototype(NaturalCode.plain(calledFunction.name()), type, codegenContext).generate()
+				+ System.lineSeparator()
 		);
 	}
 
-	private static FileEdit createUsingInsert(UsingToAdd using, LanguageServerFile file)
+	private static FileEdit createUsingInsert(Using using, LanguageServerFile file)
 	{
 		var insertion = rangeFinder.findInsertionPositionToInsertUsing(file, using.scope());
 		return insertion.toFileEdit("%s USING %s".formatted(using.scope(), using.name()));

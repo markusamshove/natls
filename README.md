@@ -48,6 +48,7 @@ There is some guidance to follow along in the form of documentation:
 This repository contains the following projects:
 
 - `natparse`: Parser for the Natural language and project format
+- `natgen`: Code generation utilities for Natural code
 - `natlint`: Static code analysis
 - `natls`: Language Server implementation using `natparse` and `natlint`
 - `natqube`: Plugin for SonarQube which uses `natlint` to aggregate diagnostics and measures
