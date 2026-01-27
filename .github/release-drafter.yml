@@ -8,6 +8,9 @@ categories:
   - title: '🐑 Analyzer'
     labels:
       - 'natlint🐑'
+  - title: '🔨 Code Generation'
+    labels:
+      - 'natgen🔨'
   - title: '🔎 Parser'
     labels:
       - 'natparse🔎'
