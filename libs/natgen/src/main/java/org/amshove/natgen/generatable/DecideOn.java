@@ -74,7 +74,7 @@ public class DecideOn implements IGeneratable
 		return code.toString();
 	}
 
-	public class DecideOnValueBranch extends GeneratableWithBody<DecideOnValueBranch> implements IGeneratable
+	public static class DecideOnValueBranch extends GeneratableWithBody<DecideOnValueBranch> implements IGeneratable
 	{
 		private final IGeneratable[] valuesToCheck;
 		private final String specialBranchName;

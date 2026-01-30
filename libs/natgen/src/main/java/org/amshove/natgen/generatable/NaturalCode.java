@@ -7,6 +7,9 @@ import org.amshove.natgen.generatable.DecideOn.DecideOnValueCheck;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 @NullMarked
 public class NaturalCode implements IGeneratable
 {
@@ -15,6 +18,11 @@ public class NaturalCode implements IGeneratable
 	private NaturalCode(String code)
 	{
 		this.code = code;
+	}
+
+	public static IGeneratable lineComment(String comment)
+	{
+		return new NaturalCode("/* %s".formatted(comment));
 	}
 
 	@Override
@@ -26,6 +34,11 @@ public class NaturalCode implements IGeneratable
 	public static NaturalCode plain(String plaintext)
 	{
 		return new NaturalCode(plaintext);
+	}
+
+	public static NaturalCode stringLiteral(String plaintext)
+	{
+		return new NaturalCode("'%s'".formatted(plaintext));
 	}
 
 	public static NaturalCode assignment(IGeneratable lhs, IGeneratable rhs)
@@ -77,5 +90,10 @@ public class NaturalCode implements IGeneratable
 	public static DecideOn decideOnEvery(IGeneratable reference)
 	{
 		return new DecideOn(reference, DecideOnValueCheck.EVERY);
+	}
+
+	public static NaturalCode functionCall(String functionName, IGeneratable... parameter)
+	{
+		return new NaturalCode("%s(<%s>)".formatted(functionName, Arrays.stream(parameter).map(IGeneratable::generate).collect(Collectors.joining(", "))));
 	}
 }
