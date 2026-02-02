@@ -12,6 +12,7 @@ import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class ParseJsonFromJsonGenerator
@@ -91,10 +92,26 @@ public class ParseJsonFromJsonGenerator
 	{
 		var propertyNamePath = appendPath(currentPath, propertyName);
 		var valueJsonPath = appendPath(propertyNamePath, PARSED_DATA);
+
+		var parsedVariable = variablesByJsonPath.computeIfAbsent(propertyNamePath, _ ->
+		{
+			var type = VariableType.alphanumericDynamic();
+			if (primitive.isBoolean())
+			{
+				type = VariableType.logical();
+			}
+			else
+				if (primitive.isNumber())
+				{
+					type = VariableType.numeric(12.7);
+				}
+
+			return parsedJsonRoot.addVariable("#" + propertyName.toUpperCase(Locale.ROOT), type);
+		});
+
 		statement
 			.addBranch(NaturalCode.stringLiteral(valueJsonPath))
-			.addToBody(NaturalCode.lineComment(propertyName))
-			.addToBody(NaturalCode.assignment(NaturalCode.plain(propertyName), valueAssignment(primitive)));
+			.addToBody(NaturalCode.assignment(parsedVariable, valueAssignment(primitive)));
 	}
 
 	private IGeneratable valueAssignment(JsonPrimitive primitive)

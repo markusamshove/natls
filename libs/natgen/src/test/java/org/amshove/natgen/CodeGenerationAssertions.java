@@ -21,6 +21,16 @@ public class CodeGenerationAssertions
 		return new CodeGenerationAssertions(context);
 	}
 
+	public CodeGenerationAssertions hasVariable(int level, String name, VariableScope scope, VariableType expectedType)
+	{
+		var variables = collectVariables();
+		assertThat(variables)
+			.as("No level <%d> Variable with name <%s>, scope <%s> and type <%s> found".formatted(level, name, scope, expectedType))
+			.anyMatch(v -> v.level() == level && v.scope() == scope && v.generate().equals(name) && v.type().toString().equals(expectedType.toString()));
+
+		return this;
+	}
+
 	public CodeGenerationAssertions hasVariable(int level, String name, VariableScope scope)
 	{
 		var variables = collectVariables();
