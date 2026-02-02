@@ -2,12 +2,9 @@ package org.amshove.natgen;
 
 import org.amshove.natgen.generators.ParseJsonFromJsonGenerator;
 import org.amshove.natparse.natural.VariableScope;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import static org.amshove.natgen.CodeGenerationAssertions.*;
-
-class ParseJsonFromJsonGeneratorShould
+class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 {
 	private final ParseJsonFromJsonGenerator sut = new ParseJsonFromJsonGenerator();
 
@@ -25,13 +22,12 @@ class ParseJsonFromJsonGeneratorShould
 	}
 
 	@Test
-	@Disabled
 	void generateASimpleParseJsonFromEmptyJson()
 	{
 		var context = sut.generate("{ }");
 		assertOn(context)
 			.generatesStatements("""
-				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON.PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
 				    NONE VALUE
 				      IGNORE
