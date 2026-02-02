@@ -1,6 +1,8 @@
 package org.amshove.natgen.generatable;
 
-public class ParseJson extends GeneratableWithBody<ParseJson> implements IGeneratable
+import org.amshove.natgen.CodeBuilder;
+
+public class ParseJson extends GeneratableWithBody<ParseJson> implements IGeneratableStatement
 {
 	private final IGeneratable referenceToJsonSource;
 	private IGeneratable pathVariable;
@@ -45,11 +47,10 @@ public class ParseJson extends GeneratableWithBody<ParseJson> implements IGenera
 	}
 
 	@Override
-	public String generate()
+	public void generateInto(CodeBuilder code)
 	{
-		var code = new StringBuilder();
 		code.append("PARSE JSON ")
-			.append(referenceToJsonSource.generate());
+			.append(referenceToJsonSource);
 
 		var hasInto = false;
 		if (pathVariable != null)
@@ -79,14 +80,11 @@ public class ParseJson extends GeneratableWithBody<ParseJson> implements IGenera
 			}
 		}
 
-		code.append(System.lineSeparator());
-		code.append(body()).append(System.lineSeparator());
+		generateBody(code);
 		code.append("END-PARSE");
-
-		return code.toString();
 	}
 
-	private boolean appendInto(StringBuilder code, boolean hasInto)
+	private boolean appendInto(CodeBuilder code, boolean hasInto)
 	{
 		if (!hasInto)
 		{

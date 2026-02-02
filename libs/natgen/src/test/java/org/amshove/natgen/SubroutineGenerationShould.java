@@ -4,16 +4,13 @@ import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.Subroutine;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
-class SubroutineGenerationShould
+class SubroutineGenerationShould extends CodeGenerationTest
 {
 	@Test
 	void generateASimpleSubroutine()
 	{
 		var subroutine = new Subroutine("simple");
-		assertThat(subroutine.generate())
-			.isEqualToIgnoringNewLines("""
+		assertGenerated(subroutine, """
 			/***********************************************************************
 			DEFINE SUBROUTINE simple
 			/***********************************************************************
@@ -29,8 +26,8 @@ class SubroutineGenerationShould
 	{
 		var subroutine = new Subroutine("simple");
 		subroutine.addToBody(NaturalCode.assignment(NaturalCode.plain("#VAR"), NaturalCode.plain("#VAR")));
-		assertThat(subroutine.generate())
-			.isEqualToIgnoringNewLines("""
+
+		assertGenerated(subroutine, """
 			/***********************************************************************
 			DEFINE SUBROUTINE simple
 			/***********************************************************************
@@ -48,8 +45,7 @@ class SubroutineGenerationShould
 			.addToBody(NaturalCode.ignore())
 			.addToBody(NaturalCode.assignment(NaturalCode.plain("#VAR"), NaturalCode.plain("#VAR")));
 
-		assertThat(subroutine.generate())
-			.isEqualToIgnoringNewLines("""
+		assertGenerated(subroutine, """
 			/***********************************************************************
 			DEFINE SUBROUTINE MULT
 			/***********************************************************************

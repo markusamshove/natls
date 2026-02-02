@@ -1,6 +1,8 @@
 package org.amshove.natgen.generatable;
 
-public class Subroutine extends GeneratableWithBody<Subroutine> implements IGeneratable
+import org.amshove.natgen.CodeBuilder;
+
+public class Subroutine extends GeneratableWithBody<Subroutine> implements IGeneratableStatement
 {
 	private final String name;
 
@@ -15,17 +17,18 @@ public class Subroutine extends GeneratableWithBody<Subroutine> implements IGene
 	}
 
 	@Override
-	public String generate()
+	public void generateInto(CodeBuilder builder)
 	{
-		return """
-			/***********************************************************************
-			DEFINE SUBROUTINE %s
-			/***********************************************************************
+		builder
+			.appendLine(NaturalCode.separatorComment())
+			.appendLine("DEFINE SUBROUTINE %s".formatted(name))
+			.appendLine(NaturalCode.separatorComment());
 
-			%s
+		generateBodyWithoutIndentation(builder);
 
-			END-SUBROUTINE
-			""".formatted(name, body());
+		builder
+			.lineBreak()
+			.appendLine("END-SUBROUTINE");
 	}
 
 }

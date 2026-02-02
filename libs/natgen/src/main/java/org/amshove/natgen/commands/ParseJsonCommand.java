@@ -1,5 +1,6 @@
 package org.amshove.natgen.commands;
 
+import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.DefineDataGenerator;
 import org.amshove.natgen.generators.ParseJsonFromJsonGenerator;
 import picocli.CommandLine.Command;
@@ -27,7 +28,9 @@ public class ParseJsonCommand implements Callable<Integer>
 		var defineData = defineDataGenerator.generate(context);
 		System.out.println(defineData);
 		System.out.println();
-		System.out.println(context.statements().getFirst().generate());
+		var codeBuilder = new CodeBuilder();
+		context.statements().getFirst().generateInto(codeBuilder);
+		System.out.println(codeBuilder);
 
 		return 0;
 	}

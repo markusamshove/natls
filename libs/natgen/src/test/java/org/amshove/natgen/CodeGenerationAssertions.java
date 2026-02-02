@@ -1,10 +1,8 @@
 package org.amshove.natgen;
 
-import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -35,7 +33,12 @@ public class CodeGenerationAssertions
 
 	public CodeGenerationAssertions generatesStatements(String expectedSource)
 	{
-		assertThat(context.statements().stream().map(IGeneratable::generate).collect(Collectors.joining(System.lineSeparator())))
+		var builder = new CodeBuilder();
+		for (var statement : context.statements())
+		{
+			statement.generateInto(builder);
+		}
+		assertThat(builder.toString())
 			.isEqualToIgnoringNewLines(expectedSource);
 		return this;
 	}

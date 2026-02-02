@@ -3,17 +3,14 @@ package org.amshove.natgen;
 import org.amshove.natgen.generatable.NaturalCode;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
-class DecideOnGenerationShould
+class DecideOnGenerationShould extends CodeGenerationTest
 {
 	@Test
 	void generateAnEmptyDecideOnFirst()
 	{
 		var decideOn = NaturalCode.decideOnFirst(NaturalCode.plain("#VAR"));
 
-		assertThat(decideOn.generate())
-			.isEqualToIgnoringNewLines("""
+		assertGenerated(decideOn, """
                 DECIDE ON FIRST VALUE OF #VAR
                   NONE VALUE
                     IGNORE
@@ -25,8 +22,7 @@ class DecideOnGenerationShould
 	{
 		var decideOn = NaturalCode.decideOnEvery(NaturalCode.plain("#VAR"));
 
-		assertThat(decideOn.generate())
-			.isEqualToIgnoringNewLines("""
+		assertGenerated(decideOn, """
                 DECIDE ON EVERY VALUE OF #VAR
                   NONE VALUE
                     IGNORE
@@ -40,10 +36,9 @@ class DecideOnGenerationShould
 
 		var branch = decideOn
 			.addBranch(NaturalCode.plain("'A'"), NaturalCode.plain("'B'"));
-		branch.addToBody(NaturalCode.plain("WRITE 'Matched A or B'"));
+		branch.addToBody(NaturalCode.plainStatement("WRITE 'Matched A or B'"));
 
-		assertThat(decideOn.generate())
-			.isEqualToIgnoringNewLines("""
+		assertGenerated(decideOn, """
                 DECIDE ON EVERY VALUE OF #VAR
                   VALUE 'A', 'B'
                     WRITE 'Matched A or B'
@@ -59,14 +54,13 @@ class DecideOnGenerationShould
 
 		var branchA = decideOn
 			.addBranch(NaturalCode.plain("'A'"));
-		branchA.addToBody(NaturalCode.plain("WRITE 'Matched A'"));
+		branchA.addToBody(NaturalCode.plainStatement("WRITE 'Matched A'"));
 
 		var branchB = decideOn
 			.addBranch(NaturalCode.plain("'B'"));
-		branchB.addToBody(NaturalCode.plain("WRITE 'Matched B'"));
+		branchB.addToBody(NaturalCode.plainStatement("WRITE 'Matched B'"));
 
-		assertThat(decideOn.generate())
-			.isEqualToIgnoringNewLines("""
+		assertGenerated(decideOn, """
                 DECIDE ON FIRST VALUE OF #VAR
                   VALUE 'A'
                     WRITE 'Matched A'
@@ -83,10 +77,9 @@ class DecideOnGenerationShould
 		var decide = NaturalCode.decideOnFirst(NaturalCode.plain("#VAR"));
 
 		decide.onNoneValue()
-			.addToBody(NaturalCode.plain("WRITE 'No match'"));
+			.addToBody(NaturalCode.plainStatement("WRITE 'No match'"));
 
-		assertThat(decide.generate())
-			.isEqualToIgnoringNewLines("""
+		assertGenerated(decide, """
                 DECIDE ON FIRST VALUE OF #VAR
                   NONE VALUE
                     WRITE 'No match'
@@ -99,12 +92,11 @@ class DecideOnGenerationShould
 		var decide = NaturalCode.decideOnFirst(NaturalCode.plain("#VAR"));
 
 		decide.onAnyValue()
-			.addToBody(NaturalCode.plain("WRITE 'Got something in ANY'"));
+			.addToBody(NaturalCode.plainStatement("WRITE 'Got something in ANY'"));
 		decide.onAllValues()
-			.addToBody(NaturalCode.plain("WRITE 'Got something in ALL'"));
+			.addToBody(NaturalCode.plainStatement("WRITE 'Got something in ALL'"));
 
-		assertThat(decide.generate())
-			.isEqualToIgnoringNewLines("""
+		assertGenerated(decide, """
                 DECIDE ON FIRST VALUE OF #VAR
                   ANY VALUE
                     WRITE 'Got something in ANY'

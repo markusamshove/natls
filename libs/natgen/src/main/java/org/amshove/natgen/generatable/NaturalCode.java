@@ -1,5 +1,6 @@
 package org.amshove.natgen.generatable;
 
+import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.DefineDataGenerator;
 import org.amshove.natgen.VariableType;
@@ -20,9 +21,14 @@ public class NaturalCode implements IGeneratable
 		this.code = code;
 	}
 
-	public static IGeneratable lineComment(String comment)
+	public static IGeneratableStatement separatorComment()
 	{
-		return new NaturalCode("/* %s".formatted(comment));
+		return new GeneratableStatement("/***********************************************************************");
+	}
+
+	public static IGeneratableStatement lineComment(String comment)
+	{
+		return new GeneratableStatement("/* %s".formatted(comment));
 	}
 
 	@Override
@@ -36,14 +42,19 @@ public class NaturalCode implements IGeneratable
 		return new NaturalCode(plaintext);
 	}
 
+	public static IGeneratableStatement plainStatement(String plaintext)
+	{
+		return new GeneratableStatement(plaintext);
+	}
+
 	public static NaturalCode stringLiteral(String plaintext)
 	{
 		return new NaturalCode("'%s'".formatted(plaintext));
 	}
 
-	public static NaturalCode assignment(IGeneratable lhs, IGeneratable rhs)
+	public static IGeneratableStatement assignment(IGeneratable lhs, IGeneratable rhs)
 	{
-		return new NaturalCode("%s := %s".formatted(lhs.generate(), rhs.generate()));
+		return new GeneratableStatement("%s := %s".formatted(lhs.generate(), rhs.generate()));
 	}
 
 	public static NaturalCode definePrototype(IGeneratable name, @Nullable VariableType returnType, CodeGenerationContext context)
@@ -68,9 +79,9 @@ public class NaturalCode implements IGeneratable
 		return new Subroutine(name);
 	}
 
-	public static NaturalCode ignore()
+	public static IGeneratableStatement ignore()
 	{
-		return new NaturalCode("IGNORE");
+		return new GeneratableStatement("IGNORE");
 	}
 
 	/// Create a new PARSE JSON statement. `referenceToJsonSource` is the Natural variable containing the JSON to
@@ -95,5 +106,14 @@ public class NaturalCode implements IGeneratable
 	public static NaturalCode functionCall(String functionName, IGeneratable... parameter)
 	{
 		return new NaturalCode("%s(<%s>)".formatted(functionName, Arrays.stream(parameter).map(IGeneratable::generate).collect(Collectors.joining(", "))));
+	}
+
+	private record GeneratableStatement(String plainCode) implements IGeneratableStatement
+	{
+		@Override
+		public void generateInto(CodeBuilder builder)
+		{
+			builder.append(plainCode);
+		}
 	}
 }

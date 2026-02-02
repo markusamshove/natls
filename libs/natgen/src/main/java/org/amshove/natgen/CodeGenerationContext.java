@@ -1,6 +1,6 @@
 package org.amshove.natgen;
 
-import org.amshove.natgen.generatable.IGeneratable;
+import org.amshove.natgen.generatable.IGeneratableStatement;
 import org.amshove.natgen.generatable.definedata.IGeneratableDefineDataElement;
 import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natgen.generatable.definedata.Variable;
@@ -14,7 +14,7 @@ public class CodeGenerationContext
 	private final List<Variable> variables = new ArrayList<>();
 	private final EnumMap<VariableScope, Set<Using>> usings = new EnumMap<>(VariableScope.class);
 	private final List<IGeneratableDefineDataElement> parameter = new ArrayList<>();
-	private final List<IGeneratable> statements = new ArrayList<>();
+	private final List<IGeneratableStatement> statements = new ArrayList<>();
 
 	public Variable addParameter(String name, VariableType type)
 	{
@@ -83,12 +83,12 @@ public class CodeGenerationContext
 	}
 
 	/// Adds a statement to the context
-	public void addStatement(IGeneratable statement) // TODO: Not IGeneratable but something that screams statement? IGeneratable can also be a variable
+	public void addStatement(IGeneratableStatement statement)
 	{
 		statements.add(statement);
 	}
 
-	public List<IGeneratable> statements()
+	public List<IGeneratableStatement> statements()
 	{
 		return statements;
 	}

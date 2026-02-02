@@ -1,5 +1,6 @@
 package org.amshove.natls.codemutation;
 
+import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.DefineDataGenerator;
 import org.amshove.natgen.VariableType;
@@ -62,10 +63,12 @@ public class FileEdits
 	public static FileEdit addSubroutine(LanguageServerFile file, String name, String source)
 	{
 		var subroutine = NaturalCode.subroutine(name);
-		subroutine.addToBody(NaturalCode.plain(source));
+		subroutine.addToBody(NaturalCode.plainStatement(source));
 
 		var insertion = rangeFinder.findInsertionPositionForStatementAtEnd(file);
-		return insertion.toFileEdit(subroutine.generate());
+		var codeBuilder = new CodeBuilder();
+		subroutine.generateInto(codeBuilder);
+		return insertion.toFileEdit(codeBuilder.toString());
 	}
 
 	public static FileEdit addPrototype(LanguageServerFile inFile, IFunction calledFunction)
