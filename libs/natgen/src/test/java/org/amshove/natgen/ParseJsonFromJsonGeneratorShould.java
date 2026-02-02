@@ -106,4 +106,27 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				END-PARSE
 				""");
 	}
+
+	@Test
+	void parseNestedObjectsAsGroupsWithVariables()
+	{
+		var context = sut.generate("{ \"person\": { \"name\": \"Peter\", \"age\": 30 } }");
+
+		assertOn(context)
+			.hasVariable(2, "##PARSED-JSON.#PERSON", VariableScope.LOCAL, VariableType.group())
+			.hasVariable(3, "##PARSED-JSON.#NAME", VariableScope.LOCAL, VariableType.alphanumericDynamic())
+			.hasVariable(3, "##PARSED-JSON.#AGE", VariableScope.LOCAL, VariableType.numeric(12.7))
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</person/</name/$'
+				      ##PARSED-JSON.#NAME := ##JSON-PARSING.#VALUE
+				    VALUE '</person/</age/$'
+				      ##PARSED-JSON.#AGE := VAL(##JSON-PARSING.#VALUE)
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE
+				""");
+	}
 }

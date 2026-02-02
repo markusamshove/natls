@@ -55,78 +55,73 @@ public class ParseJsonFromJsonGenerator
 			.givingErrorSubcode(jsonErrSubcode)
 			.addToBody(decideOnJsonPath);
 
-		createDecideOnJsonElementBranches(decideOnJsonPath, rootElement, "");
+		createDecideOnJsonElementBranches(decideOnJsonPath, parsedJsonRoot, "", rootElement, "");
 
 		context.addStatement(parseJsonStatement);
 		return context;
 	}
 
 	private void createDecideOnJsonElementBranches(
-		DecideOn decideStatement, JsonElement currentElement,
+		DecideOn decideStatement, Variable parentVariable, String elementName, JsonElement currentElement,
 		String currentPath
 	)
 	{
+
+		if (currentElement.isJsonPrimitive())
+		{
+			var primitive = currentElement.getAsJsonPrimitive();
+			var valueJsonPath = appendPath(currentPath, PARSED_DATA);
+
+			var parsedVariable = getVariableForProperty(currentPath, parentVariable, elementName, primitive);
+
+			decideStatement
+				.addBranch(stringLiteral(valueJsonPath))
+				.addToBody(assignment(parsedVariable, valueAssignment(primitive)));
+			return;
+		}
+
 		if (currentElement.isJsonArray())
 		{
-			// TODO: What if root JSON is an array?
+			// This is the primitive path
+			var arrayVariable = getVariableForProperty(currentPath, parentVariable, elementName, currentElement);
+			var sizeVariable = getSizeVariableForArray(arrayVariable);
+
+			var arrayStartPath = appendPath(currentPath, START_ARRAY);
+			var newArrayValuePath = appendPath(arrayStartPath, PARSED_DATA);
+			decideStatement
+				.addBranch(stringLiteral(newArrayValuePath))
+				.addToBody(incrementVariable(sizeVariable))
+				.addToBody(expandArray(arrayVariable, sizeVariable))
+				.addToBody(
+					assignment(
+						arrayVariable.arrayAccess(sizeVariable),
+						valueAssignment(currentElement.getAsJsonArray().get(0).getAsJsonPrimitive())
+					)
+				);
+
+			return;
 		}
 
 		if (currentElement.isJsonObject())
 		{
+			var newParentVariable = parentVariable;
+			if (!elementName.isEmpty())
+			{
+				newParentVariable = parentVariable.addVariable("#" + elementName.toUpperCase(Locale.ROOT), VariableType.group());
+			}
+
 			var currentObjectPath = appendPath(currentPath, START_OBJECT);
 			var jsonObject = currentElement.getAsJsonObject();
 			for (var property : jsonObject.entrySet())
 			{
-				// TODO: Nested objects/arrays?
-				if (property.getValue().isJsonPrimitive())
-				{
-					createPrimitiveValueBranch(
-						decideStatement, property.getKey(),
-						property.getValue().getAsJsonPrimitive(), currentObjectPath
-					);
-				}
-				else
-					if (property.getValue().isJsonArray())
-					{
-						// This is the primitive path
-						var propertyNamePath = appendPath(currentObjectPath, property.getKey());
-						var arrayVariable = getVariableForProperty(propertyNamePath, property.getKey(), property.getValue());
-						var sizeVariable = getSizeVariableForArray(arrayVariable);
-
-						var arrayStartPath = appendPath(propertyNamePath, START_ARRAY);
-						var newArrayValuePath = appendPath(arrayStartPath, PARSED_DATA);
-						decideStatement
-							.addBranch(stringLiteral(newArrayValuePath))
-							.addToBody(incrementVariable(sizeVariable))
-							.addToBody(expandArray(arrayVariable, sizeVariable))
-							.addToBody(
-								assignment(
-									arrayVariable.arrayAccess(sizeVariable),
-									valueAssignment(property.getValue().getAsJsonArray().get(0).getAsJsonPrimitive())
-								)
-							);
-					}
+				createDecideOnJsonElementBranches(
+					decideStatement, newParentVariable, property.getKey(), property.getValue(), appendPath(
+						currentObjectPath,
+						property.getKey()
+					)
+				);
 			}
 		}
-
-		//		throw new UnsupportedOperationException(
-		//			"Unsupported element type: %s".formatted(currentElement.getClass().getSimpleName())
-		//		);
-	}
-
-	private void createPrimitiveValueBranch(
-		DecideOn statement, String propertyName, JsonPrimitive primitive,
-		String currentPath
-	)
-	{
-		var propertyNamePath = appendPath(currentPath, propertyName);
-		var valueJsonPath = appendPath(propertyNamePath, PARSED_DATA);
-
-		var parsedVariable = getVariableForProperty(propertyNamePath, propertyName, primitive);
-
-		statement
-			.addBranch(stringLiteral(valueJsonPath))
-			.addToBody(assignment(parsedVariable, valueAssignment(primitive)));
 	}
 
 	private IGeneratable valueAssignment(JsonPrimitive primitive)
@@ -159,12 +154,12 @@ public class ParseJsonFromJsonGenerator
 		return "%s%s%s".formatted(currentPath, JSON_SEPARATOR, newPathElement);
 	}
 
-	private Variable getVariableForProperty(String propertyNamePath, String propertyName, JsonElement property)
+	private Variable getVariableForProperty(String propertyNamePath, Variable parentVariable, String propertyName, JsonElement property)
 	{
 		return variablesByJsonPath.computeIfAbsent(propertyNamePath, _ ->
 		{
 			var type = inferJsonType(property);
-			return parsedJsonRoot.addVariable("#" + propertyName.toUpperCase(Locale.ROOT), type);
+			return parentVariable.addVariable("#" + propertyName.toUpperCase(Locale.ROOT), type);
 		});
 	}
 
