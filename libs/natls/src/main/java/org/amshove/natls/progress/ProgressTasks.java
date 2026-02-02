@@ -15,11 +15,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 public class ProgressTasks
 {
 	private static final ConcurrentMap<String, CompletableFuture<?>> runningTasks = new ConcurrentHashMap<>();
 	private static ClientProgressType progressType = ClientProgressType.MESSAGE;
+	private static final Logger log = Logger.getAnonymousLogger();
 
 	public static void setClientProgressType(ClientProgressType type)
 	{
@@ -74,7 +76,7 @@ public class ProgressTasks
 			}
 			catch (Exception e)
 			{
-				System.err.printf("Error in task %s: %s%n", taskId, e.getMessage());
+				log.severe("Error in task %s: %s".formatted(taskId, e.getMessage()));
 				return null;
 			}
 			finally

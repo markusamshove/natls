@@ -147,6 +147,7 @@ public final class Variable implements IGeneratableDefineDataElement
 		return generate();
 	}
 
+	/// Generate a dimension access for this variable, e.g. `#ARR(1)`
 	public IGeneratable arrayAccess(IGeneratable... dimensions)
 	{
 		var access = "(%s)".formatted(
