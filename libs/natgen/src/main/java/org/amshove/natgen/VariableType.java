@@ -8,6 +8,7 @@ public final class VariableType
 	private final DataFormat format;
 	private final String length;
 	private final boolean isDynamic;
+	private int arrayUpperBound;
 
 	public static VariableType alphanumeric(int length)
 	{
@@ -120,6 +121,19 @@ public final class VariableType
 		return new VariableType(DataFormat.UNICODE, true);
 	}
 
+	/// Mark this type as array, giving it the specific `upperBound` resulting in `1:upperBound`
+	public VariableType asArray(int upperBound)
+	{
+		arrayUpperBound = upperBound;
+		return this;
+	}
+
+	/// Mark this type as x-array resulting in `1:*`
+	public VariableType asArray()
+	{
+		return asArray(Integer.MAX_VALUE);
+	}
+
 	public static VariableType fromDataType(IDataType type)
 	{
 		return switch (type.format())
@@ -135,7 +149,9 @@ public final class VariableType
 			case PACKED -> VariableType.packed(type.length());
 			case TIME -> VariableType.time();
 			case UNICODE -> type.hasDynamicLength() ? VariableType.unicodeDynamic() : VariableType.unicode((int) type.length());
-			default -> throw new IllegalArgumentException("Format <%s> can't be translated to VariableType".formatted(type.format()));
+			default -> throw new IllegalArgumentException(
+				"Format <%s> can't be translated to VariableType".formatted(type.format())
+			);
 		};
 	}
 
@@ -153,11 +169,22 @@ public final class VariableType
 			return "";
 		}
 
-		if (isDynamic)
+		var type = "(%s".formatted(format.identifier());
+
+		if (arrayUpperBound != 0)
 		{
-			return "(%s) DYNAMIC".formatted(format.identifier());
+			type += "/1:%s".formatted(arrayUpperBound == Integer.MAX_VALUE ? "*" : arrayUpperBound);
 		}
 
-		return "(%s%s)".formatted(format.identifier(), length);
+		if (isDynamic)
+		{
+			type += ") DYNAMIC";
+		}
+		else
+		{
+			type += length + ")";
+		}
+
+		return type;
 	}
 }

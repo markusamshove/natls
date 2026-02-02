@@ -7,13 +7,14 @@ import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn;
 import org.amshove.natgen.generatable.IGeneratable;
-import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import static org.amshove.natgen.generatable.NaturalCode.*;
 
 public class ParseJsonFromJsonGenerator
 {
@@ -30,6 +31,7 @@ public class ParseJsonFromJsonGenerator
 	private Variable parsedJsonRoot;
 
 	private final Map<String, Variable> variablesByJsonPath = new HashMap<>();
+	private final Map<Variable, Variable> arraySizeVariablesByJsonPath = new HashMap<>();
 
 	public CodeGenerationContext generate(String json)
 	{
@@ -45,9 +47,8 @@ public class ParseJsonFromJsonGenerator
 		parsedJsonRoot = context.addVariable(VariableScope.LOCAL, "##PARSED-JSON", VariableType.group());
 
 		var jsonSourceVariable = context.addVariable(VariableScope.LOCAL, "#JSON-SOURCE", VariableType.alphanumericDynamic());
-		var decideOnJsonPath = NaturalCode.decideOnFirst(jsonPath);
-		var parseJsonStatement = NaturalCode
-			.parseJson(jsonSourceVariable)
+		var decideOnJsonPath = decideOnFirst(jsonPath);
+		var parseJsonStatement = parseJson(jsonSourceVariable)
 			.intoPath(jsonPath)
 			.intoValue(jsonValue)
 			.givingErrorCode(jsonErrCode)
@@ -60,26 +61,51 @@ public class ParseJsonFromJsonGenerator
 		return context;
 	}
 
-	private void createDecideOnJsonElementBranches(DecideOn decideStatement, JsonElement currentElement, String currentPath)
+	private void createDecideOnJsonElementBranches(
+		DecideOn decideStatement, JsonElement currentElement,
+		String currentPath
+	)
 	{
 		if (currentElement.isJsonArray())
 		{
-			var elementPath = appendPath(currentPath, START_ARRAY);
-			// TODO: RESIZE
-			createDecideOnJsonElementBranches(decideStatement, currentElement.getAsJsonArray().get(0), elementPath);
+			// TODO: What if root JSON is an array?
 		}
 
 		if (currentElement.isJsonObject())
 		{
-			var elementPath = appendPath(currentPath, START_OBJECT);
+			var currentObjectPath = appendPath(currentPath, START_OBJECT);
 			var jsonObject = currentElement.getAsJsonObject();
 			for (var property : jsonObject.entrySet())
 			{
 				// TODO: Nested objects/arrays?
 				if (property.getValue().isJsonPrimitive())
 				{
-					createPrimitiveValueBranch(decideStatement, property.getKey(), property.getValue().getAsJsonPrimitive(), elementPath);
+					createPrimitiveValueBranch(
+						decideStatement, property.getKey(),
+						property.getValue().getAsJsonPrimitive(), currentObjectPath
+					);
 				}
+				else
+					if (property.getValue().isJsonArray())
+					{
+						// This is the primitive path
+						var propertyNamePath = appendPath(currentObjectPath, property.getKey());
+						var arrayVariable = getVariableForProperty(propertyNamePath, property.getKey(), property.getValue());
+						var sizeVariable = getSizeVariableForArray(arrayVariable);
+
+						var arrayStartPath = appendPath(propertyNamePath, START_ARRAY);
+						var newArrayValuePath = appendPath(arrayStartPath, PARSED_DATA);
+						decideStatement
+							.addBranch(stringLiteral(newArrayValuePath))
+							.addToBody(incrementVariable(sizeVariable))
+							.addToBody(expandArray(arrayVariable, sizeVariable))
+							.addToBody(
+								assignment(
+									arrayVariable.arrayAccess(sizeVariable),
+									valueAssignment(property.getValue().getAsJsonArray().get(0).getAsJsonPrimitive())
+								)
+							);
+					}
 			}
 		}
 
@@ -88,37 +114,26 @@ public class ParseJsonFromJsonGenerator
 		//		);
 	}
 
-	private void createPrimitiveValueBranch(DecideOn statement, String propertyName, JsonPrimitive primitive, String currentPath)
+	private void createPrimitiveValueBranch(
+		DecideOn statement, String propertyName, JsonPrimitive primitive,
+		String currentPath
+	)
 	{
 		var propertyNamePath = appendPath(currentPath, propertyName);
 		var valueJsonPath = appendPath(propertyNamePath, PARSED_DATA);
 
-		var parsedVariable = variablesByJsonPath.computeIfAbsent(propertyNamePath, _ ->
-		{
-			var type = VariableType.alphanumericDynamic();
-			if (primitive.isBoolean())
-			{
-				type = VariableType.logical();
-			}
-			else
-				if (primitive.isNumber())
-				{
-					type = VariableType.numeric(12.7);
-				}
-
-			return parsedJsonRoot.addVariable("#" + propertyName.toUpperCase(Locale.ROOT), type);
-		});
+		var parsedVariable = getVariableForProperty(propertyNamePath, propertyName, primitive);
 
 		statement
-			.addBranch(NaturalCode.stringLiteral(valueJsonPath))
-			.addToBody(NaturalCode.assignment(parsedVariable, valueAssignment(primitive)));
+			.addBranch(stringLiteral(valueJsonPath))
+			.addToBody(assignment(parsedVariable, valueAssignment(primitive)));
 	}
 
 	private IGeneratable valueAssignment(JsonPrimitive primitive)
 	{
 		if (primitive.isNumber())
 		{
-			return NaturalCode.val(jsonValue);
+			return val(jsonValue);
 		}
 
 		if (primitive.isString())
@@ -128,7 +143,7 @@ public class ParseJsonFromJsonGenerator
 
 		if (primitive.isBoolean())
 		{
-			return NaturalCode.functionCall("ATOB", jsonValue);
+			return functionCall("ATOB", jsonValue);
 		}
 
 		throw new UnsupportedOperationException("Unknown json primitive: %s".formatted(primitive));
@@ -136,6 +151,63 @@ public class ParseJsonFromJsonGenerator
 
 	private static String appendPath(String currentPath, String newPathElement)
 	{
+		if (currentPath.isEmpty())
+		{
+			return newPathElement;
+		}
+
 		return "%s%s%s".formatted(currentPath, JSON_SEPARATOR, newPathElement);
+	}
+
+	private Variable getVariableForProperty(String propertyNamePath, String propertyName, JsonElement property)
+	{
+		return variablesByJsonPath.computeIfAbsent(propertyNamePath, _ ->
+		{
+			var type = inferJsonType(property);
+			return parsedJsonRoot.addVariable("#" + propertyName.toUpperCase(Locale.ROOT), type);
+		});
+	}
+
+	private Variable getSizeVariableForArray(Variable array)
+	{
+		return arraySizeVariablesByJsonPath.computeIfAbsent(array, _ -> parsedJsonRoot.addVariable("#S-" + array.name(), VariableType.integer(4)));
+	}
+
+	private static VariableType inferJsonType(JsonElement element)
+	{
+		if (element.isJsonPrimitive())
+		{
+			var primitive = element.getAsJsonPrimitive();
+			if (primitive.isBoolean())
+			{
+				return VariableType.logical();
+			}
+
+			if (primitive.isNumber())
+			{
+				return VariableType.numeric(12.7);
+			}
+
+			return VariableType.alphanumericDynamic();
+		}
+
+		if (element.isJsonObject())
+		{
+			return VariableType.group();
+		}
+
+		if (element.isJsonArray())
+		{
+			var array = element.getAsJsonArray();
+			if (array.isEmpty())
+			{
+				return VariableType.alphanumericDynamic().asArray();
+			}
+
+			return inferJsonType(array.get(0)).asArray();
+		}
+
+		// TODO: What do we do as fallback? Throw?
+		return VariableType.control();
 	}
 }

@@ -3,6 +3,7 @@ package org.amshove.natgen;
 import org.amshove.natparse.natural.DataFormat;
 import org.amshove.natparse.natural.DataType;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
 import java.util.stream.Stream;
@@ -51,5 +52,19 @@ class VariableTypeShould
 			var generatedType = convertedType.toString();
 			return DynamicTest.dynamicTest(format.name(), () -> assertThat(generatedType).isEqualTo("(%s) DYNAMIC".formatted(format.identifier())));
 		});
+	}
+
+	@Test
+	void beAbleToCreateAnUnboundArray()
+	{
+		assertThat(VariableType.alphanumericDynamic().asArray())
+			.hasToString("(A/1:*) DYNAMIC");
+	}
+
+	@Test
+	void beAbleToCreateAUpperBoundArray()
+	{
+		assertThat(VariableType.alphanumericDynamic().asArray(10))
+			.hasToString("(A/1:10) DYNAMIC");
 	}
 }

@@ -52,6 +52,16 @@ public class NaturalCode implements IGeneratable
 		return new NaturalCode("'%s'".formatted(plaintext));
 	}
 
+	public static IGeneratableStatement incrementVariable(IGeneratable variable)
+	{
+		return new GeneratableStatement("ADD 1 TO " + variable.generate());
+	}
+
+	public static IGeneratableStatement expandArray(IGeneratable array, IGeneratable toUpperBound)
+	{
+		return new GeneratableStatement("EXPAND ARRAY %s TO (1:%s)".formatted(array, toUpperBound));
+	}
+
 	public static IGeneratableStatement assignment(IGeneratable lhs, IGeneratable rhs)
 	{
 		return new GeneratableStatement("%s := %s".formatted(lhs.generate(), rhs.generate()));

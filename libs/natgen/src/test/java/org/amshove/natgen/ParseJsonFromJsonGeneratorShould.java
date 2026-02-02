@@ -44,7 +44,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 			.generatesStatements("""
 				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
-				    VALUE '/</name/$'
+				    VALUE '</name/$'
 				      ##PARSED-JSON.#NAME := ##JSON-PARSING.#VALUE
 				    NONE VALUE
 				      IGNORE
@@ -61,7 +61,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 			.generatesStatements("""
 				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
-				    VALUE '/</age/$'
+				    VALUE '</age/$'
 				      ##PARSED-JSON.#AGE := VAL(##JSON-PARSING.#VALUE)
 				    NONE VALUE
 				      IGNORE
@@ -78,11 +78,32 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 			.generatesStatements("""
 				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
-				    VALUE '/</nice/$'
+				    VALUE '</nice/$'
 				      ##PARSED-JSON.#NICE := ATOB(<##JSON-PARSING.#VALUE>)
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
 				END-PARSE""");
+	}
+
+	@Test
+	void parseArrayOfPrimitiveStringsWhichItselfIsAProperty()
+	{
+		var context = sut.generate("{ \"names\": [ \"natls\", \"natparse\" ] }");
+		assertOn(context)
+			.hasVariable(2, "##PARSED-JSON.#S-#NAMES", VariableScope.LOCAL, VariableType.integer(4))
+			.hasVariable(2, "##PARSED-JSON.#NAMES", VariableScope.LOCAL, VariableType.alphanumericDynamic().asArray())
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</names/(/$'
+				      ADD 1 TO ##PARSED-JSON.#S-#NAMES
+				      EXPAND ARRAY ##PARSED-JSON.#NAMES TO (1:##PARSED-JSON.#S-#NAMES)
+				      ##PARSED-JSON.#NAMES(#S-#NAMES) := ##JSON-PARSING.#VALUE
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE
+				""");
 	}
 }

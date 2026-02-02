@@ -1,5 +1,6 @@
 package org.amshove.natgen;
 
+import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;
@@ -30,5 +31,30 @@ class VariableShould
 		var subVariable = variable.addVariable("SUB", VariableType.alphanumeric(10));
 		var subsubVariable = subVariable.addVariable("SUBSUB", VariableType.integer(8));
 		assertThat(subsubVariable).hasToString("#VAR.SUBSUB");
+	}
+
+	@Test
+	void generateAnArrayAccessWithOneDimension()
+	{
+		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.alphanumericDynamic().asArray());
+		assertThat(variable.arrayAccess(NaturalCode.plain("1")).generate())
+			.isEqualTo("#ARR(1)");
+	}
+
+	@Test
+	void generateAnArrayAccessWithMultipleDimensions()
+	{
+		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.alphanumericDynamic().asArray());
+		assertThat(variable.arrayAccess(NaturalCode.plain("1"), NaturalCode.plain("2")).generate())
+			.isEqualTo("#ARR(1, 2)");
+	}
+
+	@Test
+	void generateAnArrayAccessWithVariablesAsAccessor()
+	{
+		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.alphanumericDynamic().asArray());
+		var indexVariable = new Variable(1, VariableScope.LOCAL, "#I-ARR", VariableType.integer(4));
+		assertThat(variable.arrayAccess(indexVariable).generate())
+			.isEqualTo("#ARR(#I-ARR)");
 	}
 }

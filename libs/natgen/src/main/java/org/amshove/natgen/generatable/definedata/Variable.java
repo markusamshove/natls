@@ -1,13 +1,18 @@
 package org.amshove.natgen.generatable.definedata;
 
 import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.IGeneratable;
+import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natparse.natural.IGroupNode;
 import org.amshove.natparse.natural.ITypedVariableNode;
 import org.amshove.natparse.natural.IVariableNode;
 import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class Variable implements IGeneratableDefineDataElement
 {
@@ -140,5 +145,16 @@ public final class Variable implements IGeneratableDefineDataElement
 	public String toString()
 	{
 		return generate();
+	}
+
+	public IGeneratable arrayAccess(IGeneratable... dimensions)
+	{
+		var access = "(%s)".formatted(
+			Arrays.stream(dimensions)
+				// Dimension access can't use fully qualified variable names :-(
+				.map(g -> g instanceof Variable v ? v.name() : g.generate())
+				.collect(Collectors.joining(", "))
+		);
+		return NaturalCode.plain(generate() + access);
 	}
 }
