@@ -7,12 +7,11 @@ import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn;
 import org.amshove.natgen.generatable.IGeneratable;
+import org.amshove.natgen.generatable.IGeneratableStatement;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
@@ -72,11 +71,11 @@ public class ParseJsonFromJsonGenerator
 			var primitive = currentElement.getAsJsonPrimitive();
 			var valueJsonPath = appendPath(currentPath, PARSED_DATA);
 
-			var parsedVariable = getVariableForProperty(currentPath, parentVariable, elementName, primitive);
+			var variableForPrimitive = getVariableForProperty(currentPath, parentVariable, elementName, primitive);
 
 			decideStatement
 				.addBranch(stringLiteral(valueJsonPath))
-				.addToBody(assignment(parsedVariable, valueAssignment(primitive)));
+				.addToBody(assignValueToVariable(variableForPrimitive, primitive, valueJsonPath));
 			return;
 		}
 
@@ -85,29 +84,28 @@ public class ParseJsonFromJsonGenerator
 			// This is the primitive path
 			var arrayVariable = getVariableForProperty(currentPath, parentVariable, elementName, currentElement);
 			var sizeVariable = getSizeVariableForArray(arrayVariable);
+			var firstElementInArray = currentElement.getAsJsonArray().get(0);
 
 			var arrayStartPath = appendPath(currentPath, START_ARRAY);
-			var newArrayValuePath = appendPath(arrayStartPath, PARSED_DATA);
+			var newArrayValuePath = firstElementInArray.isJsonObject()
+				? appendPath(arrayStartPath, START_OBJECT) // Array expansion needs to happen when a new object starts
+				: appendPath(arrayStartPath, PARSED_DATA); // Array expansion needs to happen on every new primitive value
 
 			var branch = decideStatement
 				.addBranch(stringLiteral(newArrayValuePath))
 				.addToBody(incrementVariable(sizeVariable))
 				.addToBody(expandArray(arrayVariable, sizeVariable));
 
-			var firstElementInArray = currentElement.getAsJsonArray().get(0);
 			if (firstElementInArray.isJsonPrimitive())
 			{
 				branch.addToBody(
-					assignment(
-						arrayVariable.arrayAccess(sizeVariable),
-						valueAssignment(firstElementInArray.getAsJsonPrimitive())
-					)
+					assignValueToVariable(arrayVariable, firstElementInArray.getAsJsonPrimitive(), newArrayValuePath)
 				);
 			}
 			else
 				if (firstElementInArray.isJsonObject())
 				{
-					createDecideOnJsonElementBranches(decideStatement, arrayVariable, elementName, firstElementInArray, newArrayValuePath);
+					createDecideOnJsonElementBranches(decideStatement, arrayVariable, elementName, firstElementInArray, arrayStartPath);
 				}
 
 			return;
@@ -133,6 +131,38 @@ public class ParseJsonFromJsonGenerator
 				);
 			}
 		}
+	}
+
+	private Variable[] findAllArrayAccessVariablesForCurrentPathInOrder(String path)
+	{
+		// Move through the path and find the array access variable for each array
+		// from left to right.
+		// e.g. for the path `</persons/(` find the array variable `</persons` and find its
+		// array access variable.
+		// If the path contains more than one array variable, e.g. `</persons/(/</dates/(` it will
+		// first get the access variable for `</persons` and then `</persons/(/</dates`.
+		var arrayAccessVariables = new ArrayList<Variable>();
+		var arrayStartIndex = path.indexOf(START_ARRAY);
+		var lastArrayStartIndex = 0;
+		while (arrayStartIndex > -1)
+		{
+			var arrayPath = path.substring(0, arrayStartIndex + 1);
+			var sizeVariable = findSizeVariableByPath(arrayPath);
+			arrayAccessVariables.add(sizeVariable);
+			lastArrayStartIndex = arrayStartIndex + 1;
+			arrayStartIndex = path.indexOf(START_ARRAY, lastArrayStartIndex);
+		}
+		return arrayAccessVariables.toArray(new Variable[0]);
+	}
+
+	private IGeneratableStatement assignValueToVariable(Variable variableForPrimitive, JsonPrimitive primitive, String currentPath)
+	{
+		if (currentPath.contains(START_ARRAY))
+		{
+			var arrayAccessVariables = findAllArrayAccessVariablesForCurrentPathInOrder(currentPath);
+			return assignment(variableForPrimitive.arrayAccess(arrayAccessVariables), valueAssignment(primitive));
+		}
+		return assignment(variableForPrimitive, valueAssignment(primitive));
 	}
 
 	private IGeneratable valueAssignment(JsonPrimitive primitive)
@@ -172,9 +202,21 @@ public class ParseJsonFromJsonGenerator
 	{
 		return variablesByJsonPath.computeIfAbsent(propertyNamePath, _ ->
 		{
+			if (parentVariable == null || propertyName == null || property == null)
+			{
+				// this shouldn't happen. the only way this can happen is
+				// when looking up an S- variable for an array but the array doesn't exist yet
+				throw new IllegalStateException("Can't create variable if it does not target a json element");
+			}
 			var type = inferJsonType(property);
 			return parentVariable.addVariable("#" + propertyName.toUpperCase(Locale.ROOT), type);
 		});
+	}
+
+	private Variable findSizeVariableByPath(String arrayPath)
+	{
+		var variablePath = arrayPath.substring(0, arrayPath.lastIndexOf(START_ARRAY) - 1);
+		return getSizeVariableForArray(getVariableForProperty(variablePath, null, null, null));
 	}
 
 	private Variable getSizeVariableForArray(Variable array)

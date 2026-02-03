@@ -2,7 +2,6 @@ package org.amshove.natgen;
 
 import org.amshove.natgen.generators.ParseJsonFromJsonGenerator;
 import org.amshove.natparse.natural.VariableScope;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
@@ -147,7 +146,6 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	}
 
 	@Test
-	@Disabled
 	void parseNestedObjectsWithinArrays()
 	{
 		var context = sut.generate("{ \"persons\": [ { \"name\": \"Peter\", \"age\": 30 }, { \"name\": \"Hilde\", \"age\": 28 } ] }");
@@ -170,7 +168,18 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				END-DEFINE
 				""")
 			.generatesStatements("""
-				Moin2
-				""");
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</persons/(/<'
+				      ADD 1 TO ##PARSED-JSON.#S-#PERSONS
+				      EXPAND ARRAY ##PARSED-JSON.#PERSONS TO (1:##PARSED-JSON.#S-#PERSONS)
+				    VALUE '</persons/(/</name/$'
+				      ##PARSED-JSON.#NAME(#S-#PERSONS) := ##JSON-PARSING.#VALUE
+				    VALUE '</persons/(/</age/$'
+				      ##PARSED-JSON.#AGE(#S-#PERSONS) := VAL(##JSON-PARSING.#VALUE)
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE""");
 	}
 }
