@@ -53,6 +53,15 @@ public class CodeGenerationAssertions
 		return this;
 	}
 
+	public CodeGenerationAssertions generatesDefineData(String expected)
+	{
+		var defineData = new DefineDataGenerator().generate(context);
+		assertThat(defineData)
+			.isEqualToIgnoringNewLines(expected);
+
+		return this;
+	}
+
 	private Stream<Variable> collectVariables()
 	{
 		return context.variables().stream().flatMap(v -> collectVariables(v));

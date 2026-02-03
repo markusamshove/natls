@@ -88,16 +88,27 @@ public class ParseJsonFromJsonGenerator
 
 			var arrayStartPath = appendPath(currentPath, START_ARRAY);
 			var newArrayValuePath = appendPath(arrayStartPath, PARSED_DATA);
-			decideStatement
+
+			var branch = decideStatement
 				.addBranch(stringLiteral(newArrayValuePath))
 				.addToBody(incrementVariable(sizeVariable))
-				.addToBody(expandArray(arrayVariable, sizeVariable))
-				.addToBody(
+				.addToBody(expandArray(arrayVariable, sizeVariable));
+
+			var firstElementInArray = currentElement.getAsJsonArray().get(0);
+			if (firstElementInArray.isJsonPrimitive())
+			{
+				branch.addToBody(
 					assignment(
 						arrayVariable.arrayAccess(sizeVariable),
-						valueAssignment(currentElement.getAsJsonArray().get(0).getAsJsonPrimitive())
+						valueAssignment(firstElementInArray.getAsJsonPrimitive())
 					)
 				);
+			}
+			else
+				if (firstElementInArray.isJsonObject())
+				{
+					createDecideOnJsonElementBranches(decideStatement, arrayVariable, elementName, firstElementInArray, newArrayValuePath);
+				}
 
 			return;
 		}
@@ -105,7 +116,7 @@ public class ParseJsonFromJsonGenerator
 		if (currentElement.isJsonObject())
 		{
 			var newParentVariable = parentVariable;
-			if (!elementName.isEmpty())
+			if (!elementName.isEmpty() && !parentVariable.type().isArray())
 			{
 				newParentVariable = parentVariable.addVariable("#" + elementName.toUpperCase(Locale.ROOT), VariableType.group());
 			}
@@ -154,7 +165,10 @@ public class ParseJsonFromJsonGenerator
 		return "%s%s%s".formatted(currentPath, JSON_SEPARATOR, newPathElement);
 	}
 
-	private Variable getVariableForProperty(String propertyNamePath, Variable parentVariable, String propertyName, JsonElement property)
+	private Variable getVariableForProperty(
+		String propertyNamePath, Variable parentVariable, String propertyName,
+		JsonElement property
+	)
 	{
 		return variablesByJsonPath.computeIfAbsent(propertyNamePath, _ ->
 		{
@@ -165,7 +179,10 @@ public class ParseJsonFromJsonGenerator
 
 	private Variable getSizeVariableForArray(Variable array)
 	{
-		return arraySizeVariablesByJsonPath.computeIfAbsent(array, _ -> parsedJsonRoot.addVariable("#S-" + array.name(), VariableType.integer(4)));
+		return arraySizeVariablesByJsonPath.computeIfAbsent(
+			array,
+			_ -> parsedJsonRoot.addVariable("#S-" + array.name(), VariableType.integer(4))
+		);
 	}
 
 	private static VariableType inferJsonType(JsonElement element)

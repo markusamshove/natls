@@ -2,6 +2,7 @@ package org.amshove.natgen;
 
 import org.amshove.natgen.generators.ParseJsonFromJsonGenerator;
 import org.amshove.natparse.natural.VariableScope;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
@@ -116,6 +117,21 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 			.hasVariable(2, "##PARSED-JSON.#PERSON", VariableScope.LOCAL, VariableType.group())
 			.hasVariable(3, "##PARSED-JSON.#NAME", VariableScope.LOCAL, VariableType.alphanumericDynamic())
 			.hasVariable(3, "##PARSED-JSON.#AGE", VariableScope.LOCAL, VariableType.numeric(12.7))
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 ##JSON-PARSING
+				  2 #PATH (A) DYNAMIC
+				  2 #VALUE (A) DYNAMIC
+				  2 #ERR-CODE (I4)
+				  2 #ERR-SUBCODE (I4)
+				1 ##PARSED-JSON
+				  2 #PERSON
+				   3 #NAME (A) DYNAMIC
+				   3 #AGE (N12,7)
+				1 #JSON-SOURCE (A) DYNAMIC
+				END-DEFINE
+				""")
 			.generatesStatements("""
 				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
@@ -127,6 +143,34 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				      IGNORE
 				  END-DECIDE
 				END-PARSE
+				""");
+	}
+
+	@Test
+	@Disabled
+	void parseNestedObjectsWithinArrays()
+	{
+		var context = sut.generate("{ \"persons\": [ { \"name\": \"Peter\", \"age\": 30 }, { \"name\": \"Hilde\", \"age\": 28 } ] }");
+
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 ##JSON-PARSING
+				  2 #PATH (A) DYNAMIC
+				  2 #VALUE (A) DYNAMIC
+				  2 #ERR-CODE (I4)
+				  2 #ERR-SUBCODE (I4)
+				1 ##PARSED-JSON
+				  2 #PERSONS (1:*)
+				    3 #NAME (A) DYNAMIC
+				    3 #AGE (N12,7)
+				  2 #S-#PERSONS (I4)
+				1 #JSON-SOURCE (A) DYNAMIC
+				END-DEFINE
+				""")
+			.generatesStatements("""
+				Moin2
 				""");
 	}
 }

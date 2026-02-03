@@ -3,7 +3,6 @@ package org.amshove.natgen;
 import org.amshove.natgen.generatable.definedata.IGeneratableDefineDataElement;
 import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natgen.generatable.definedata.Variable;
-import org.amshove.natparse.natural.DataFormat;
 import org.amshove.natparse.natural.VariableScope;
 
 import java.util.List;
@@ -130,9 +129,10 @@ public class DefineDataGenerator
 		}
 
 		code.append(variable.level()).append(" ").append(variable.name());
-		if (variable.type().format() != DataFormat.NONE)
+		var type = variable.type().toString();
+		if (!type.isBlank())
 		{
-			code.append(" ").append(variable.type());
+			code.append(" ").append(type);
 		}
 
 		if (variable.constValue() != null)

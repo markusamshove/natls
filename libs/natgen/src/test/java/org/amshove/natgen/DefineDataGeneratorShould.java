@@ -246,7 +246,7 @@ class DefineDataGeneratorShould
 	}
 
 	@Test
-	void beAbleToRedefineAVariableMultipleTImes()
+	void beAbleToRedefineAVariableMultipleTimes()
 	{
 		var variable = new Variable(1, VariableScope.LOCAL, "#TO-REDEFINE", VariableType.numeric(20));
 
@@ -268,6 +268,38 @@ class DefineDataGeneratorShould
 				  2 #HALF-A (A10)
 				1 REDEFINE #TO-REDEFINE
 				  2 #HALF-N (N10)
+				END-DEFINE""");
+	}
+
+	@Test
+	void beAbleToGenerateArrays()
+	{
+		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.integer(4).asArray());
+		context.addVariable(variable);
+		assertThat(sut.generate(context))
+			.isEqualToIgnoringNewLines("""
+				DEFINE DATA
+				LOCAL
+				1 #ARR (I4/1:*)
+				END-DEFINE""");
+	}
+
+	@Test
+	void beAbleToGenerateGroupArrays()
+	{
+		var group = new Variable(1, VariableScope.LOCAL, "#GRP", VariableType.group().asArray());
+
+		group.addVariable("#SUB1", VariableType.alphanumericDynamic());
+		group.addVariable("#SUB2", VariableType.logical());
+
+		context.addVariable(group);
+		assertThat(sut.generate(context))
+			.isEqualToIgnoringNewLines("""
+				DEFINE DATA
+				LOCAL
+				1 #GRP (1:*)
+				  2 #SUB1 (A) DYNAMIC
+				  2 #SUB2 (L)
 				END-DEFINE""");
 	}
 }

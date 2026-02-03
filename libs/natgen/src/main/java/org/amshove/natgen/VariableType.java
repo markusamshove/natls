@@ -134,6 +134,11 @@ public final class VariableType
 		return asArray(Integer.MAX_VALUE);
 	}
 
+	public boolean isArray()
+	{
+		return arrayUpperBound != 0;
+	}
+
 	public static VariableType fromDataType(IDataType type)
 	{
 		return switch (type.format())
@@ -166,23 +171,26 @@ public final class VariableType
 		// Group
 		if (format == DataFormat.NONE)
 		{
-			return "";
+			return !isArray() ? "" : "(1:%s)".formatted(arrayUpperBound == Integer.MAX_VALUE ? "*" : arrayUpperBound);
 		}
 
 		var type = "(%s".formatted(format.identifier());
 
-		if (arrayUpperBound != 0)
+		if (!isDynamic)
+		{
+			type += length;
+		}
+
+		if (isArray())
 		{
 			type += "/1:%s".formatted(arrayUpperBound == Integer.MAX_VALUE ? "*" : arrayUpperBound);
 		}
 
+		type += ")";
+
 		if (isDynamic)
 		{
-			type += ") DYNAMIC";
-		}
-		else
-		{
-			type += length + ")";
+			type += " DYNAMIC";
 		}
 
 		return type;
