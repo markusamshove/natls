@@ -64,11 +64,11 @@ public class CodeGenerationAssertions
 
 	private Stream<Variable> collectVariables()
 	{
-		return context.variables().stream().flatMap(v -> collectVariables(v));
+		return context.variables().stream().flatMap(this::collectVariables);
 	}
 
 	private Stream<Variable> collectVariables(Variable variable)
 	{
-		return Stream.concat(Stream.of(variable), variable.children().stream().flatMap(v -> collectVariables(v)));
+		return Stream.concat(Stream.of(variable), variable.children().stream().flatMap(this::collectVariables));
 	}
 }

@@ -16,17 +16,18 @@ public class DefineDataGenerator
 	/// from [CodeGenerationContext].
 	public String generate(CodeGenerationContext context)
 	{
-		return """
-			DEFINE DATA%s
-			END-DEFINE""".formatted(generateVariables(context));
+		var code = new CodeBuilder();
+		code.append("DEFINE DATA");
+		code.appendLine(generateVariables(context));
+		code.append("END-DEFINE");
+		return code.toString();
 	}
 
 	/// Generates all variables from [CodeGenerationContext]
 	/// without `DEFINE DATA` and `END-DEFINE` blocks.
 	public String generateVariables(CodeGenerationContext context)
 	{
-		var code = new StringBuilder();
-
+		var code = new CodeBuilder();
 		var groupedByScope = context.variables().stream().collect(Collectors.groupingBy(Variable::scope));
 
 		generateUsings(code, VariableScope.GLOBAL, context.usings());
@@ -46,14 +47,14 @@ public class DefineDataGenerator
 	/// with child variables.
 	public String generateVariableDeclarationWithoutScope(Variable variable)
 	{
-		var code = new StringBuilder();
+		var code = new CodeBuilder();
 
 		generateVariable(code, variable);
 
 		return code.toString();
 	}
 
-	private void generateParameter(StringBuilder code, List<IGeneratableDefineDataElement> parameter)
+	private void generateParameter(CodeBuilder code, List<IGeneratableDefineDataElement> parameter)
 	{
 		if (parameter.isEmpty())
 		{
@@ -83,7 +84,7 @@ public class DefineDataGenerator
 		}
 	}
 
-	private void generateUsings(StringBuilder code, VariableScope scope, Map<VariableScope, Set<Using>> usings)
+	private void generateUsings(CodeBuilder code, VariableScope scope, Map<VariableScope, Set<Using>> usings)
 	{
 		var usingsOfScope = usings.get(scope);
 
@@ -94,12 +95,12 @@ public class DefineDataGenerator
 
 		for (var using : usingsOfScope)
 		{
-			code.append(System.lineSeparator()).append(using.generate());
+			code.lineBreak().append(using.generate());
 		}
 	}
 
 	private void generateScoped(
-		StringBuilder code, VariableScope scope,
+		CodeBuilder code, VariableScope scope,
 		Map<VariableScope, List<Variable>> variablesByScope
 	)
 	{
@@ -110,22 +111,22 @@ public class DefineDataGenerator
 
 		var variables = variablesByScope.get(scope);
 
-		code.append(System.lineSeparator()).append(scope).append(System.lineSeparator());
+		code.lineBreak().append(scope).lineBreak();
 		for (var i = 0; i < variables.size(); i++)
 		{
 			generateVariable(code, variables.get(i));
 			if (i < variables.size() - 1)
 			{
-				code.append(System.lineSeparator());
+				code.lineBreak();
 			}
 		}
 	}
 
-	private void generateVariable(StringBuilder code, Variable variable)
+	private void generateVariable(CodeBuilder code, Variable variable)
 	{
 		if (variable.level() > 1)
 		{
-			code.append(" ".repeat(variable.level()));
+			code.indent();
 		}
 
 		code.append(variable.level()).append(" ").append(variable.name());
@@ -142,19 +143,24 @@ public class DefineDataGenerator
 
 		for (var redefinition : variable.redefinitions())
 		{
-			code.append(System.lineSeparator());
+			code.lineBreak();
 			code.append(variable.level()).append(" REDEFINE ").append(variable.name());
 			for (var redefineChild : redefinition.members())
 			{
-				code.append(System.lineSeparator());
+				code.lineBreak();
 				generateVariable(code, redefineChild);
 			}
 		}
 
 		for (var child : variable.children())
 		{
-			code.append(System.lineSeparator());
+			code.lineBreak();
 			generateVariable(code, child);
+		}
+
+		if (variable.level() > 1)
+		{
+			code.unindent();
 		}
 	}
 }

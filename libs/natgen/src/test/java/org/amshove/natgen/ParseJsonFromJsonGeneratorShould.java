@@ -127,8 +127,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				  2 #ERR-SUBCODE (I4)
 				1 ##PARSED-JSON
 				  2 #PERSON
-				   3 #NAME (A) DYNAMIC
-				   3 #AGE (N12,7)
+				    3 #NAME (A) DYNAMIC
+				    3 #AGE (N12,7)
 				1 #JSON-SOURCE (A) DYNAMIC
 				END-DEFINE
 				""")
