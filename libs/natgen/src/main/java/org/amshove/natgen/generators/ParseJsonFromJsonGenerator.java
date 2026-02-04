@@ -91,6 +91,8 @@ public class ParseJsonFromJsonGenerator
 				? appendPath(arrayStartPath, START_OBJECT) // Array expansion needs to happen when a new object starts
 				: appendPath(arrayStartPath, PARSED_DATA); // Array expansion needs to happen on every new primitive value
 
+
+			var numberOfDimensions = getNumberOfDimensions(arrayStartPath);
 			var branch = decideStatement
 				.addBranch(stringLiteral(newArrayValuePath))
 				.addToBody(incrementVariable(sizeVariable))
@@ -131,6 +133,21 @@ public class ParseJsonFromJsonGenerator
 				);
 			}
 		}
+	}
+
+	private int getNumberOfDimensions(String path)
+	{
+		var startArrayChar = START_ARRAY.charAt(0);
+		int dimensions = 0;
+		for (var c : path.toCharArray())
+		{
+			if (c == startArrayChar)
+			{
+				dimensions++;
+			}
+		}
+
+		return dimensions;
 	}
 
 	private Variable[] findAllArrayAccessVariablesForCurrentPathInOrder(String path)

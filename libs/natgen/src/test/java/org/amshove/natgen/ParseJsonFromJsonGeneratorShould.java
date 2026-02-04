@@ -182,4 +182,47 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				  END-DECIDE
 				END-PARSE""");
 	}
+
+	@Test
+	void parseObjectsWithArraysWithinArrays()
+	{
+		var context = sut.generate("{ \"persons\": [ { \"name\": \"Peter\", \"numbers\": [ 30, 35 ] }, { \"name\": \"Hilde\", \"numbers\": [ 40, 45 ] } ] }");
+
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 ##JSON-PARSING
+				  2 #PATH (A) DYNAMIC
+				  2 #VALUE (A) DYNAMIC
+				  2 #ERR-CODE (I4)
+				  2 #ERR-SUBCODE (I4)
+				1 ##PARSED-JSON
+				  2 #PERSONS (1:*)
+				    3 #NAME (A) DYNAMIC
+				    3 #NUMBERS (N12,7/1:*)
+				  2 #S-#PERSONS (I4)
+				  2 #S-#NUMBERS (I4)
+				1 #JSON-SOURCE (A) DYNAMIC
+				END-DEFINE
+				""")
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</persons/(/<'
+				      ADD 1 TO ##PARSED-JSON.#S-#PERSONS
+				      EXPAND ARRAY ##PARSED-JSON.#PERSONS TO (*, 1:##PARSED-JSON.#S-#PERSONS)
+				    VALUE '</persons/(/>'
+				      RESET #S-#NUMBERS
+				    VALUE '</persons/(/</name/$'
+				      ##PARSED-JSON.#NAME(#S-#PERSONS) := ##JSON-PARSING.#VALUE
+				    VALUE '</persons/(/</numbers/(/$'
+				      ADD 1 TO ##PARSED-JSON.#S-#NUMBERS
+				      EXPAND ARRAY ##PARSED-JSON.#NUMBERS TO (1:##PARSED-JSON.#S-#NUMBERS)
+				      ##PARSED-JSON.#NUMBERS(#S-#PERSONS, #S-#NUMBERS) := VAL(##JSON-PARSING.#VALUE)
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE""");
+	}
 }
