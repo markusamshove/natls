@@ -91,17 +91,17 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	{
 		var context = sut.generate("{ \"names\": [ \"natls\", \"natparse\" ] }");
 		assertOn(context)
-			.hasVariable(2, "##PARSED-JSON.#S-#NAMES", VariableScope.LOCAL, VariableType.integer(4))
+			.hasVariable(2, "##JSON-PARSING.#S-#NAMES", VariableScope.LOCAL, VariableType.integer(4))
 			.hasVariable(2, "##PARSED-JSON.#NAMES", VariableScope.LOCAL, VariableType.alphanumericDynamic().withDimension(Dimension.upperUnbound()))
 			.generatesStatements("""
 				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
 				    VALUE '</names/(/$'
-				      ADD 1 TO ##PARSED-JSON.#S-#NAMES
-				      EXPAND ARRAY ##PARSED-JSON.#NAMES TO (1:##PARSED-JSON.#S-#NAMES)
+				      ADD 1 TO ##JSON-PARSING.#S-#NAMES
+				      EXPAND ARRAY ##PARSED-JSON.#NAMES TO (1:##JSON-PARSING.#S-#NAMES)
 				      ##PARSED-JSON.#NAMES(#S-#NAMES) := ##JSON-PARSING.#VALUE
 				    VALUE '>'
-				      RESET ##PARSED-JSON.#S-#NAMES
+				      RESET ##JSON-PARSING.#S-#NAMES
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
@@ -161,11 +161,11 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				  2 #VALUE (A) DYNAMIC
 				  2 #ERR-CODE (I4)
 				  2 #ERR-SUBCODE (I4)
+				  2 #S-#PERSONS (I4)
 				1 ##PARSED-JSON
 				  2 #PERSONS (1:*)
 				    3 #NAME (A) DYNAMIC
 				    3 #AGE (N12,7)
-				  2 #S-#PERSONS (I4)
 				1 #JSON-SOURCE (A) DYNAMIC
 				END-DEFINE
 				""")
@@ -173,14 +173,14 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
 				    VALUE '</persons/(/<'
-				      ADD 1 TO ##PARSED-JSON.#S-#PERSONS
-				      EXPAND ARRAY ##PARSED-JSON.#PERSONS TO (1:##PARSED-JSON.#S-#PERSONS)
+				      ADD 1 TO ##JSON-PARSING.#S-#PERSONS
+				      EXPAND ARRAY ##PARSED-JSON.#PERSONS TO (1:##JSON-PARSING.#S-#PERSONS)
 				    VALUE '</persons/(/</name/$'
 				      ##PARSED-JSON.#NAME(#S-#PERSONS) := ##JSON-PARSING.#VALUE
 				    VALUE '</persons/(/</age/$'
 				      ##PARSED-JSON.#AGE(#S-#PERSONS) := VAL(##JSON-PARSING.#VALUE)
 				    VALUE '>'
-				      RESET ##PARSED-JSON.#S-#PERSONS
+				      RESET ##JSON-PARSING.#S-#PERSONS
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
@@ -201,12 +201,12 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				  2 #VALUE (A) DYNAMIC
 				  2 #ERR-CODE (I4)
 				  2 #ERR-SUBCODE (I4)
+				  2 #S-#PERSONS (I4)
+				  2 #S-#NUMBERS (I4)
 				1 ##PARSED-JSON
 				  2 #PERSONS (1:*)
 				    3 #NAME (A) DYNAMIC
 				    3 #NUMBERS (N12,7/1:*)
-				  2 #S-#PERSONS (I4)
-				  2 #S-#NUMBERS (I4)
 				1 #JSON-SOURCE (A) DYNAMIC
 				END-DEFINE
 				""")
@@ -214,18 +214,18 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
 				    VALUE '</persons/(/<'
-				      ADD 1 TO ##PARSED-JSON.#S-#PERSONS
-				      EXPAND ARRAY ##PARSED-JSON.#PERSONS TO (1:##PARSED-JSON.#S-#PERSONS)
+				      ADD 1 TO ##JSON-PARSING.#S-#PERSONS
+				      EXPAND ARRAY ##PARSED-JSON.#PERSONS TO (1:##JSON-PARSING.#S-#PERSONS)
 				    VALUE '</persons/(/</name/$'
 				      ##PARSED-JSON.#NAME(#S-#PERSONS) := ##JSON-PARSING.#VALUE
 				    VALUE '</persons/(/</numbers/(/$'
-				      ADD 1 TO ##PARSED-JSON.#S-#NUMBERS
-				      EXPAND ARRAY ##PARSED-JSON.#NUMBERS TO (*, 1:##PARSED-JSON.#S-#NUMBERS)
+				      ADD 1 TO ##JSON-PARSING.#S-#NUMBERS
+				      EXPAND ARRAY ##PARSED-JSON.#NUMBERS TO (*, 1:##JSON-PARSING.#S-#NUMBERS)
 				      ##PARSED-JSON.#NUMBERS(#S-#PERSONS, #S-#NUMBERS) := VAL(##JSON-PARSING.#VALUE)
 				    VALUE '</persons/(/>'
-				      RESET ##PARSED-JSON.#S-#NUMBERS
+				      RESET ##JSON-PARSING.#S-#NUMBERS
 				    VALUE '>'
-				      RESET ##PARSED-JSON.#S-#PERSONS
+				      RESET ##JSON-PARSING.#S-#PERSONS
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE

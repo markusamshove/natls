@@ -25,6 +25,7 @@ public class ParseJsonFromJsonGenerator
 	private static final String START_ARRAY = "(";
 	//	private static final String END_ARRAY = ")";
 	private static final String PARSED_DATA = "$";
+	private Variable jsonParsingGroup;
 	private Variable jsonPath;
 	private Variable jsonValue;
 	private Variable jsonErrCode;
@@ -40,11 +41,11 @@ public class ParseJsonFromJsonGenerator
 		var rootElement = gson.fromJson(json, JsonElement.class);
 
 		var context = new CodeGenerationContext();
-		var jsonVariableGroup = context.addVariable(new Variable(1, VariableScope.LOCAL, "##JSON-PARSING", VariableType.group()));
-		jsonPath = jsonVariableGroup.addVariable("#PATH", VariableType.alphanumericDynamic());
-		jsonValue = jsonVariableGroup.addVariable("#VALUE", VariableType.alphanumericDynamic());
-		jsonErrCode = jsonVariableGroup.addVariable("#ERR-CODE", VariableType.integer(4));
-		jsonErrSubcode = jsonVariableGroup.addVariable("#ERR-SUBCODE", VariableType.integer(4));
+		jsonParsingGroup = context.addVariable(new Variable(1, VariableScope.LOCAL, "##JSON-PARSING", VariableType.group()));
+		jsonPath = jsonParsingGroup.addVariable("#PATH", VariableType.alphanumericDynamic());
+		jsonValue = jsonParsingGroup.addVariable("#VALUE", VariableType.alphanumericDynamic());
+		jsonErrCode = jsonParsingGroup.addVariable("#ERR-CODE", VariableType.integer(4));
+		jsonErrSubcode = jsonParsingGroup.addVariable("#ERR-SUBCODE", VariableType.integer(4));
 		parsedJsonRoot = context.addVariable(VariableScope.LOCAL, "##PARSED-JSON", VariableType.group());
 
 		var jsonSourceVariable = context.addVariable(VariableScope.LOCAL, "#JSON-SOURCE", VariableType.alphanumericDynamic());
@@ -266,7 +267,7 @@ public class ParseJsonFromJsonGenerator
 	{
 		return arraySizeVariablesByArray.computeIfAbsent(
 			array,
-			_ -> parsedJsonRoot.addVariable("#S-" + array.name(), VariableType.integer(4))
+			_ -> jsonParsingGroup.addVariable("#S-" + array.name(), VariableType.integer(4))
 		);
 	}
 
