@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.Dimension;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn;
 import org.amshove.natgen.generatable.IGeneratable;
@@ -90,7 +91,6 @@ public class ParseJsonFromJsonGenerator
 			var newArrayValuePath = firstElementInArray.isJsonObject()
 				? appendPath(arrayStartPath, START_OBJECT) // Array expansion needs to happen when a new object starts
 				: appendPath(arrayStartPath, PARSED_DATA); // Array expansion needs to happen on every new primitive value
-
 
 			var numberOfDimensions = getNumberOfDimensions(arrayStartPath);
 			var branch = decideStatement
@@ -272,10 +272,10 @@ public class ParseJsonFromJsonGenerator
 			var array = element.getAsJsonArray();
 			if (array.isEmpty())
 			{
-				return VariableType.alphanumericDynamic().asArray();
+				return VariableType.alphanumericDynamic().withDimension(Dimension.upperUnbound());
 			}
 
-			return inferJsonType(array.get(0)).asArray();
+			return inferJsonType(array.get(0)).withDimension(Dimension.upperUnbound());
 		}
 
 		// TODO: What do we do as fallback? Throw?

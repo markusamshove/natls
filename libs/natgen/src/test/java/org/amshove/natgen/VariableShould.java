@@ -36,7 +36,7 @@ class VariableShould
 	@Test
 	void generateAnArrayAccessWithOneDimension()
 	{
-		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.alphanumericDynamic().asArray());
+		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.alphanumericDynamic().withDimension(Dimension.upperUnbound()));
 		assertThat(variable.arrayAccess(NaturalCode.plain("1")).generate())
 			.isEqualTo("#ARR(1)");
 	}
@@ -44,7 +44,7 @@ class VariableShould
 	@Test
 	void generateAnArrayAccessWithMultipleDimensions()
 	{
-		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.alphanumericDynamic().asArray());
+		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.alphanumericDynamic().withDimension(Dimension.upperUnbound()));
 		assertThat(variable.arrayAccess(NaturalCode.plain("1"), NaturalCode.plain("2")).generate())
 			.isEqualTo("#ARR(1, 2)");
 	}
@@ -52,7 +52,7 @@ class VariableShould
 	@Test
 	void generateAnArrayAccessWithVariablesAsAccessor()
 	{
-		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.alphanumericDynamic().asArray());
+		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.alphanumericDynamic().withDimension(Dimension.upperUnbound()));
 		var indexVariable = new Variable(1, VariableScope.LOCAL, "#I-ARR", VariableType.integer(4));
 		assertThat(variable.arrayAccess(indexVariable).generate())
 			.isEqualTo("#ARR(#I-ARR)");

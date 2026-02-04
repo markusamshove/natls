@@ -275,7 +275,7 @@ class DefineDataGeneratorShould extends CodeGenerationTest
 	@Test
 	void beAbleToGenerateArrays()
 	{
-		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.integer(4).asArray());
+		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.integer(4).withDimension(Dimension.upperUnbound()));
 		context.addVariable(variable);
 		assertOn(context)
 			.generatesDefineData("""
@@ -288,7 +288,7 @@ class DefineDataGeneratorShould extends CodeGenerationTest
 	@Test
 	void beAbleToGenerateGroupArrays()
 	{
-		var group = new Variable(1, VariableScope.LOCAL, "#GRP", VariableType.group().asArray());
+		var group = new Variable(1, VariableScope.LOCAL, "#GRP", VariableType.group().withDimension(Dimension.upperUnbound()));
 
 		group.addVariable("#SUB1", VariableType.alphanumericDynamic());
 		group.addVariable("#SUB2", VariableType.logical());
@@ -301,6 +301,19 @@ class DefineDataGeneratorShould extends CodeGenerationTest
 				1 #GRP (1:*)
 				  2 #SUB1 (A) DYNAMIC
 				  2 #SUB2 (L)
+				END-DEFINE""");
+	}
+
+	@Test
+	void beAbleToGenerateMultiDimensionArrays()
+	{
+		var arr = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.logical().withDimension(new Dimension(1, 10)).withDimension(new Dimension(15, 20)));
+		context.addVariable(arr);
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 #ARR (L/1:10, 15:20)
 				END-DEFINE""");
 	}
 }

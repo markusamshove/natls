@@ -57,14 +57,14 @@ class VariableTypeShould
 	@Test
 	void beAbleToCreateAnUnboundArray()
 	{
-		assertThat(VariableType.alphanumericDynamic().asArray())
+		assertThat(VariableType.alphanumericDynamic().withDimension(Dimension.upperUnbound()))
 			.hasToString("(A/1:*) DYNAMIC");
 	}
 
 	@Test
 	void beAbleToCreateAUpperBoundArray()
 	{
-		assertThat(VariableType.alphanumericDynamic().asArray(10))
+		assertThat(VariableType.alphanumericDynamic().withDimension(Dimension.upperBound(10)))
 			.hasToString("(A/1:10) DYNAMIC");
 	}
 }

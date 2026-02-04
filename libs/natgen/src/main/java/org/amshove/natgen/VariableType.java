@@ -3,12 +3,16 @@ package org.amshove.natgen;
 import org.amshove.natparse.natural.DataFormat;
 import org.amshove.natparse.natural.IDataType;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public final class VariableType
 {
 	private final DataFormat format;
 	private final String length;
 	private final boolean isDynamic;
-	private int arrayUpperBound;
+	private final List<Dimension> dimensions = new ArrayList<>();
 
 	public static VariableType alphanumeric(int length)
 	{
@@ -121,22 +125,16 @@ public final class VariableType
 		return new VariableType(DataFormat.UNICODE, true);
 	}
 
-	/// Mark this type as array, giving it the specific `upperBound` resulting in `1:upperBound`
-	public VariableType asArray(int upperBound)
+	/// Add an array dimension to this type
+	public VariableType withDimension(Dimension dimension)
 	{
-		arrayUpperBound = upperBound;
+		dimensions.add(dimension);
 		return this;
-	}
-
-	/// Mark this type as x-array resulting in `1:*`
-	public VariableType asArray()
-	{
-		return asArray(Integer.MAX_VALUE);
 	}
 
 	public boolean isArray()
 	{
-		return arrayUpperBound != 0;
+		return !dimensions.isEmpty();
 	}
 
 	public static VariableType fromDataType(IDataType type)
@@ -168,10 +166,11 @@ public final class VariableType
 	@Override
 	public String toString()
 	{
+		var formattedDimensionList = dimensions.stream().map(Dimension::toDeclaration).collect(Collectors.joining(", "));
 		// Group
 		if (format == DataFormat.NONE)
 		{
-			return !isArray() ? "" : "(1:%s)".formatted(arrayUpperBound == Integer.MAX_VALUE ? "*" : arrayUpperBound);
+			return dimensions.isEmpty() ? "" : "(%s)".formatted(formattedDimensionList);
 		}
 
 		var type = "(%s".formatted(format.identifier());
@@ -183,7 +182,7 @@ public final class VariableType
 
 		if (isArray())
 		{
-			type += "/1:%s".formatted(arrayUpperBound == Integer.MAX_VALUE ? "*" : arrayUpperBound);
+			type += "/%s".formatted(formattedDimensionList);
 		}
 
 		type += ")";
