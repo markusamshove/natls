@@ -9,6 +9,7 @@ import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn;
 import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natgen.generatable.IGeneratableStatement;
+import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 
@@ -20,7 +21,7 @@ public class ParseJsonFromJsonGenerator
 {
 	private static final String JSON_SEPARATOR = "/";
 	private static final String START_OBJECT = "<";
-	//	private static final String END_OBJECT = ">";
+	private static final String END_OBJECT = ">";
 	private static final String START_ARRAY = "(";
 	//	private static final String END_ARRAY = ")";
 	private static final String PARSED_DATA = "$";
@@ -31,7 +32,7 @@ public class ParseJsonFromJsonGenerator
 	private Variable parsedJsonRoot;
 
 	private final Map<String, Variable> variablesByJsonPath = new HashMap<>();
-	private final Map<Variable, Variable> arraySizeVariablesByJsonPath = new HashMap<>();
+	private final Map<Variable, Variable> arraySizeVariablesByArray = new HashMap<>();
 
 	public CodeGenerationContext generate(String json)
 	{
@@ -56,6 +57,8 @@ public class ParseJsonFromJsonGenerator
 			.addToBody(decideOnJsonPath);
 
 		createDecideOnJsonElementBranches(decideOnJsonPath, parsedJsonRoot, "", rootElement, "");
+
+		createResetArrayVariablesForNestedArrays(decideOnJsonPath);
 
 		context.addStatement(parseJsonStatement);
 		return context;
@@ -84,7 +87,7 @@ public class ParseJsonFromJsonGenerator
 		{
 			// This is the primitive path
 			var arrayVariable = getVariableForProperty(currentPath, parentVariable, elementName, currentElement);
-			var sizeVariable = getSizeVariableForArray(arrayVariable);
+			var sizeVariable = findSizeVariableForArray(arrayVariable);
 			var firstElementInArray = currentElement.getAsJsonArray().get(0);
 
 			var arrayStartPath = appendPath(currentPath, START_ARRAY);
@@ -96,7 +99,7 @@ public class ParseJsonFromJsonGenerator
 			var branch = decideStatement
 				.addBranch(stringLiteral(newArrayValuePath))
 				.addToBody(incrementVariable(sizeVariable))
-				.addToBody(expandArray(arrayVariable, sizeVariable));
+				.addToBody(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
 
 			if (firstElementInArray.isJsonPrimitive())
 			{
@@ -132,6 +135,29 @@ public class ParseJsonFromJsonGenerator
 					)
 				);
 			}
+		}
+	}
+
+	private void createResetArrayVariablesForNestedArrays(DecideOn decideOnJsonPath)
+	{
+		// For each array inside objects we need to reset the counter variable when the object ends.
+		for (var variableByJsonPath : variablesByJsonPath.entrySet())
+		{
+			var path = variableByJsonPath.getKey();
+			var array = variableByJsonPath.getValue();
+
+			if (!array.type().isArray())
+			{
+				continue;
+			}
+
+			var sizeVariable = findSizeVariableForArray(array);
+			// go from `</obj/(/</arrayInObj`
+			// to `</obj/(/>` to get the path of closing the enclosing object
+			var closeObjectPath = path.substring(0, path.lastIndexOf(START_OBJECT)) + END_OBJECT;
+			decideOnJsonPath
+				.addBranch(NaturalCode.stringLiteral(closeObjectPath))
+				.addToBody(reset(sizeVariable));
 		}
 	}
 
@@ -233,12 +259,12 @@ public class ParseJsonFromJsonGenerator
 	private Variable findSizeVariableByPath(String arrayPath)
 	{
 		var variablePath = arrayPath.substring(0, arrayPath.lastIndexOf(START_ARRAY) - 1);
-		return getSizeVariableForArray(getVariableForProperty(variablePath, null, null, null));
+		return findSizeVariableForArray(getVariableForProperty(variablePath, null, null, null));
 	}
 
-	private Variable getSizeVariableForArray(Variable array)
+	private Variable findSizeVariableForArray(Variable array)
 	{
-		return arraySizeVariablesByJsonPath.computeIfAbsent(
+		return arraySizeVariablesByArray.computeIfAbsent(
 			array,
 			_ -> parsedJsonRoot.addVariable("#S-" + array.name(), VariableType.integer(4))
 		);

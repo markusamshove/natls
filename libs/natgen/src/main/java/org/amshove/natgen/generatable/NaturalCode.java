@@ -72,7 +72,7 @@ public class NaturalCode implements IGeneratable
 	/// Expand the nth dimension of a multidimensional array to `1:upperBound`, where `upperBound` can also be a variable
 	public static IGeneratableStatement expandNthArrayDimension(IGeneratable array, int nthDimension, IGeneratable toUpperBound)
 	{
-		var dimensionList = "*,".repeat(Math.max(0, nthDimension - 1));
+		var dimensionList = "*, ".repeat(Math.max(0, nthDimension - 1));
 		dimensionList += "1:" + toUpperBound.generate();
 		return new GeneratableStatement("EXPAND ARRAY %s TO (%s)".formatted(array.generate(), dimensionList));
 	}
@@ -80,9 +80,15 @@ public class NaturalCode implements IGeneratable
 	/// Expand the nth dimension of a multidimensional array to `lowerBound:upperBound`
 	public static IGeneratableStatement expandNthArrayDimension(IGeneratable array, int nthDimension, int lowerBound, int upperBound)
 	{
-		var dimensionList = "*,".repeat(Math.max(0, nthDimension - 1));
+		var dimensionList = "*, ".repeat(Math.max(0, nthDimension - 1));
 		dimensionList += "%d:%d".formatted(lowerBound, upperBound);
 		return new GeneratableStatement("EXPAND ARRAY %s TO (%s)".formatted(array.generate(), dimensionList));
+	}
+
+	public static IGeneratableStatement reset(IGeneratable... resettable)
+	{
+		var toReset = Arrays.stream(resettable).map(IGeneratable::generate).collect(Collectors.joining(" "));
+		return new GeneratableStatement("RESET %s".formatted(toReset));
 	}
 
 	public static IGeneratableStatement assignment(IGeneratable lhs, IGeneratable rhs)

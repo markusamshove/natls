@@ -33,13 +33,13 @@ class ExpandArrayShould extends CodeGenerationTest
 	void generateAnExpandForASpecificDimension()
 	{
 		var expand = NaturalCode.expandNthArrayDimension(array, 2, NaturalCode.plain("10"));
-		assertGenerated(expand, "EXPAND ARRAY #ARR TO (*,1:10)");
+		assertGenerated(expand, "EXPAND ARRAY #ARR TO (*, 1:10)");
 	}
 
 	@Test
 	void generateAnExpandForASpecificDimensionForSpecificLowerAndUpperBounds()
 	{
 		var expand = NaturalCode.expandNthArrayDimension(array, 3, 5, 10);
-		assertGenerated(expand, "EXPAND ARRAY #ARR TO (*,*,5:10)");
+		assertGenerated(expand, "EXPAND ARRAY #ARR TO (*, *, 5:10)");
 	}
 }

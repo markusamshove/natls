@@ -2,7 +2,6 @@ package org.amshove.natgen;
 
 import org.amshove.natgen.generators.ParseJsonFromJsonGenerator;
 import org.amshove.natparse.natural.VariableScope;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
@@ -101,6 +100,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				      ADD 1 TO ##PARSED-JSON.#S-#NAMES
 				      EXPAND ARRAY ##PARSED-JSON.#NAMES TO (1:##PARSED-JSON.#S-#NAMES)
 				      ##PARSED-JSON.#NAMES(#S-#NAMES) := ##JSON-PARSING.#VALUE
+				    VALUE '>'
+				      RESET ##PARSED-JSON.#S-#NAMES
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
@@ -178,6 +179,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				      ##PARSED-JSON.#NAME(#S-#PERSONS) := ##JSON-PARSING.#VALUE
 				    VALUE '</persons/(/</age/$'
 				      ##PARSED-JSON.#AGE(#S-#PERSONS) := VAL(##JSON-PARSING.#VALUE)
+				    VALUE '>'
+				      RESET ##PARSED-JSON.#S-#PERSONS
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
@@ -185,7 +188,6 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	}
 
 	@Test
-	@Disabled
 	void parseObjectsWithArraysWithinArrays()
 	{
 		var context = sut.generate("{ \"persons\": [ { \"name\": \"Peter\", \"numbers\": [ 30, 35 ] }, { \"name\": \"Hilde\", \"numbers\": [ 40, 45 ] } ] }");
@@ -213,15 +215,17 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
 				    VALUE '</persons/(/<'
 				      ADD 1 TO ##PARSED-JSON.#S-#PERSONS
-				      EXPAND ARRAY ##PARSED-JSON.#PERSONS TO (*, 1:##PARSED-JSON.#S-#PERSONS)
-				    VALUE '</persons/(/>'
-				      RESET #S-#NUMBERS
+				      EXPAND ARRAY ##PARSED-JSON.#PERSONS TO (1:##PARSED-JSON.#S-#PERSONS)
 				    VALUE '</persons/(/</name/$'
 				      ##PARSED-JSON.#NAME(#S-#PERSONS) := ##JSON-PARSING.#VALUE
 				    VALUE '</persons/(/</numbers/(/$'
 				      ADD 1 TO ##PARSED-JSON.#S-#NUMBERS
-				      EXPAND ARRAY ##PARSED-JSON.#NUMBERS TO (1:##PARSED-JSON.#S-#NUMBERS)
+				      EXPAND ARRAY ##PARSED-JSON.#NUMBERS TO (*, 1:##PARSED-JSON.#S-#NUMBERS)
 				      ##PARSED-JSON.#NUMBERS(#S-#PERSONS, #S-#NUMBERS) := VAL(##JSON-PARSING.#VALUE)
+				    VALUE '</persons/(/>'
+				      RESET ##PARSED-JSON.#S-#NUMBERS
+				    VALUE '>'
+				      RESET ##PARSED-JSON.#S-#PERSONS
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
