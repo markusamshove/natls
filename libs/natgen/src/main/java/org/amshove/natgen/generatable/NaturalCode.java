@@ -57,9 +57,32 @@ public class NaturalCode implements IGeneratable
 		return new GeneratableStatement("ADD 1 TO " + variable.generate());
 	}
 
+	/// Expand a one dimensional array to `1:upperBound`, where `upperBound` can also be a variable
 	public static IGeneratableStatement expandArray(IGeneratable array, IGeneratable toUpperBound)
 	{
-		return new GeneratableStatement("EXPAND ARRAY %s TO (1:%s)".formatted(array, toUpperBound));
+		return new GeneratableStatement("EXPAND ARRAY %s TO (1:%s)".formatted(array.generate(), toUpperBound.generate()));
+	}
+
+	/// Expand a one dimensional array to `lowerBound:upperBound`
+	public static IGeneratableStatement expandArray(IGeneratable array, int lowerBound, int upperBound)
+	{
+		return new GeneratableStatement("EXPAND ARRAY %s TO (%d:%d)".formatted(array.generate(), lowerBound, upperBound));
+	}
+
+	/// Expand the nth dimension of a multidimensional array to `1:upperBound`, where `upperBound` can also be a variable
+	public static IGeneratableStatement expandNthArrayDimension(IGeneratable array, int nthDimension, IGeneratable toUpperBound)
+	{
+		var dimensionList = "*,".repeat(Math.max(0, nthDimension - 1));
+		dimensionList += "1:" + toUpperBound.generate();
+		return new GeneratableStatement("EXPAND ARRAY %s TO (%s)".formatted(array.generate(), dimensionList));
+	}
+
+	/// Expand the nth dimension of a multidimensional array to `lowerBound:upperBound`
+	public static IGeneratableStatement expandNthArrayDimension(IGeneratable array, int nthDimension, int lowerBound, int upperBound)
+	{
+		var dimensionList = "*,".repeat(Math.max(0, nthDimension - 1));
+		dimensionList += "%d:%d".formatted(lowerBound, upperBound);
+		return new GeneratableStatement("EXPAND ARRAY %s TO (%s)".formatted(array.generate(), dimensionList));
 	}
 
 	public static IGeneratableStatement assignment(IGeneratable lhs, IGeneratable rhs)
@@ -67,7 +90,10 @@ public class NaturalCode implements IGeneratable
 		return new GeneratableStatement("%s := %s".formatted(lhs.generate(), rhs.generate()));
 	}
 
-	public static NaturalCode definePrototype(IGeneratable name, @Nullable VariableType returnType, CodeGenerationContext context)
+	public static NaturalCode definePrototype(
+		IGeneratable name, @Nullable VariableType returnType,
+		CodeGenerationContext context
+	)
 	{
 		var returnCode = returnType != null ? " RETURNS %s".formatted(returnType) : "";
 		var defineData = context.parameter().isEmpty()
@@ -115,7 +141,12 @@ public class NaturalCode implements IGeneratable
 
 	public static NaturalCode functionCall(String functionName, IGeneratable... parameter)
 	{
-		return new NaturalCode("%s(<%s>)".formatted(functionName, Arrays.stream(parameter).map(IGeneratable::generate).collect(Collectors.joining(", "))));
+		return new NaturalCode(
+			"%s(<%s>)".formatted(
+				functionName,
+				Arrays.stream(parameter).map(IGeneratable::generate).collect(Collectors.joining(", "))
+			)
+		);
 	}
 
 	private record GeneratableStatement(String plainCode) implements IGeneratableStatement
