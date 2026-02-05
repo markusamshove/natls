@@ -5,19 +5,15 @@ import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
-class ParseJsonGenerationShould
+class ParseJsonGenerationShould extends CodeGenerationTest
 {
 	@Test
 	void generateParseJsonStatement()
 	{
 		var parseJson = NaturalCode.parseJson(new Variable(1, VariableScope.LOCAL, "#JSON", VariableType.alphanumericDynamic()));
-
-		assertThat(parseJson.generate())
-			.isEqualToIgnoringNewLines("""
+		assertGenerated(parseJson, """
 				PARSE JSON #JSON
-				IGNORE
+				  IGNORE
 				END-PARSE""");
 	}
 
@@ -33,10 +29,9 @@ class ParseJsonGenerationShould
 			.givingErrorCode(NaturalCode.plain("#ERR-CODE"))
 			.givingErrorSubcode(NaturalCode.plain("#ERR-SUBCODE"));
 
-		assertThat(parseJson.generate())
-			.isEqualToIgnoringNewLines("""
+		assertGenerated(parseJson, """
 				PARSE JSON #JSON INTO PATH #PATH NAME #NAME VALUE #VALUE GIVING #ERR-CODE SUBCODE #ERR-SUBCODE
-				IGNORE
+				  IGNORE
 				END-PARSE""");
 	}
 
@@ -48,10 +43,9 @@ class ParseJsonGenerationShould
 		parseJson
 			.intoValue(NaturalCode.plain("#VALUE"));
 
-		assertThat(parseJson.generate())
-			.isEqualToIgnoringNewLines("""
+		assertGenerated(parseJson, """
 				PARSE JSON #JSON INTO VALUE #VALUE
-				IGNORE
+				  IGNORE
 				END-PARSE""");
 	}
 
@@ -59,14 +53,12 @@ class ParseJsonGenerationShould
 	void acceptBodyStatements()
 	{
 		var parseJson = NaturalCode.parseJson(new Variable(1, VariableScope.LOCAL, "#JSON", VariableType.alphanumericDynamic()));
-
 		parseJson
-			.addToBody(NaturalCode.plain("DISPLAY 'Parsing JSON'"));
+			.addToBody(NaturalCode.plainStatement("DISPLAY 'Parsing JSON'"));
 
-		assertThat(parseJson.generate())
-			.isEqualToIgnoringNewLines("""
+		assertGenerated(parseJson, """
 				PARSE JSON #JSON
-				DISPLAY 'Parsing JSON'
+				  DISPLAY 'Parsing JSON'
 				END-PARSE""");
 	}
 }

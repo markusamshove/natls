@@ -1,10 +1,12 @@
 package org.amshove.natgen.generatable;
 
+import org.amshove.natgen.CodeBuilder;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DecideOn implements IGeneratable
+public class DecideOn implements IGeneratableStatement
 {
 	private final IGeneratable decideOnReference;
 	private final DecideOnValueCheck valuesToCheck;
@@ -42,39 +44,36 @@ public class DecideOn implements IGeneratable
 	}
 
 	@Override
-	public String generate()
+	public void generateInto(CodeBuilder code)
 	{
-		var code = new StringBuilder();
+		code.append("DECIDE ON ").append(valuesToCheck.name()).append(" VALUE OF ").append(decideOnReference);
 
-		code.append("DECIDE ON ").append(valuesToCheck.name()).append(" VALUE OF ").append(decideOnReference.generate())
-			.append(System.lineSeparator());
+		code
+			.lineBreak()
+			.indent();
 
-		branches.forEach(branch -> code.append("  ").append(branch.generate()).append(System.lineSeparator()));
+		for (var branch : branches)
+		{
+			branch.generateInto(code);
+		}
 
 		if (!anyBranch.bodyParts.isEmpty())
 		{
-			code.append("  ")
-				.append(anyBranch.generate())
-				.append(System.lineSeparator());
+			anyBranch.generateInto(code);
 		}
 
 		if (!allBranch.bodyParts.isEmpty())
 		{
-			code.append("  ")
-				.append(allBranch.generate())
-				.append(System.lineSeparator());
+			allBranch.generateInto(code);
 		}
 
-		code.append("  ")
-			.append(noneBranch.generate())
-			.append(System.lineSeparator());
+		noneBranch.generateInto(code);
 
+		code.unindent();
 		code.append("END-DECIDE");
-
-		return code.toString();
 	}
 
-	public class DecideOnValueBranch extends GeneratableWithBody<DecideOnValueBranch> implements IGeneratable
+	public static class DecideOnValueBranch extends GeneratableWithBody<DecideOnValueBranch> implements IGeneratableStatement
 	{
 		private final IGeneratable[] valuesToCheck;
 		private final String specialBranchName;
@@ -92,20 +91,22 @@ public class DecideOn implements IGeneratable
 		}
 
 		@Override
-		public String generate()
+		public void generateInto(CodeBuilder code)
 		{
 			if (specialBranchName != null)
 			{
-				return "%s VALUE%n%s".formatted(
-					specialBranchName,
-					bodyWithIndentation("    ")
-				);
+				code
+					.append(specialBranchName)
+					.append(" VALUE");
+			}
+			else
+			{
+				code
+					.append("VALUE ")
+					.append(String.join(", ", Arrays.stream(valuesToCheck).map(IGeneratable::generate).toList()));
 			}
 
-			return "VALUE %s%n%s".formatted(
-				String.join(", ", Arrays.stream(valuesToCheck).map(IGeneratable::generate).toList()),
-				bodyWithIndentation("    ")
-			);
+			generateBody(code);
 		}
 	}
 

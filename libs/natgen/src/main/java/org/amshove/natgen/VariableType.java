@@ -3,11 +3,16 @@ package org.amshove.natgen;
 import org.amshove.natparse.natural.DataFormat;
 import org.amshove.natparse.natural.IDataType;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public final class VariableType
 {
 	private final DataFormat format;
 	private final String length;
 	private final boolean isDynamic;
+	private final List<Dimension> dimensions = new ArrayList<>();
 
 	public static VariableType alphanumeric(int length)
 	{
@@ -120,6 +125,18 @@ public final class VariableType
 		return new VariableType(DataFormat.UNICODE, true);
 	}
 
+	/// Add an array dimension to this type
+	public VariableType withDimension(Dimension dimension)
+	{
+		dimensions.add(dimension);
+		return this;
+	}
+
+	public boolean isArray()
+	{
+		return !dimensions.isEmpty();
+	}
+
 	public static VariableType fromDataType(IDataType type)
 	{
 		return switch (type.format())
@@ -135,7 +152,9 @@ public final class VariableType
 			case PACKED -> VariableType.packed(type.length());
 			case TIME -> VariableType.time();
 			case UNICODE -> type.hasDynamicLength() ? VariableType.unicodeDynamic() : VariableType.unicode((int) type.length());
-			default -> throw new IllegalArgumentException("Format <%s> can't be translated to VariableType".formatted(type.format()));
+			default -> throw new IllegalArgumentException(
+				"Format <%s> can't be translated to VariableType".formatted(type.format())
+			);
 		};
 	}
 
@@ -147,17 +166,32 @@ public final class VariableType
 	@Override
 	public String toString()
 	{
+		var formattedDimensionList = dimensions.stream().map(Dimension::toDeclaration).collect(Collectors.joining(", "));
 		// Group
 		if (format == DataFormat.NONE)
 		{
-			return "";
+			return dimensions.isEmpty() ? "" : "(%s)".formatted(formattedDimensionList);
 		}
+
+		var type = "(%s".formatted(format.identifier());
+
+		if (!isDynamic)
+		{
+			type += length;
+		}
+
+		if (isArray())
+		{
+			type += "/%s".formatted(formattedDimensionList);
+		}
+
+		type += ")";
 
 		if (isDynamic)
 		{
-			return "(%s) DYNAMIC".formatted(format.identifier());
+			type += " DYNAMIC";
 		}
 
-		return "(%s%s)".formatted(format.identifier(), length);
+		return type;
 	}
 }

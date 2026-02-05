@@ -1,5 +1,6 @@
 package org.amshove.natgen;
 
+import org.amshove.natgen.generatable.IGeneratableStatement;
 import org.amshove.natgen.generatable.definedata.IGeneratableDefineDataElement;
 import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natgen.generatable.definedata.Variable;
@@ -12,8 +13,8 @@ public class CodeGenerationContext
 {
 	private final List<Variable> variables = new ArrayList<>();
 	private final EnumMap<VariableScope, Set<Using>> usings = new EnumMap<>(VariableScope.class);
-
 	private final List<IGeneratableDefineDataElement> parameter = new ArrayList<>();
+	private final List<IGeneratableStatement> statements = new ArrayList<>();
 
 	public Variable addParameter(String name, VariableType type)
 	{
@@ -79,5 +80,16 @@ public class CodeGenerationContext
 	public Map<VariableScope, Set<Using>> usings()
 	{
 		return usings;
+	}
+
+	/// Adds a statement to the context
+	public void addStatement(IGeneratableStatement statement)
+	{
+		statements.add(statement);
+	}
+
+	public List<IGeneratableStatement> statements()
+	{
+		return statements;
 	}
 }

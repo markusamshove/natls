@@ -6,6 +6,7 @@ dependencies {
     implementation project(':natparse')
     implementation libraries.picocli
     implementation libraries.gson
+implementation 'com.ibm.mq:wmq.jakarta.jmsra:9.4.4.1'
 
     testImplementation project(':testhelpers')
 }

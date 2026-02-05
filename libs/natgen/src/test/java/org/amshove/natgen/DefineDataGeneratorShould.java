@@ -8,9 +8,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-class DefineDataGeneratorShould
+class DefineDataGeneratorShould extends CodeGenerationTest
 {
-	private final DefineDataGenerator sut = new DefineDataGenerator();
 	private final CodeGenerationContext context = new CodeGenerationContext();
 
 	@Test
@@ -18,8 +17,8 @@ class DefineDataGeneratorShould
 	{
 		context.addVariable(VariableScope.LOCAL, "#VARIABLE", VariableType.alphanumeric(10));
 
-		assertThat(sut.generate(context))
-			.isEqualToIgnoringNewLines("""
+		assertOn(context)
+			.generatesDefineData("""
 				DEFINE DATA
 				LOCAL
 				1 #VARIABLE (A10)
@@ -32,8 +31,8 @@ class DefineDataGeneratorShould
 		context.addVariable(VariableScope.LOCAL, "#VARIABLE", VariableType.alphanumeric(10));
 		context.addVariable(VariableScope.LOCAL, "#SECOND", VariableType.alphanumericDynamic());
 
-		assertThat(sut.generate(context))
-			.isEqualToIgnoringNewLines("""
+		assertOn(context)
+			.generatesDefineData("""
 				DEFINE DATA
 				LOCAL
 				1 #VARIABLE (A10)
@@ -47,8 +46,8 @@ class DefineDataGeneratorShould
 		context.addVariable(VariableScope.LOCAL, "#VARIABLE", VariableType.alphanumeric(10));
 		context.addVariable(VariableScope.PARAMETER, "#PARAM", VariableType.alphanumericDynamic());
 
-		assertThat(sut.generate(context))
-			.isEqualToIgnoringNewLines("""
+		assertOn(context)
+			.generatesDefineData("""
 				DEFINE DATA
 				PARAMETER
 				1 #PARAM (A) DYNAMIC
@@ -65,8 +64,8 @@ class DefineDataGeneratorShould
 		context.addVariable(VariableScope.PARAMETER, "#PARAM", VariableType.alphanumericDynamic());
 		context.addVariable(VariableScope.GLOBAL, "#G-GLOBAL", VariableType.alphanumeric(10));
 
-		assertThat(sut.generate(context))
-			.isEqualToIgnoringNewLines("""
+		assertOn(context)
+			.generatesDefineData("""
 				DEFINE DATA
 				GLOBAL
 				1 #G-GLOBAL (A10)
@@ -86,8 +85,8 @@ class DefineDataGeneratorShould
 		var group = context.addVariable(VariableScope.LOCAL, "#GRP", VariableType.group());
 		group.addVariable("#VAR", VariableType.integer(4));
 
-		assertThat(sut.generate(context))
-			.isEqualToIgnoringNewLines("""
+		assertOn(context)
+			.generatesDefineData("""
 				DEFINE DATA
 				LOCAL
 				1 #GRP
@@ -105,8 +104,8 @@ class DefineDataGeneratorShould
 		var theScope = VariableScope.valueOf(scope);
 		context.addUsing(theScope, "MYUSING");
 
-		assertThat(sut.generate(context))
-			.isEqualToIgnoringNewLines("""
+		assertOn(context)
+			.generatesDefineData("""
 				DEFINE DATA
 				%s USING MYUSING
 				END-DEFINE""".formatted(scope));
@@ -119,8 +118,8 @@ class DefineDataGeneratorShould
 		context.addUsing(VariableScope.PARAMETER, "PDA");
 		context.addUsing(VariableScope.GLOBAL, "GDA");
 
-		assertThat(sut.generate(context))
-			.isEqualToIgnoringNewLines(
+		assertOn(context)
+			.generatesDefineData(
 				"""
 				DEFINE DATA
 				GLOBAL USING GDA
@@ -141,8 +140,8 @@ class DefineDataGeneratorShould
 		context.addVariable(VariableScope.GLOBAL, "#GLBL", VariableType.alphanumeric(7));
 		context.addVariable(VariableScope.INDEPENDENT, "+INDE", VariableType.alphanumeric(2));
 
-		assertThat(sut.generate(context))
-			.isEqualToIgnoringNewLines(
+		assertOn(context)
+			.generatesDefineData(
 				"""
 				DEFINE DATA
 				GLOBAL USING GDA
@@ -168,8 +167,8 @@ class DefineDataGeneratorShould
 		context.addUsing(VariableScope.LOCAL, "HHH");
 		context.addUsing(VariableScope.LOCAL, "AA01");
 
-		assertThat(sut.generate(context))
-			.isEqualToIgnoringNewLines("""
+		assertOn(context)
+			.generatesDefineData("""
 				DEFINE DATA
 				LOCAL USING ZZZ
 				LOCAL USING AAA
@@ -188,8 +187,8 @@ class DefineDataGeneratorShould
 		context.addVariable(VariableScope.PARAMETER, "#PARM2", VariableType.control());
 		context.addUsing(VariableScope.PARAMETER, "MYPDA2");
 
-		assertThat(sut.generate(context))
-			.isEqualToIgnoringNewLines("""
+		assertOn(context)
+			.generatesDefineData("""
 				DEFINE DATA
 				PARAMETER
 				1 #P-GROUP
@@ -207,6 +206,7 @@ class DefineDataGeneratorShould
 	void generateASingleVariable()
 	{
 		var variable = new Variable(1, VariableScope.LOCAL, "#MYVAR", VariableType.alphanumericDynamic());
+		var sut = new DefineDataGenerator();
 		assertThat(sut.generateVariableDeclarationWithoutScope(variable))
 			.isEqualToIgnoringNewLines("1 #MYVAR (A) DYNAMIC");
 	}
@@ -215,6 +215,7 @@ class DefineDataGeneratorShould
 	void generateASingleConstant()
 	{
 		var variable = new Variable(1, VariableScope.LOCAL, "#MYVAR", VariableType.alphanumericDynamic());
+		var sut = new DefineDataGenerator();
 
 		variable.withConstantValue("'Hello'");
 
@@ -234,8 +235,8 @@ class DefineDataGeneratorShould
 			.withMember("#HALF-A", VariableType.alphanumeric(10))
 			.withMember("#HALF-N", VariableType.numeric(10));
 
-		assertThat(sut.generate(context))
-			.isEqualToIgnoringNewLines("""
+		assertOn(context)
+			.generatesDefineData("""
 				DEFINE DATA
 				LOCAL
 				1 #TO-REDEFINE (N20)
@@ -246,7 +247,7 @@ class DefineDataGeneratorShould
 	}
 
 	@Test
-	void beAbleToRedefineAVariableMultipleTImes()
+	void beAbleToRedefineAVariableMultipleTimes()
 	{
 		var variable = new Variable(1, VariableScope.LOCAL, "#TO-REDEFINE", VariableType.numeric(20));
 
@@ -259,8 +260,8 @@ class DefineDataGeneratorShould
 			.newRedefine()
 			.withMember("#HALF-N", VariableType.numeric(10));
 
-		assertThat(sut.generate(context))
-			.isEqualToIgnoringNewLines("""
+		assertOn(context)
+			.generatesDefineData("""
 				DEFINE DATA
 				LOCAL
 				1 #TO-REDEFINE (N20)
@@ -268,6 +269,51 @@ class DefineDataGeneratorShould
 				  2 #HALF-A (A10)
 				1 REDEFINE #TO-REDEFINE
 				  2 #HALF-N (N10)
+				END-DEFINE""");
+	}
+
+	@Test
+	void beAbleToGenerateArrays()
+	{
+		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.integer(4).withDimension(Dimension.upperUnbound()));
+		context.addVariable(variable);
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 #ARR (I4/1:*)
+				END-DEFINE""");
+	}
+
+	@Test
+	void beAbleToGenerateGroupArrays()
+	{
+		var group = new Variable(1, VariableScope.LOCAL, "#GRP", VariableType.group().withDimension(Dimension.upperUnbound()));
+
+		group.addVariable("#SUB1", VariableType.alphanumericDynamic());
+		group.addVariable("#SUB2", VariableType.logical());
+
+		context.addVariable(group);
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 #GRP (1:*)
+				  2 #SUB1 (A) DYNAMIC
+				  2 #SUB2 (L)
+				END-DEFINE""");
+	}
+
+	@Test
+	void beAbleToGenerateMultiDimensionArrays()
+	{
+		var arr = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.logical().withDimension(new Dimension(1, 10)).withDimension(new Dimension(15, 20)));
+		context.addVariable(arr);
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 #ARR (L/1:10, 15:20)
 				END-DEFINE""");
 	}
 }
