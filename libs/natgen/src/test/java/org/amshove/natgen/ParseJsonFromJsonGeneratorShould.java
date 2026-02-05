@@ -231,4 +231,84 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				  END-DECIDE
 				END-PARSE""");
 	}
+
+	@Test
+	void disambiguatePropertyNames()
+	{
+		var context = sut.generate("{ \"employee\": { \"name\": \"Heinz\" }, \"boss\": { \"name\": \"Bossman\" } }");
+
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 ##JSON-PARSING
+				  2 #PATH (A) DYNAMIC
+				  2 #VALUE (A) DYNAMIC
+				  2 #ERR-CODE (I4)
+				  2 #ERR-SUBCODE (I4)
+				1 ##PARSED-JSON
+				  2 #EMPLOYEE
+				    3 #NAME (A) DYNAMIC
+				  2 #BOSS
+				    3 ##NAME (A) DYNAMIC
+				1 #JSON-SOURCE (A) DYNAMIC
+				END-DEFINE
+				""")
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</employee/</name/$'
+				      ##PARSED-JSON.#NAME := ##JSON-PARSING.#VALUE
+				    VALUE '</boss/</name/$'
+				      ##PARSED-JSON.##NAME := ##JSON-PARSING.#VALUE
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE""");
+	}
+
+	@Test
+	void disambiguateSizeVariableNames()
+	{
+		var context = sut.generate("{ \"obj1\": { \"numbers\": [1, 2, 3] }, \"obj2\": { \"numbers\": [4, 5,6] } }");
+
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 ##JSON-PARSING
+				  2 #PATH (A) DYNAMIC
+				  2 #VALUE (A) DYNAMIC
+				  2 #ERR-CODE (I4)
+				  2 #ERR-SUBCODE (I4)
+				  2 #S-#NUMBERS (I4)
+				  2 #S-##NUMBERS (I4)
+				1 ##PARSED-JSON
+				  2 #OBJ1
+				    3 #NUMBERS (N12,7/1:*)
+				  2 #OBJ2
+				    3 ##NUMBERS (N12,7/1:*)
+				1 #JSON-SOURCE (A) DYNAMIC
+				END-DEFINE
+				""")
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</obj1/</numbers/(/$'
+				      ADD 1 TO ##JSON-PARSING.#S-#NUMBERS
+				      EXPAND ARRAY ##PARSED-JSON.#NUMBERS TO (1:##JSON-PARSING.#S-#NUMBERS)
+				      ##PARSED-JSON.#NUMBERS(#S-#NUMBERS) := VAL(##JSON-PARSING.#VALUE)
+				    VALUE '</obj2/</numbers/(/$'
+				      ADD 1 TO ##JSON-PARSING.#S-##NUMBERS
+				      EXPAND ARRAY ##PARSED-JSON.##NUMBERS TO (1:##JSON-PARSING.#S-##NUMBERS)
+				      ##PARSED-JSON.##NUMBERS(#S-##NUMBERS) := VAL(##JSON-PARSING.#VALUE)
+				    VALUE '</obj2/>'
+				      RESET ##JSON-PARSING.#S-##NUMBERS
+				    VALUE '</obj1/>'
+				      RESET ##JSON-PARSING.#S-#NUMBERS
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE""");
+	}
 }

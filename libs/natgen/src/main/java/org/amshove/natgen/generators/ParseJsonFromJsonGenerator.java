@@ -13,7 +13,11 @@ import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
@@ -23,7 +27,6 @@ public class ParseJsonFromJsonGenerator
 	private static final String START_OBJECT = "<";
 	private static final String END_OBJECT = ">";
 	private static final String START_ARRAY = "(";
-	//	private static final String END_ARRAY = ")";
 	private static final String PARSED_DATA = "$";
 	private Variable jsonParsingGroup;
 	private Variable jsonPath;
@@ -253,7 +256,12 @@ public class ParseJsonFromJsonGenerator
 				throw new IllegalStateException("Can't create variable if it does not target a json element");
 			}
 			var type = inferJsonType(property);
-			return parentVariable.addVariable("#" + propertyName.toUpperCase(Locale.ROOT), type);
+			var variableName = "#" + propertyName.toUpperCase(Locale.ROOT);
+			while (variableNameIsTaken(variableName))
+			{
+				variableName = "#" + variableName;
+			}
+			return parentVariable.addVariable(variableName, type);
 		});
 	}
 
@@ -307,5 +315,11 @@ public class ParseJsonFromJsonGenerator
 
 		// TODO: What do we do as fallback? Throw?
 		return VariableType.control();
+	}
+
+	private boolean variableNameIsTaken(String plannedName)
+	{
+		return Stream.concat(variablesByJsonPath.values().stream(), arraySizeVariablesByArray.values().stream())
+			.anyMatch(v -> v.name().equals(plannedName));
 	}
 }
