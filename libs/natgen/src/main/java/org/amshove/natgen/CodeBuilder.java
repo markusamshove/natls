@@ -6,7 +6,6 @@ import org.amshove.natgen.generatable.IGeneratableStatement;
 /// Formatting aware builder for Natural code
 public final class CodeBuilder
 {
-	// TODO(formatter): These will be configurable
 	private static final int MAX_LINE_LENGTH = 80;
 	private static final String INDENTATION = "  ";
 
