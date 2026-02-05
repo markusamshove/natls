@@ -33,6 +33,8 @@ public class ParseJsonFromJsonGenerator
 	private final Map<String, Variable> variablesByJsonPath = new HashMap<>();
 	private final Map<Variable, Variable> arraySizeVariablesByArray = new HashMap<>();
 
+	/// Creates a [CodeGenerationContext] which contains all variables and a single `PARSE JSON`
+	/// statement to parse the given given.
 	public CodeGenerationContext generate(String json)
 	{
 		var gson = new Gson();
