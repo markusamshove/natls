@@ -261,12 +261,12 @@ public class ParseJsonFromJsonGenerator
 				throw new IllegalStateException("Can't create variable if it does not target a json element");
 			}
 			var type = inferJsonType(property);
-			var variableName = "#" + propertyName.toUpperCase(Locale.ROOT);
-			while (variableNameIsTaken(variableName))
+			var variableName = new StringBuilder("#" + propertyName.toUpperCase(Locale.ROOT));
+			while (variableNameIsTaken(variableName.toString()))
 			{
-				variableName = "#" + variableName;
+				variableName.insert(0, "#");
 			}
-			return parentVariable.addVariable(variableName, type);
+			return parentVariable.addVariable(variableName.toString(), type);
 		});
 	}
 
