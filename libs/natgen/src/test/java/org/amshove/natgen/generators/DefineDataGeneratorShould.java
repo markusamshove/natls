@@ -1,5 +1,9 @@
-package org.amshove.natgen;
+package org.amshove.natgen.generators;
 
+import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.CodeGenerationTest;
+import org.amshove.natgen.Dimension;
+import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;

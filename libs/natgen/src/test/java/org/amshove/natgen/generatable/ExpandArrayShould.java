@@ -1,7 +1,6 @@
-package org.amshove.natgen;
+package org.amshove.natgen.generatable;
 
-import org.amshove.natgen.generatable.IGeneratable;
-import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natgen.CodeGenerationTest;
 import org.junit.jupiter.api.Test;
 
 class ExpandArrayShould extends CodeGenerationTest

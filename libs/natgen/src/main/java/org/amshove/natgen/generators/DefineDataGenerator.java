@@ -1,5 +1,7 @@
-package org.amshove.natgen;
+package org.amshove.natgen.generators;
 
+import org.amshove.natgen.CodeBuilder;
+import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.generatable.definedata.IGeneratableDefineDataElement;
 import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natgen.generatable.definedata.Variable;

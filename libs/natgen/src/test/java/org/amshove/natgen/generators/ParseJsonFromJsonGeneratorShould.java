@@ -1,6 +1,8 @@
-package org.amshove.natgen;
+package org.amshove.natgen.generators;
 
-import org.amshove.natgen.generators.ParseJsonFromJsonGenerator;
+import org.amshove.natgen.CodeGenerationTest;
+import org.amshove.natgen.Dimension;
+import org.amshove.natgen.VariableType;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;
 
@@ -92,7 +94,11 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 		var context = sut.generate("{ \"names\": [ \"natls\", \"natparse\" ] }");
 		assertOn(context)
 			.hasVariable(2, "##JSON-PARSING.#S-#NAMES", VariableScope.LOCAL, VariableType.integer(4))
-			.hasVariable(2, "##PARSED-JSON.#NAMES", VariableScope.LOCAL, VariableType.alphanumericDynamic().withDimension(Dimension.upperUnbound()))
+			.hasVariable(
+				2, "##PARSED-JSON.#NAMES", VariableScope.LOCAL, VariableType.alphanumericDynamic().withDimension(
+					Dimension.upperUnbound()
+				)
+			)
 			.generatesStatements("""
 				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH

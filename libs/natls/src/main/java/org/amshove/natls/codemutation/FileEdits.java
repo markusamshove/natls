@@ -2,7 +2,7 @@ package org.amshove.natls.codemutation;
 
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
-import org.amshove.natgen.DefineDataGenerator;
+import org.amshove.natgen.generators.DefineDataGenerator;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.definedata.Using;

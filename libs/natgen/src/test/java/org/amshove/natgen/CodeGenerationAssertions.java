@@ -1,6 +1,7 @@
 package org.amshove.natgen;
 
 import org.amshove.natgen.generatable.definedata.Variable;
+import org.amshove.natgen.generators.DefineDataGenerator;
 import org.amshove.natparse.natural.VariableScope;
 
 import java.util.stream.Stream;
