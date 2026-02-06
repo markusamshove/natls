@@ -164,8 +164,8 @@ public class NaturalCode implements IGeneratable
 		}
 	}
 
-    public static IGeneratableStatement perform(Subroutine subroutine)
-    {
+	public static IGeneratableStatement perform(Subroutine subroutine)
+	{
 		return new GeneratableStatement("PERFORM %s".formatted(subroutine.name()));
-    }
+	}
 }

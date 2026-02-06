@@ -127,4 +127,63 @@ class ModuleGeneratorShould
 				END
 				""");
 	}
+
+	@Test
+	void generateAFunctionWithReturnType()
+	{
+		var parameter = context.addParameter("#P-NAME", VariableType.alphanumericDynamic());
+		var returnType = VariableType.alphanumericDynamic();
+
+		context.addStatement(NaturalCode.assignment(NaturalCode.plain("EMPTYA"), NaturalCode.stringLiteral(" ")));
+		context.addStatement(NaturalCode.assignment(parameter, NaturalCode.stringLiteral(" ")));
+
+		assertThat(sut.generateFunction(context, "EMPTYA", returnType))
+			.isEqualTo("""
+				/* >Natural Source Header 000000
+				/* :Mode S
+				/* :CP
+				/* <Natural Source Header
+				DEFINE FUNCTION EMPTYA
+				  RETURNS (A) DYNAMIC
+
+				DEFINE DATA
+				PARAMETER
+				1 #P-NAME (A) DYNAMIC
+				END-DEFINE
+
+				EMPTYA := ' '
+				#P-NAME := ' '
+
+				END-FUNCTION
+				END
+				""");
+	}
+
+	@Test
+	void generateAFunctionWithoutAReturnType()
+	{
+		var parameter = context.addParameter("#P-NAME", VariableType.alphanumericDynamic());
+
+		context.addStatement(NaturalCode.assignment(parameter, NaturalCode.stringLiteral(" ")));
+
+		assertThat(sut.generateFunction(context, "EMPTYA", null))
+			.isEqualToIgnoringNewLines("""
+				/* >Natural Source Header 000000
+				/* :Mode S
+				/* :CP
+				/* <Natural Source Header
+				DEFINE FUNCTION EMPTYA
+
+				DEFINE DATA
+				PARAMETER
+				1 #P-NAME (A) DYNAMIC
+				END-DEFINE
+
+				#P-NAME := ' '
+
+				END-FUNCTION
+				END
+				""");
+	}
+
 }
