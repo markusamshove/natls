@@ -163,4 +163,9 @@ public class NaturalCode implements IGeneratable
 			builder.append(plainCode);
 		}
 	}
+
+    public static IGeneratableStatement perform(Subroutine subroutine)
+    {
+		return new GeneratableStatement("PERFORM %s".formatted(subroutine.name()));
+    }
 }
