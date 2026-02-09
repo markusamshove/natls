@@ -3,6 +3,7 @@ package org.amshove.natgen.generators;
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.Subroutine;
 import org.amshove.natparse.natural.VariableScope;
 import org.amshove.natparse.natural.project.NaturalFileType;
 import org.jspecify.annotations.Nullable;
@@ -78,7 +79,7 @@ public class ModuleGenerator
 		var defineDataGenerator = new DefineDataGenerator();
 		var codeBuilder = new CodeBuilder();
 		codeBuilder
-			.appendLine("DEFINE DATA ").append(scope.name());
+			.append("DEFINE DATA ").appendLine(scope.name());
 		appendSourceHeader(codeBuilder);
 		for (var variable : context.variables())
 		{
@@ -105,6 +106,14 @@ public class ModuleGenerator
 		for (var statement : context.statements())
 		{
 			codeBuilder.lineBreak();
+
+			if (statement instanceof Subroutine)
+			{
+				// Separate a subroutine declaration from
+				// other statements to make it more visible
+				codeBuilder.lineBreak();
+			}
+
 			statement.generateInto(codeBuilder);
 		}
 	}

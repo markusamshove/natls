@@ -36,7 +36,7 @@ class ModuleGeneratorShould
 			.addVariable("SUB", VariableType.alphanumericDynamic());
 
 		assertThat(sut.generate(context, fileType))
-			.isEqualToIgnoringNewLines("""
+			.isEqualTo("""
 				DEFINE DATA %s
 				/* >Natural Source Header 000000
 				/* :Mode S
@@ -69,7 +69,7 @@ class ModuleGeneratorShould
 		context.addStatement(NaturalCode.ignore());
 
 		assertThat(sut.generate(context, naturalFileType))
-			.isEqualToIgnoringNewLines("""
+			.isEqualTo("""
 				/* >Natural Source Header 000000
 				/* :Mode S
 				/* :CP
@@ -82,7 +82,6 @@ class ModuleGeneratorShould
 				END-DEFINE
 
 				IGNORE
-
 				END
 				""");
 	}
@@ -102,7 +101,7 @@ class ModuleGeneratorShould
 		context.addStatement(subroutine);
 
 		assertThat(sut.generate(context, NaturalFileType.PROGRAM))
-			.isEqualToIgnoringNewLines("""
+			.isEqualTo("""
 				/* >Natural Source Header 000000
 				/* :Mode S
 				/* :CP
@@ -167,7 +166,7 @@ class ModuleGeneratorShould
 		context.addStatement(NaturalCode.assignment(parameter, NaturalCode.stringLiteral(" ")));
 
 		assertThat(sut.generateFunction(context, "EMPTYA", null))
-			.isEqualToIgnoringNewLines("""
+			.isEqualTo("""
 				/* >Natural Source Header 000000
 				/* :Mode S
 				/* :CP
