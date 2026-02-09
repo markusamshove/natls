@@ -20,6 +20,7 @@ public class ModuleGenerator
 			case LDA -> generateDataArea(context, VariableScope.LOCAL);
 			case PDA -> generateDataArea(context, VariableScope.PARAMETER);
 			case GDA -> generateDataArea(context, VariableScope.GLOBAL);
+			case COPYCODE -> generateCopyCode(context);
 			case SUBPROGRAM, PROGRAM -> generateProgram(context);
 			case FUNCTION -> throw new UnsupportedOperationException("Can't generate functions through invocation of ModuleGenerator::generate. Use ModuleGenerator::generateFunction instead.");
 			case SUBROUTINE -> throw new UnsupportedOperationException("Can't generate subroutines through invocation of ModuleGenerator::generate. Use ModuleGenerator::generateSubroutine instead.");
@@ -79,6 +80,16 @@ public class ModuleGenerator
 			.lineBreak()
 			.appendLine("END-FUNCTION")
 			.appendLine("END");
+
+		return codeBuilder.toString();
+	}
+
+	private String generateCopyCode(CodeGenerationContext context)
+	{
+		var codeBuilder = new CodeBuilder();
+
+		appendSourceHeader(codeBuilder);
+		appendStatements(context, codeBuilder);
 
 		return codeBuilder.toString();
 	}

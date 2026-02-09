@@ -258,4 +258,32 @@ class ModuleGeneratorShould
 				""");
 	}
 
+	@Test
+	void generateACopyCode()
+	{
+		context.addStatement(NaturalCode.plainStatement("WRITE 'Hello World'"));
+		assertThat(sut.generate(context, NaturalFileType.COPYCODE))
+			.isEqualToNormalizingNewlines("""
+				/* >Natural Source Header 000000
+				/* :Mode S
+				/* :CP
+				/* <Natural Source Header
+				
+				WRITE 'Hello World'""");
+	}
+
+	@Test
+	void notGenerateADefineDataInCopyCodes()
+	{
+		var variable = context.addVariable(VariableScope.LOCAL, "#VAR", VariableType.alphanumericDynamic());
+		context.addStatement(NaturalCode.assignment(variable, NaturalCode.stringLiteral("Test")));
+		assertThat(sut.generate(context, NaturalFileType.COPYCODE))
+			.isEqualToNormalizingNewlines("""
+				/* >Natural Source Header 000000
+				/* :Mode S
+				/* :CP
+				/* <Natural Source Header
+				
+				#VAR := 'Test'""");
+	}
 }
