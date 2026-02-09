@@ -3,6 +3,7 @@ package org.amshove.natgen.generators;
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.Subroutine;
 import org.amshove.natparse.natural.VariableScope;
 import org.amshove.natparse.natural.project.NaturalFileType;
@@ -21,8 +22,34 @@ public class ModuleGenerator
 			case GDA -> generateDataArea(context, VariableScope.GLOBAL);
 			case SUBPROGRAM, PROGRAM -> generateProgram(context);
 			case FUNCTION -> throw new UnsupportedOperationException("Can't generate functions through invocation of ModuleGenerator::generate. Use ModuleGenerator::generateFunction instead.");
+			case SUBROUTINE -> throw new UnsupportedOperationException("Can't generate subroutines through invocation of ModuleGenerator::generate. Use ModuleGenerator::generateSubroutine instead.");
 			default -> throw new UnsupportedOperationException("Module generation for " + type + " is not supported yet.");
 		};
+	}
+
+	/// Generate the [CodeGenerationContext] into a Natural subroutine.
+	/// Natural Source Header will be included
+	public String generateSubroutine(CodeGenerationContext context, String name)
+	{
+		var codeBuilder = new CodeBuilder();
+		var defineDataGenerator = new DefineDataGenerator();
+
+		appendSourceHeader(codeBuilder);
+		codeBuilder.appendLine(defineDataGenerator.generate(context));
+
+		codeBuilder.lineBreak();
+		var outerSubroutine = NaturalCode.subroutine(name);
+
+		for (var statement : context.statements())
+		{
+			outerSubroutine.addToBody(statement);
+		}
+
+		outerSubroutine.generateInto(codeBuilder);
+
+		codeBuilder.appendLine("END");
+
+		return codeBuilder.toString();
 	}
 
 	/// Generate the [CodeGenerationContext] into a Natural function.

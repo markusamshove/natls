@@ -185,4 +185,77 @@ class ModuleGeneratorShould
 				""");
 	}
 
+	@Test
+	void generateAnExternalSubroutine()
+	{
+		var parameter = context.addParameter("#P-NAME", VariableType.alphanumericDynamic());
+
+		context.addStatement(NaturalCode.assignment(parameter, NaturalCode.stringLiteral(" ")));
+		context.addUsing(VariableScope.LOCAL, "LALDA");
+
+		assertThat(sut.generateSubroutine(context, "LA-SUBROUTINA"))
+			.isEqualToNormalizingNewlines("""
+				/* >Natural Source Header 000000
+				/* :Mode S
+				/* :CP
+				/* <Natural Source Header
+				DEFINE DATA
+				PARAMETER
+				1 #P-NAME (A) DYNAMIC
+				LOCAL USING LALDA
+				END-DEFINE
+				
+				/***********************************************************************
+				DEFINE SUBROUTINE LA-SUBROUTINA
+				/***********************************************************************
+
+				#P-NAME := ' '
+
+				END-SUBROUTINE
+				END
+				""");
+	}
+
+	@Test
+	void generateAnExternalSubroutineWithNestedSubroutines()
+	{
+		var parameter = context.addParameter("#P-NAME", VariableType.alphanumericDynamic());
+
+		var nested = NaturalCode.subroutine("NESTED-SUBROUTINE");
+		nested.addToBody(NaturalCode.assignment(parameter, NaturalCode.stringLiteral(" ")));
+
+		context.addStatement(NaturalCode.perform(nested));
+		context.addStatement(nested);
+
+		assertThat(sut.generateSubroutine(context, "LA-SUBROUTINA"))
+			.isEqualToNormalizingNewlines("""
+				/* >Natural Source Header 000000
+				/* :Mode S
+				/* :CP
+				/* <Natural Source Header
+				DEFINE DATA
+				PARAMETER
+				1 #P-NAME (A) DYNAMIC
+				END-DEFINE
+				
+				/***********************************************************************
+				DEFINE SUBROUTINE LA-SUBROUTINA
+				/***********************************************************************
+				
+				PERFORM NESTED-SUBROUTINE
+
+				/***********************************************************************
+				DEFINE SUBROUTINE NESTED-SUBROUTINE
+				/***********************************************************************
+
+				#P-NAME := ' '
+
+				END-SUBROUTINE
+
+
+				END-SUBROUTINE
+				END
+				""");
+	}
+
 }
