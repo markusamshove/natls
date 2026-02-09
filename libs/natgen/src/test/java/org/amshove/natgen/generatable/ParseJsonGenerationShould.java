@@ -1,6 +1,7 @@
-package org.amshove.natgen;
+package org.amshove.natgen.generatable;
 
-import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natgen.CodeGenerationTest;
+import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;

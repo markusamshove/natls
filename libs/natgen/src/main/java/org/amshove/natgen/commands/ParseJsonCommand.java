@@ -1,7 +1,7 @@
 package org.amshove.natgen.commands;
 
 import org.amshove.natgen.CodeBuilder;
-import org.amshove.natgen.DefineDataGenerator;
+import org.amshove.natgen.generators.DefineDataGenerator;
 import org.amshove.natgen.generators.ParseJsonFromJsonGenerator;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;

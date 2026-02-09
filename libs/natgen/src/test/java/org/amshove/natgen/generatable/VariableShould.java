@@ -1,6 +1,7 @@
-package org.amshove.natgen;
+package org.amshove.natgen.generatable;
 
-import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natgen.Dimension;
+import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,11 @@ class VariableShould
 	@Test
 	void generateAnArrayAccessWithOneDimension()
 	{
-		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.alphanumericDynamic().withDimension(Dimension.upperUnbound()));
+		var variable = new Variable(
+			1, VariableScope.LOCAL, "#ARR", VariableType.alphanumericDynamic().withDimension(
+				Dimension.upperUnbound()
+			)
+		);
 		assertThat(variable.arrayAccess(NaturalCode.plain("1")).generate())
 			.isEqualTo("#ARR(1)");
 	}

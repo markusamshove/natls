@@ -2,7 +2,7 @@ package org.amshove.natgen.generatable;
 
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
-import org.amshove.natgen.DefineDataGenerator;
+import org.amshove.natgen.generators.DefineDataGenerator;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn.DecideOnValueCheck;
 import org.jspecify.annotations.NullMarked;
@@ -162,5 +162,10 @@ public class NaturalCode implements IGeneratable
 		{
 			builder.append(plainCode);
 		}
+	}
+
+	public static IGeneratableStatement perform(Subroutine subroutine)
+	{
+		return new GeneratableStatement("PERFORM %s".formatted(subroutine.name()));
 	}
 }

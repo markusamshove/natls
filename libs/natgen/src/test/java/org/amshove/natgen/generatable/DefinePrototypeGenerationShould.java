@@ -1,6 +1,7 @@
-package org.amshove.natgen;
+package org.amshove.natgen.generatable;
 
-import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.VariableType;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,7 @@ class DefinePrototypeGenerationShould
 		assertThat(
 			NaturalCode.definePrototype(NaturalCode.plain("FUNC"), null, context)
 				.generate()
-		).isEqualToIgnoringNewLines("""
+		).isEqualToNormalizingNewlines("""
 			DEFINE PROTOTYPE FUNC
 			END-PROTOTYPE""");
 	}
@@ -27,7 +28,7 @@ class DefinePrototypeGenerationShould
 		assertThat(
 			NaturalCode.definePrototype(NaturalCode.plain("FUNC"), VariableType.logical(), context)
 				.generate()
-		).isEqualToIgnoringNewLines("""
+		).isEqualToNormalizingNewlines("""
 			DEFINE PROTOTYPE FUNC RETURNS (L)
 			END-PROTOTYPE""");
 	}
@@ -41,7 +42,7 @@ class DefinePrototypeGenerationShould
 		assertThat(
 			NaturalCode.definePrototype(NaturalCode.plain("FUNC"), VariableType.logical(), context)
 				.generate()
-		).isEqualToIgnoringNewLines("""
+		).isEqualToNormalizingNewlines("""
 			DEFINE PROTOTYPE FUNC RETURNS (L)
 			DEFINE DATA
 			PARAMETER

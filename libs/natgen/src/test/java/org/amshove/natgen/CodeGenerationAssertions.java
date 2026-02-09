@@ -1,6 +1,7 @@
 package org.amshove.natgen;
 
 import org.amshove.natgen.generatable.definedata.Variable;
+import org.amshove.natgen.generators.DefineDataGenerator;
 import org.amshove.natparse.natural.VariableScope;
 
 import java.util.stream.Stream;
@@ -49,7 +50,7 @@ public class CodeGenerationAssertions
 			statement.generateInto(builder);
 		}
 		assertThat(builder.toString())
-			.isEqualToIgnoringNewLines(expectedSource);
+			.isEqualToNormalizingNewlines(expectedSource);
 		return this;
 	}
 
@@ -57,7 +58,7 @@ public class CodeGenerationAssertions
 	{
 		var defineData = new DefineDataGenerator().generate(context);
 		assertThat(defineData)
-			.isEqualToIgnoringNewLines(expected);
+			.isEqualToNormalizingNewlines(expected);
 
 		return this;
 	}

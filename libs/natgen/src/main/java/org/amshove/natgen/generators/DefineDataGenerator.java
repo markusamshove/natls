@@ -1,5 +1,7 @@
-package org.amshove.natgen;
+package org.amshove.natgen.generators;
 
+import org.amshove.natgen.CodeBuilder;
+import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.generatable.definedata.IGeneratableDefineDataElement;
 import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natgen.generatable.definedata.Variable;
@@ -28,6 +30,14 @@ public class DefineDataGenerator
 	public String generateVariables(CodeGenerationContext context)
 	{
 		var code = new CodeBuilder();
+		generateVariables(context, code);
+		return code.toString();
+	}
+
+	/// Generates all variables from [CodeGenerationContext]
+	/// into the given [CodeBuilder].
+	public void generateVariables(CodeGenerationContext context, CodeBuilder code)
+	{
 		var groupedByScope = context.variables().stream().collect(Collectors.groupingBy(Variable::scope));
 
 		generateUsings(code, VariableScope.GLOBAL, context.usings());
@@ -39,8 +49,6 @@ public class DefineDataGenerator
 		generateScoped(code, VariableScope.LOCAL, groupedByScope);
 
 		generateScoped(code, VariableScope.INDEPENDENT, groupedByScope);
-
-		return code.toString();
 	}
 
 	/// Generates the declaration of a variable without the scope token but

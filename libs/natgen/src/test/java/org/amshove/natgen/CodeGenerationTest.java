@@ -13,7 +13,7 @@ public abstract class CodeGenerationTest
 	{
 		statement.generateInto(codeBuilder);
 		assertThat(codeBuilder.toString())
-			.isEqualToIgnoringNewLines(expected);
+			.isEqualToNormalizingNewlines(expected);
 	}
 
 	protected void assertGenerated(IGeneratable generatable, String expected)

@@ -47,6 +47,12 @@ class GeneratableWithBody<T extends IGeneratableStatement>
 		{
 			for (var bodyPart : bodyParts)
 			{
+				if (bodyPart instanceof Subroutine)
+				{
+					// Separate a subroutine declaration from
+					// other statements to make it more visible
+					builder.lineBreak();
+				}
 				bodyPart.generateInto(builder);
 				builder.lineBreak();
 			}
