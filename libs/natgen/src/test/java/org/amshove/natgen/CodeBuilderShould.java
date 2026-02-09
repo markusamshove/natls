@@ -93,6 +93,6 @@ class CodeBuilderShould
 
 	private void assertGenerated(String expected)
 	{
-		assertThat(sut.toString()).isEqualToIgnoringNewLines(expected);
+		assertThat(sut.toString()).isEqualToNormalizingNewlines(expected);
 	}
 }

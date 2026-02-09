@@ -212,7 +212,7 @@ class DefineDataGeneratorShould extends CodeGenerationTest
 		var variable = new Variable(1, VariableScope.LOCAL, "#MYVAR", VariableType.alphanumericDynamic());
 		var sut = new DefineDataGenerator();
 		assertThat(sut.generateVariableDeclarationWithoutScope(variable))
-			.isEqualToIgnoringNewLines("1 #MYVAR (A) DYNAMIC");
+			.isEqualToNormalizingNewlines("1 #MYVAR (A) DYNAMIC");
 	}
 
 	@Test
@@ -224,7 +224,7 @@ class DefineDataGeneratorShould extends CodeGenerationTest
 		variable.withConstantValue("'Hello'");
 
 		assertThat(sut.generateVariableDeclarationWithoutScope(variable))
-			.isEqualToIgnoringNewLines("1 #MYVAR (A) DYNAMIC CONST<'Hello'>");
+			.isEqualToNormalizingNewlines("1 #MYVAR (A) DYNAMIC CONST<'Hello'>");
 	}
 
 	@Test

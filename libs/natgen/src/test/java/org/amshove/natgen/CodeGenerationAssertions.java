@@ -50,7 +50,7 @@ public class CodeGenerationAssertions
 			statement.generateInto(builder);
 		}
 		assertThat(builder.toString())
-			.isEqualToIgnoringNewLines(expectedSource);
+			.isEqualToNormalizingNewlines(expectedSource);
 		return this;
 	}
 
@@ -58,7 +58,7 @@ public class CodeGenerationAssertions
 	{
 		var defineData = new DefineDataGenerator().generate(context);
 		assertThat(defineData)
-			.isEqualToIgnoringNewLines(expected);
+			.isEqualToNormalizingNewlines(expected);
 
 		return this;
 	}
