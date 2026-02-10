@@ -14,7 +14,7 @@ dependencies {
 tasks.register('fatJar', Jar) {
     manifest {
         attributes(
-                'Main-Class': 'org.amshove.natls.App',
+                'Main-Class': 'org.amshove.natls.NatLs',
                 'Implementation-Title': project.name,
                 'Implementation-Version': project.version
         )
@@ -33,7 +33,7 @@ configurations.testImplementation {
 jar {
     manifest {
         attributes(
-            'Main-Class': 'org.amshove.natls.App',
+            'Main-Class': 'org.amshove.natls.NatLs',
             'Implementation-Title': project.name,
             'Implementation-Version': project.version
         )

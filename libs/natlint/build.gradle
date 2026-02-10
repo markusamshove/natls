@@ -14,7 +14,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-            'Main-Class': 'org.amshove.natlint.App',
+            'Main-Class': 'org.amshove.natlint.NatLint',
             'Implementation-Title': project.name,
             'Implementation-Version': project.version
         )
@@ -24,7 +24,7 @@ jar {
 tasks.register('fatJar', Jar) {
     manifest {
         attributes(
-                'Main-Class': 'org.amshove.natlint.App',
+                'Main-Class': 'org.amshove.natlint.NatLint',
                 'Implementation-Title': project.name,
                 'Implementation-Version': project.version
         )
