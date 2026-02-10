@@ -46,7 +46,7 @@ public class ParseJsonCommand implements Callable<Integer>
 	public Integer call() throws Exception
 	{
 		output.info("/*********");
-		output.info("Generating code for %s".formatted(jsonFile));
+		output.info("Generating code for %s", jsonFile);
 		output.info("/*********");
 
 		var generationSettings = new ParseJsonFromJsonGenerator.Settings();
@@ -101,7 +101,7 @@ public class ParseJsonCommand implements Callable<Integer>
 		var code = moduleGenerator.generate(context, NaturalFileType.PDA);
 
 		Files.writeString(filePath, code, StandardCharsets.UTF_8);
-		output.info("  -> Generated %s".formatted(filePath));
+		output.info("  -> Generated %s", filePath);
 	}
 
 	private void printGeneratedCode(CodeGenerationContext context, Path filePath) throws IOException
@@ -122,6 +122,6 @@ public class ParseJsonCommand implements Callable<Integer>
 		var moduleGenerator = new ModuleGenerator();
 		var generatedModule = moduleGenerator.generate(context, NaturalFileType.fromPath(filePath));
 		Files.writeString(filePath, generatedModule, StandardCharsets.UTF_8);
-		output.info("  -> Generated %s".formatted(filePath));
+		output.info("  -> Generated %s", filePath);
 	}
 }
