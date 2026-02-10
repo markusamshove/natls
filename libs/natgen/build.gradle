@@ -6,7 +6,6 @@ dependencies {
     implementation project(':natparse')
     implementation libraries.picocli
     implementation libraries.gson
-implementation 'com.ibm.mq:wmq.jakarta.jmsra:9.4.4.1'
 
     testImplementation project(':testhelpers')
 }
@@ -14,7 +13,7 @@ implementation 'com.ibm.mq:wmq.jakarta.jmsra:9.4.4.1'
 jar {
     manifest {
         attributes(
-            'Main-Class': 'org.amshove.natgen.App',
+            'Main-Class': 'org.amshove.natgen.NatGen',
             'Implementation-Title': project.name,
             'Implementation-Version': project.version
         )
@@ -24,7 +23,7 @@ jar {
 tasks.register('fatJar', Jar) {
     manifest {
         attributes(
-                'Main-Class': 'org.amshove.natgen.App',
+                'Main-Class': 'org.amshove.natgen.NatGen',
                 'Implementation-Title': project.name,
                 'Implementation-Version': project.version
         )

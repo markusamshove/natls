@@ -11,7 +11,7 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-class AppShould
+class NatLintShould
 {
 	@Test
 	void writeTheRulesToAFile(@TempDir Path directory) throws IOException
@@ -19,7 +19,7 @@ class AppShould
 		System.setOut(new PrintStream(new ByteArrayOutputStream())); // ignore stdout
 		var file = directory.resolve("rules.xml");
 		var markdownDirectory = directory.resolve("website");
-		App.main(new String[]
+		RuleTranslator.main(new String[]
 		{
 			file.toString(),
 			markdownDirectory.toString()

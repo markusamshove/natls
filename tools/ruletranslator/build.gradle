@@ -9,7 +9,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'org.amshove.natqube.ruletranslator.App'
+    mainClass = 'org.amshove.natqube.ruletranslator.RuleTranslator'
 }
 
 run {

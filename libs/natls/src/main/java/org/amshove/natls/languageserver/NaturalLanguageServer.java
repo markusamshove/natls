@@ -2,7 +2,7 @@ package org.amshove.natls.languageserver;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.amshove.natls.App;
+import org.amshove.natls.NatLs;
 import org.amshove.natls.codeactions.CodeActionRegistry;
 import org.amshove.natls.config.LSConfiguration;
 import org.amshove.natls.languageserver.constantfinding.FindConstantsParams;
@@ -148,8 +148,8 @@ public class NaturalLanguageServer implements LanguageServer, LanguageClientAwar
 			}
 
 			BackgroundTasks.initialize(client);
-			var lspName = App.class.getPackage().getImplementationTitle();
-			var lspVersion = App.class.getPackage().getImplementationVersion();
+			var lspName = NatLs.class.getPackage().getImplementationTitle();
+			var lspVersion = NatLs.class.getPackage().getImplementationVersion();
 			var initEnd = System.currentTimeMillis();
 			log.info("Initialization done. Took %dms".formatted(initEnd - initStart));
 			return new InitializeResult(capabilities, new ServerInfo(lspName != null ? lspName : "natls", lspVersion != null ? lspVersion : "dev"));

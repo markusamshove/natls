@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-public class App
+public class NatLs
 {
-	private static final String APP_NAME = App.class.getPackage().getImplementationTitle();
-	private static final String APP_VERSION = App.class.getPackage().getImplementationVersion();
+	private static final String APP_NAME = NatLs.class.getPackage().getImplementationTitle();
+	private static final String APP_VERSION = NatLs.class.getPackage().getImplementationVersion();
 
 	public static void main(String[] args) throws IOException
 	{
@@ -20,7 +20,7 @@ public class App
 			return;
 		}
 
-		LogManager.getLogManager().readConfiguration(App.class.getResourceAsStream("/logging.properties"));
+		LogManager.getLogManager().readConfiguration(NatLs.class.getResourceAsStream("/logging.properties"));
 
 		var log = Logger.getAnonymousLogger();
 		log.info(() -> "Starting %s %s".formatted(APP_NAME, APP_VERSION));

@@ -48,6 +48,11 @@ public class CodeGenerationContext
 		return variable;
 	}
 
+	public void removeVariable(Variable variable)
+	{
+		variables.remove(variable);
+	}
+
 	/// Returns all non-parameter scoped Variables added to this context
 	public List<Variable> variables()
 	{

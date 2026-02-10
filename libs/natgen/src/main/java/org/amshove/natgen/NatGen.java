@@ -4,12 +4,18 @@ import org.amshove.natgen.commands.GenerateCommand;
 import org.amshove.natgen.commands.ParseJsonCommand;
 import picocli.CommandLine;
 
-public class App
+public class NatGen
 {
 	static void main(String[] args)
 	{
+		System.exit(new NatGen().run(args));
+	}
+
+	public int run(String... args)
+	{
 		var cli = new CommandLine(new GenerateCommand())
 			.addSubcommand(new ParseJsonCommand());
-		System.exit(cli.execute(args));
+
+		return cli.execute(args);
 	}
 }

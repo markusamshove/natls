@@ -27,14 +27,46 @@ public class ParseJsonFromJsonGenerator
 	private static final String END_OBJECT = ">";
 	private static final String START_ARRAY = "(";
 	private static final String PARSED_DATA = "$";
+	private final Settings settings;
 	private Variable jsonParsingGroup;
 	private Variable jsonValue;
 
 	private final Map<String, Variable> variablesByJsonPath = new HashMap<>();
 	private final Map<Variable, Variable> arraySizeVariablesByArray = new HashMap<>();
 
+	public ParseJsonFromJsonGenerator()
+	{
+		this(new Settings());
+	}
+
+	public ParseJsonFromJsonGenerator(Settings settings)
+	{
+		this.settings = settings;
+	}
+
+	public static class Settings
+	{
+		private String parsedJsonGroupName = "##PARSED-JSON";
+		private VariableScope jsonSourceScope = VariableScope.LOCAL;
+
+		public void setParsedJsonGroupName(String name)
+		{
+			parsedJsonGroupName = name;
+		}
+
+		public String parsedJsonGroupName()
+		{
+			return parsedJsonGroupName;
+		}
+
+		public void setJsonSourceScope(VariableScope jsonSourceScope)
+		{
+			this.jsonSourceScope = jsonSourceScope;
+		}
+	}
+
 	/// Creates a [CodeGenerationContext] which contains all variables and a single `PARSE JSON`
-	/// statement to parse the given given.
+	/// statement to parse the given JSON.
 	public CodeGenerationContext generate(String json)
 	{
 		var gson = new Gson();
@@ -46,9 +78,9 @@ public class ParseJsonFromJsonGenerator
 		jsonValue = jsonParsingGroup.addVariable("#VALUE", VariableType.alphanumericDynamic());
 		var jsonErrCode = jsonParsingGroup.addVariable("#ERR-CODE", VariableType.integer(4));
 		var jsonErrSubcode = jsonParsingGroup.addVariable("#ERR-SUBCODE", VariableType.integer(4));
-		var parsedJsonRoot = context.addVariable(VariableScope.LOCAL, "##PARSED-JSON", VariableType.group());
+		var parsedJsonRoot = context.addVariable(VariableScope.LOCAL, settings.parsedJsonGroupName, VariableType.group());
 
-		var jsonSourceVariable = context.addVariable(VariableScope.LOCAL, "#JSON-SOURCE", VariableType.alphanumericDynamic());
+		var jsonSourceVariable = context.addVariable(settings.jsonSourceScope, "#JSON-SOURCE", VariableType.alphanumericDynamic());
 		var decideOnJsonPath = decideOnFirst(jsonPath);
 		var parseJsonStatement = parseJson(jsonSourceVariable)
 			.intoPath(jsonPath)
