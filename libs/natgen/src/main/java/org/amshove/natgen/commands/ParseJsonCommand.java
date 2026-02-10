@@ -1,5 +1,6 @@
 package org.amshove.natgen.commands;
 
+import org.amshove.natgen.CliOutput;
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.generatable.definedata.Variable;
@@ -24,6 +25,8 @@ import java.util.concurrent.Callable;
 @Command(name = "parse-json")
 public class ParseJsonCommand implements Callable<Integer>
 {
+	private static final CliOutput output = new CliOutput();
+
 	@Parameters(arity = "1")
 	File jsonFile;
 
@@ -42,9 +45,9 @@ public class ParseJsonCommand implements Callable<Integer>
 	@Override
 	public Integer call() throws Exception
 	{
-		System.out.println("/*********");
-		System.out.printf("Generating code for %s%n", jsonFile);
-		System.out.println("/*********");
+		output.info("/*********");
+		output.info("Generating code for %s".formatted(jsonFile));
+		output.info("/*********");
 
 		var generationSettings = new ParseJsonFromJsonGenerator.Settings();
 		if (outputPda != null)
@@ -90,7 +93,7 @@ public class ParseJsonCommand implements Callable<Integer>
 		{
 			var defineDataGenerator = new DefineDataGenerator();
 			var defineData = defineDataGenerator.generate(context);
-			System.out.println(defineData);
+			output.print(defineData);
 			return;
 		}
 
@@ -98,7 +101,7 @@ public class ParseJsonCommand implements Callable<Integer>
 		var code = moduleGenerator.generate(context, NaturalFileType.PDA);
 
 		Files.writeString(filePath, code, StandardCharsets.UTF_8);
-		System.out.printf("Generated %s%n", filePath);
+		output.info("  -> Generated %s".formatted(filePath));
 	}
 
 	private void printGeneratedCode(CodeGenerationContext context, Path filePath) throws IOException
@@ -107,7 +110,7 @@ public class ParseJsonCommand implements Callable<Integer>
 		{
 			var codeBuilder = new CodeBuilder();
 			context.statements().getFirst().generateInto(codeBuilder);
-			System.out.println(codeBuilder);
+			output.print(codeBuilder.toString());
 			return;
 		}
 
@@ -119,6 +122,6 @@ public class ParseJsonCommand implements Callable<Integer>
 		var moduleGenerator = new ModuleGenerator();
 		var generatedModule = moduleGenerator.generate(context, NaturalFileType.fromPath(filePath));
 		Files.writeString(filePath, generatedModule, StandardCharsets.UTF_8);
-		System.out.printf("Generated %s%n", filePath);
+		output.info("  -> Generated %s".formatted(filePath));
 	}
 }
