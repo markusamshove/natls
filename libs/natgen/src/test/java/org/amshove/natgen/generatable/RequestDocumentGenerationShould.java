@@ -221,4 +221,6 @@ class RequestDocumentGenerationShould extends CodeGenerationTest
 			    PAGE #RESP-BODY ENCODED FOR TYPES #MIME-TYPE IN CODEPAGE 'ISO-8859-1'
 			    RESPONSE #RC""");
 	}
+
+	// TODO: Return Header etc.
 }
