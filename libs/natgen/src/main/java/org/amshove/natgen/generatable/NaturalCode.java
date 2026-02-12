@@ -168,4 +168,10 @@ public class NaturalCode implements IGeneratable
 	{
 		return new GeneratableStatement("PERFORM %s".formatted(subroutine.name()));
 	}
+
+	/// Creates a [RequestDocument] statement for the given `uri` saving the HTTP response code into `responseCode`.
+	public static RequestDocument requestDocument(IGeneratable uri, IGeneratable responseCode)
+	{
+		return new RequestDocument(uri, responseCode);
+	}
 }

@@ -1,0 +1,206 @@
+package org.amshove.natgen.generatable;
+
+import org.amshove.natgen.CodeGenerationTest;
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.definedata.Variable;
+import org.amshove.natparse.natural.VariableScope;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import static org.amshove.natgen.generatable.NaturalCode.stringLiteral;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class RequestDocumentGenerationShould extends CodeGenerationTest
+{
+	private final Variable responseCode = new Variable(1, VariableScope.LOCAL, "#RC", VariableType.integer(4));
+
+	@Test
+	void generateASimpleRequestDocument()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		assertGenerated(requestDocument, """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  RETURN
+			    RESPONSE #RC""");
+	}
+
+	@Test
+	void generateARequestDocumentWithUserId()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		requestDocument.withUserId(stringLiteral("Max"));
+		assertGenerated(requestDocument, """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  WITH
+			    USER 'Max'
+			  RETURN
+			    RESPONSE #RC""");
+	}
+
+	@Test
+	void generateARequestDocumentWithUserIdAndPassword()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+
+		requestDocument
+			.withUserPassword(new Variable(1, VariableScope.LOCAL, "#PASSWORD", VariableType.alphanumeric(10)))
+			.withUserId(stringLiteral("Max"));
+		assertGenerated(requestDocument, """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  WITH
+			    USER 'Max'
+			    PASSWORD #PASSWORD
+			  RETURN
+			    RESPONSE #RC""");
+	}
+
+	@Test
+	void generateARequestDocumentWithContentTypeHeader()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+
+		requestDocument
+			.withContentType(stringLiteral("application/json"));
+		assertGenerated(requestDocument, """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  WITH
+			    HEADER NAME 'Content-Type' VALUE 'application/json'
+			  RETURN
+			    RESPONSE #RC""");
+	}
+
+	@Test
+	void generateARequestDocumentWithMultipleHeaders()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		var tokenVar = new Variable(1, VariableScope.LOCAL, "#AUTH-TOKEN", VariableType.alphanumeric(128));
+
+		requestDocument
+			.withContentType(stringLiteral("application/json"))
+			.withMethod(stringLiteral("DELETE"))
+			.withHeader(stringLiteral("Authentication"), tokenVar);
+
+		assertGenerated(requestDocument, """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  WITH
+			    HEADER NAME 'Content-Type' VALUE 'application/json'
+			    HEADER NAME 'REQUEST-METHOD' VALUE 'DELETE'
+			    HEADER NAME 'Authentication' VALUE #AUTH-TOKEN
+			  RETURN
+			    RESPONSE #RC""");
+	}
+
+	@Test
+	void addFormDataToTheRequest()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		var formDataVariable = new Variable(1, VariableScope.LOCAL, "#NAME", VariableType.alphanumeric(10));
+
+		requestDocument
+			.withFormData(NaturalCode.stringLiteral("Age"), NaturalCode.plain("30"))
+			.withFormData(NaturalCode.stringLiteral("Name"), formDataVariable);
+
+		assertGenerated(requestDocument, """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  WITH
+			    DATA
+			      NAME 'Age' VALUE 30
+			      NAME 'Name' VALUE #NAME
+			  RETURN
+			    RESPONSE #RC""");
+	}
+
+	@Test
+	void addTheRequestBody()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		requestDocument.withRequestBody(
+			new Variable(1, VariableScope.LOCAL, "#REQUEST-BODY", VariableType.alphanumericDynamic())
+		);
+
+		assertGenerated(requestDocument, """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  WITH
+			    DATA ALL #REQUEST-BODY
+			  RETURN
+			    RESPONSE #RC""");
+	}
+
+	@Test
+	void addTheRequestBodyWithEncoding()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		requestDocument
+			.withRequestBody(new Variable(1, VariableScope.LOCAL, "#REQUEST-BODY", VariableType.alphanumericDynamic()))
+			.withRequestCodepage(NaturalCode.stringLiteral("UTF-8"));
+
+		assertGenerated(requestDocument, """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  WITH
+			    DATA ALL #REQUEST-BODY ENCODED IN CODEPAGE 'UTF-8'
+			  RETURN
+			    RESPONSE #RC""");
+	}
+
+	@ParameterizedTest
+	@ValueSource(booleans =
+	{
+		true, false
+	})
+	void throwAnExceptionWhenTryingToPassRequestBodyAndFormData(boolean formDataFirst)
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		if (formDataFirst)
+		{
+			requestDocument.withFormData(stringLiteral("Name"), stringLiteral("TheName"));
+		}
+		else
+		{
+			requestDocument.withRequestBody(stringLiteral("Hello"));
+		}
+
+		assertThatThrownBy(() ->
+		{
+			if (formDataFirst)
+			{
+				requestDocument.withRequestBody(stringLiteral("Hello"));
+			}
+			else
+			{
+				requestDocument.withFormData(stringLiteral("Name"), stringLiteral("TheName"));
+			}
+		})
+			.isInstanceOf(IllegalStateException.class)
+			.hasMessage("Can not add form data and request body to REQUEST DOCUMENT at the same time");
+	}
+
+	@Test
+	void generateTheResponseBody()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		var body = new Variable(1, VariableScope.LOCAL, "#BODY", VariableType.alphanumericDynamic());
+
+		assertGenerated(requestDocument.withResponseBody(body), """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  RETURN
+			    PAGE #BODY
+			    RESPONSE #RC""");
+	}
+
+	@Test
+	void generateTheResponseBodyWithEncoding()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		var body = new Variable(1, VariableScope.LOCAL, "#BODY", VariableType.alphanumericDynamic());
+		requestDocument
+			.withResponseBody(body)
+			.withResponseCodepage(stringLiteral("UTF-8"));
+
+		assertGenerated(requestDocument, """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  RETURN
+			    PAGE #BODY ENCODED IN CODEPAGE 'UTF-8'
+			    RESPONSE #RC""");
+	}
+}
