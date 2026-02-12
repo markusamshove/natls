@@ -18,6 +18,7 @@ public class RequestDocument implements IGeneratableStatement
 	private @Nullable IGeneratable requestCodepage;
 	private @Nullable IGeneratable responseBody;
 	private @Nullable IGeneratable responseCodepage;
+	private @Nullable IGeneratable responseMimeType;
 	private final List<NamedValue> headerPairs = new ArrayList<>();
 	private final List<NamedValue> formDataPairs = new ArrayList<>();
 
@@ -99,6 +100,13 @@ public class RequestDocument implements IGeneratableStatement
 		return this;
 	}
 
+	/// Set the return clause mime-types
+	public RequestDocument withResponseMimeType(IGeneratable responseMimeType)
+	{
+		this.responseMimeType = responseMimeType;
+		return this;
+	}
+
 	@Override
 	public void generateInto(CodeBuilder builder)
 	{
@@ -164,7 +172,13 @@ public class RequestDocument implements IGeneratableStatement
 
 			if (responseCodepage != null)
 			{
-				builder.spaceOrBreak().append("ENCODED IN CODEPAGE ").append(responseCodepage);
+				builder.spaceOrBreak().append("ENCODED");
+				if (responseMimeType != null)
+				{
+					builder.spaceOrBreak().append("FOR TYPES").spaceOrBreak().append(responseMimeType);
+				}
+
+				builder.spaceOrBreak().append("IN CODEPAGE ").append(responseCodepage);
 			}
 
 			builder.lineBreak();

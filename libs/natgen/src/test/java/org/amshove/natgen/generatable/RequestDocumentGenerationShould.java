@@ -195,12 +195,30 @@ class RequestDocumentGenerationShould extends CodeGenerationTest
 		var body = new Variable(1, VariableScope.LOCAL, "#BODY", VariableType.alphanumericDynamic());
 		requestDocument
 			.withResponseBody(body)
-			.withResponseCodepage(stringLiteral("UTF-8"));
+			.withResponseCodepage(stringLiteral("ISO-8859-1"));
 
 		assertGenerated(requestDocument, """
 			REQUEST DOCUMENT FROM 'https://softwareag.com'
 			  RETURN
-			    PAGE #BODY ENCODED IN CODEPAGE 'UTF-8'
+			    PAGE #BODY ENCODED IN CODEPAGE 'ISO-8859-1'
+			    RESPONSE #RC""");
+	}
+
+	@Test
+	void generateReturnMimeType()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		var body = NaturalCode.newLocalVariable("#RESP-BODY", VariableType.alphanumeric(50));
+		var mimeType = NaturalCode.newLocalVariable("#MIME-TYPE", VariableType.alphanumeric(50));
+		requestDocument
+			.withResponseMimeType(mimeType)
+			.withResponseBody(body)
+			.withResponseCodepage(stringLiteral("ISO-8859-1"));
+
+		assertGenerated(requestDocument, """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  RETURN
+			    PAGE #RESP-BODY ENCODED FOR TYPES #MIME-TYPE IN CODEPAGE 'ISO-8859-1'
 			    RESPONSE #RC""");
 	}
 }
