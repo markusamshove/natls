@@ -19,7 +19,9 @@ public class RequestDocument implements IGeneratableStatement
 	private @Nullable IGeneratable responseBody;
 	private @Nullable IGeneratable responseCodepage;
 	private @Nullable IGeneratable responseMimeType;
-	private final List<NamedValue> headerPairs = new ArrayList<>();
+	private @Nullable IGeneratable responseAllHeader;
+	private final List<NamedValue> requestHeaderPairs = new ArrayList<>();
+	private final List<NamedValue> responseHeaderPairs = new ArrayList<>();
 	private final List<NamedValue> formDataPairs = new ArrayList<>();
 
 	public RequestDocument(IGeneratable url, IGeneratable responseCode)
@@ -42,16 +44,16 @@ public class RequestDocument implements IGeneratableStatement
 
 	/// Adds a header with the given `name` and `value` to the request.
 	/// Can be called multiple times to add more headers.
-	public RequestDocument withHeader(IGeneratable name, IGeneratable headerValue)
+	public RequestDocument withRequestHeader(IGeneratable name, IGeneratable headerValue)
 	{
-		headerPairs.add(new NamedValue(name, headerValue));
+		requestHeaderPairs.add(new NamedValue(name, headerValue));
 		return this;
 	}
 
 	/// Sets the Content-Type header.
 	public RequestDocument withContentType(IGeneratable contentType)
 	{
-		headerPairs.add(new NamedValue(stringLiteral("Content-Type"), contentType));
+		requestHeaderPairs.add(new NamedValue(stringLiteral("Content-Type"), contentType));
 		return this;
 	}
 
@@ -67,7 +69,7 @@ public class RequestDocument implements IGeneratableStatement
 	/// Explicitly sets the specified HTTP method for the request.
 	public RequestDocument withMethod(IGeneratable method)
 	{
-		headerPairs.add(new NamedValue(stringLiteral("REQUEST-METHOD"), method));
+		requestHeaderPairs.add(new NamedValue(stringLiteral("REQUEST-METHOD"), method));
 		return this;
 	}
 
@@ -107,6 +109,20 @@ public class RequestDocument implements IGeneratableStatement
 		return this;
 	}
 
+	/// Save all response header information into the given variable.
+	public RequestDocument withResponseAllHeader(IGeneratable responseAllHeader)
+	{
+		this.responseAllHeader = responseAllHeader;
+		return this;
+	}
+
+	/// Save header with the given `name` into the given `storage` (e.g. variable).
+	public RequestDocument withResponseHeader(IGeneratable name, IGeneratable storage)
+	{
+		responseHeaderPairs.add(new NamedValue(name, storage));
+		return this;
+	}
+
 	@Override
 	public void generateInto(CodeBuilder builder)
 	{
@@ -126,10 +142,10 @@ public class RequestDocument implements IGeneratableStatement
 			builder.append("PASSWORD ").appendLine(password);
 		}
 
-		if (!headerPairs.isEmpty())
+		if (!requestHeaderPairs.isEmpty())
 		{
 			hasWith = appendWith(hasWith, builder);
-			for (var pair : headerPairs)
+			for (var pair : requestHeaderPairs)
 			{
 				builder.append("HEADER NAME ").append(pair.name()).append(" VALUE ").appendLine(pair.value());
 			}
@@ -165,6 +181,25 @@ public class RequestDocument implements IGeneratableStatement
 		}
 
 		builder.appendLine("RETURN").indent();
+
+		if (!responseHeaderPairs.isEmpty() || responseAllHeader != null)
+		{
+			builder.append("HEADER");
+
+			if (responseAllHeader != null)
+			{
+				builder.spaceOrBreak().append("ALL ").append(responseAllHeader);
+			}
+			builder.lineBreak();
+			builder.indent();
+
+			for (var pair : responseHeaderPairs)
+			{
+				builder.append("NAME ").append(pair.name()).append(" VALUE ").appendLine(pair.value());
+			}
+
+			builder.unindent();
+		}
 
 		if (responseBody != null)
 		{

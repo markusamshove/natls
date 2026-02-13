@@ -79,7 +79,7 @@ class RequestDocumentGenerationShould extends CodeGenerationTest
 		requestDocument
 			.withContentType(stringLiteral("application/json"))
 			.withMethod(stringLiteral("DELETE"))
-			.withHeader(stringLiteral("Authentication"), tokenVar);
+			.withRequestHeader(stringLiteral("Authentication"), tokenVar);
 
 		assertGenerated(requestDocument, """
 			REQUEST DOCUMENT FROM 'https://softwareag.com'
@@ -222,5 +222,58 @@ class RequestDocumentGenerationShould extends CodeGenerationTest
 			    RESPONSE #RC""");
 	}
 
-	// TODO: Return Header etc.
+	@Test
+	void generateReturnAllHeader()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		var allheader = NaturalCode.newLocalVariable("#ALL-HEADER", VariableType.alphanumeric(50));
+
+		assertGenerated(requestDocument.withResponseAllHeader(allheader), """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  RETURN
+			    HEADER ALL #ALL-HEADER
+			    RESPONSE #RC""");
+	}
+
+	@Test
+	void generateReturnHeader()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		var returnCookie = NaturalCode.newLocalVariable("#COOKIE", VariableType.alphanumeric(50));
+		var returnContentType = NaturalCode.newLocalVariable("#RETURN-CONTENT-TYPE", VariableType.alphanumeric(50));
+
+		requestDocument
+			.withResponseHeader(stringLiteral("Cookie"), returnCookie)
+			.withResponseHeader(stringLiteral("Content-Type"), returnContentType);
+
+		assertGenerated(requestDocument, """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  RETURN
+			    HEADER
+			      NAME 'Cookie' VALUE #COOKIE
+			      NAME 'Content-Type' VALUE #RETURN-CONTENT-TYPE
+			    RESPONSE #RC""");
+	}
+
+	@Test
+	void generateBothAllHeaderAndSpecificHeader()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		var returnCookie = NaturalCode.newLocalVariable("#COOKIE", VariableType.alphanumeric(50));
+		var returnContentType = NaturalCode.newLocalVariable("#RETURN-CONTENT-TYPE", VariableType.alphanumeric(50));
+		var allHeader = NaturalCode.newLocalVariable("#ALL-HEADER", VariableType.alphanumeric(50));
+
+		requestDocument
+			.withResponseAllHeader(allHeader)
+			.withResponseHeader(stringLiteral("Cookie"), returnCookie)
+			.withResponseHeader(stringLiteral("Content-Type"), returnContentType);
+
+		assertGenerated(requestDocument, """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  RETURN
+			    HEADER ALL #ALL-HEADER
+			      NAME 'Cookie' VALUE #COOKIE
+			      NAME 'Content-Type' VALUE #RETURN-CONTENT-TYPE
+			    RESPONSE #RC""");
+	}
 }
