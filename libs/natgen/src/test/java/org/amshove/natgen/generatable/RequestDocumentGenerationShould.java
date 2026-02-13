@@ -276,4 +276,17 @@ class RequestDocumentGenerationShould extends CodeGenerationTest
 			      NAME 'Content-Type' VALUE #RETURN-CONTENT-TYPE
 			    RESPONSE #RC""");
 	}
+
+	@Test
+	void generateGivingErrorNumber()
+	{
+		var requestDocument = NaturalCode.requestDocument(stringLiteral("https://softwareag.com"), responseCode);
+		var errorNumber = NaturalCode.newLocalVariable("#ERROR-NUMBER", VariableType.numeric(4));
+
+		assertGenerated(requestDocument.withGivingErrorNumber(errorNumber), """
+			REQUEST DOCUMENT FROM 'https://softwareag.com'
+			  RETURN
+			    RESPONSE #RC
+			  GIVING #ERROR-NUMBER""");
+	}
 }

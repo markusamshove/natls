@@ -1,6 +1,7 @@
 package org.amshove.natgen.generatable;
 
 import org.amshove.natgen.CodeBuilder;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
+@NullMarked
 public class RequestDocument implements IGeneratableStatement
 {
 	private final IGeneratable url;
@@ -20,6 +22,7 @@ public class RequestDocument implements IGeneratableStatement
 	private @Nullable IGeneratable responseCodepage;
 	private @Nullable IGeneratable responseMimeType;
 	private @Nullable IGeneratable responseAllHeader;
+	private @Nullable IGeneratable givingErrorNumber;
 	private final List<NamedValue> requestHeaderPairs = new ArrayList<>();
 	private final List<NamedValue> responseHeaderPairs = new ArrayList<>();
 	private final List<NamedValue> formDataPairs = new ArrayList<>();
@@ -123,6 +126,13 @@ public class RequestDocument implements IGeneratableStatement
 		return this;
 	}
 
+	/// Saves the Natural error number into the given variable.
+	public RequestDocument withGivingErrorNumber(IGeneratable errorNumber)
+	{
+		this.givingErrorNumber = errorNumber;
+		return this;
+	}
+
 	@Override
 	public void generateInto(CodeBuilder builder)
 	{
@@ -221,7 +231,14 @@ public class RequestDocument implements IGeneratableStatement
 
 		builder
 			.append("RESPONSE ").append(responseCode)
-			.unindent().unindent();
+			.unindent();
+
+		if (givingErrorNumber != null)
+		{
+			builder.lineBreak().append("GIVING ").append(givingErrorNumber);
+		}
+
+		builder.unindent();
 	}
 
 	private boolean appendWith(boolean alreadyHasWith, CodeBuilder builder)
