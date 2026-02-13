@@ -2,9 +2,11 @@ package org.amshove.natgen.generatable;
 
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natgen.generators.DefineDataGenerator;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn.DecideOnValueCheck;
+import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -29,6 +31,12 @@ public class NaturalCode implements IGeneratable
 	public static IGeneratableStatement lineComment(String comment)
 	{
 		return new GeneratableStatement("/* %s".formatted(comment));
+	}
+
+	/// Create new variable with scope LOCAL and level 1.
+	public static Variable newLocalVariable(String name, VariableType type)
+	{
+		return new Variable(1, VariableScope.LOCAL, name, type);
 	}
 
 	@Override
@@ -167,5 +175,11 @@ public class NaturalCode implements IGeneratable
 	public static IGeneratableStatement perform(Subroutine subroutine)
 	{
 		return new GeneratableStatement("PERFORM %s".formatted(subroutine.name()));
+	}
+
+	/// Creates a [RequestDocument] statement for the given `uri` saving the HTTP response code into `responseCode`.
+	public static RequestDocument requestDocument(IGeneratable uri, IGeneratable responseCode)
+	{
+		return new RequestDocument(uri, responseCode);
 	}
 }
