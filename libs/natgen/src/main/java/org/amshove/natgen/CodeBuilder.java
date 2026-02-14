@@ -40,6 +40,16 @@ public final class CodeBuilder
 		return this;
 	}
 
+	/// Append the `value` if the given `condition` is true.
+	public CodeBuilder appendIf(boolean condition, Object value)
+	{
+		if (condition)
+		{
+			append(value);
+		}
+		return this;
+	}
+
 	///  Adds a linebreak
 	public CodeBuilder lineBreak()
 	{
@@ -68,12 +78,33 @@ public final class CodeBuilder
 		return appendLine(generatable.generate());
 	}
 
-	///  Append a whitespace or break the line if max line length has been exceeded
+	/// Append a whitespace or break the line if max line length has been exceeded
 	public CodeBuilder spaceOrBreak()
 	{
 		if (currentLineLength + 1 >= MAX_LINE_LENGTH)
 		{
 			return lineBreak();
+		}
+
+		code.append(" ");
+		return this;
+	}
+
+	/// Append a whitespace or break the line if max line length has been exceeded.
+	/// When breaking the line, add indentation if the passed level is higher than
+	/// the current indentation.
+	public CodeBuilder spaceOrBreakAndIndentTo(int level)
+	{
+		if (currentLineLength + 1 >= MAX_LINE_LENGTH)
+		{
+			lineBreak();
+
+			while (indentationLevel < level)
+			{
+				indent();
+			}
+
+			return this;
 		}
 
 		code.append(" ");
@@ -92,6 +123,12 @@ public final class CodeBuilder
 	{
 		indentationLevel = Math.max(0, --indentationLevel);
 		return this;
+	}
+
+	/// Gets the current indentation level
+	public int currentIndentation()
+	{
+		return indentationLevel;
 	}
 
 	@Override

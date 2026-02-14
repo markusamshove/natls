@@ -182,4 +182,10 @@ public class NaturalCode implements IGeneratable
 	{
 		return new RequestDocument(uri, responseCode);
 	}
+
+	/// Creates a [Compress] statement
+	public static Compress compress()
+	{
+		return new Compress();
+	}
 }
