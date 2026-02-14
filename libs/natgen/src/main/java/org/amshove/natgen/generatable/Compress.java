@@ -12,6 +12,8 @@ public class Compress implements IGeneratableStatement
 	private boolean leavingNo;
 	private boolean isNumeric;
 	private boolean isFull;
+	private boolean withAllDelimiter;
+	private IGeneratable delimiter;
 
 	/// Specify the target of the `COMPRESS`.
 	public Compress into(IGeneratable target)
@@ -35,6 +37,7 @@ public class Compress implements IGeneratableStatement
 	}
 
 	/// Specify the `LEAVING SPACE` option.
+	/// If [#leavingNoSpace()] was called before, the `NO SPACE` option will be removed.
 	public Compress leavingSpace()
 	{
 		leavingNo = false;
@@ -52,6 +55,24 @@ public class Compress implements IGeneratableStatement
 	public Compress full()
 	{
 		isFull = true;
+		return this;
+	}
+
+	/// Specifies the `WITH DELIMITERS` option.
+	/// If [#withAllDelimiters(IGeneratable)] was called before, the `ALL`
+	/// option will be removed.
+	public Compress withDelimiters(IGeneratable delimiter)
+	{
+		this.delimiter = delimiter;
+		withAllDelimiter = false;
+		return this;
+	}
+
+	/// Specifies the `WITH ALL DELIMITERS` option.
+	public Compress withAllDelimiters(IGeneratable delimiter)
+	{
+		this.delimiter = delimiter;
+		withAllDelimiter = true;
 		return this;
 	}
 
@@ -101,6 +122,19 @@ public class Compress implements IGeneratableStatement
 				builder.spaceOrBreak();
 			}
 			builder.append("LEAVING NO SPACE");
+		}
+
+		if (delimiter != null)
+		{
+			if (builder.currentIndentation() > indentationBeforeCompress)
+			{
+				builder.lineBreak();
+			}
+			else
+			{
+				builder.spaceOrBreak();
+			}
+			builder.append("WITH ").appendIf(withAllDelimiter, "ALL ").append("DELIMITERS ").append(delimiter);
 		}
 
 		if (builder.currentIndentation() > indentationBeforeCompress)

@@ -108,6 +108,34 @@ class CompressGenerationShould extends CodeGenerationTest
 	}
 
 	@Test
+	void generateWithDelimiters()
+	{
+		var into = NaturalCode.newLocalVariable("#TARGET", VariableType.alphanumeric(10));
+		var compress = NaturalCode.compress()
+			.into(into)
+			.withOperand(stringLiteral("First"))
+			.withOperand(stringLiteral("Second"))
+			.withDelimiters(stringLiteral(";"));
+
+		assertGenerated(compress, """
+			COMPRESS 'First' 'Second' INTO #TARGET WITH DELIMITERS ';'""");
+	}
+
+	@Test
+	void generateWithAllDelimiters()
+	{
+		var into = NaturalCode.newLocalVariable("#TARGET", VariableType.alphanumeric(10));
+		var compress = NaturalCode.compress()
+			.into(into)
+			.withOperand(stringLiteral("First"))
+			.withOperand(stringLiteral("Second"))
+			.withAllDelimiters(stringLiteral(";"));
+
+		assertGenerated(compress, """
+			COMPRESS 'First' 'Second' INTO #TARGET WITH ALL DELIMITERS ';'""");
+	}
+
+	@Test
 	void throwAnExceptionIfNoIntoTargetIsSpecified()
 	{
 		var compress = NaturalCode.compress();

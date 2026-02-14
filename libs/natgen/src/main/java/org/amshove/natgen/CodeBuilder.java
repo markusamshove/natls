@@ -40,6 +40,16 @@ public final class CodeBuilder
 		return this;
 	}
 
+	/// Append the `value` if the given `condition` is true.
+	public CodeBuilder appendIf(boolean condition, Object value)
+	{
+		if (condition)
+		{
+			append(value);
+		}
+		return this;
+	}
+
 	///  Adds a linebreak
 	public CodeBuilder lineBreak()
 	{
