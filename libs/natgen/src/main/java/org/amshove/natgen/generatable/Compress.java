@@ -105,7 +105,7 @@ public class Compress implements IGeneratableStatement
 
 		for (var operand : operands)
 		{
-			builder.spaceOrBreakIndentTo(indentationBeforeCompress + 1);
+			builder.spaceOrBreakAndIndentTo(indentationBeforeCompress + 1);
 			builder.append(operand);
 		}
 

@@ -91,6 +91,37 @@ class CodeBuilderShould
 			END-IF""");
 	}
 
+	@Test
+	void spaceOfBreakAndIndentTo_shouldNotBreakIfLineLengthHasntExceeded()
+	{
+		var lotOfAs = "A".repeat(78);
+		sut.append(lotOfAs);
+
+		assertThat(sut.currentIndentation()).isZero();
+		sut.spaceOrBreakAndIndentTo(1).append("B");
+
+		assertGenerated("""
+			%s B""".formatted(lotOfAs));
+
+		assertThat(sut.currentIndentation()).isZero();
+	}
+
+	@Test
+	void spaceOfBreakAndIndentTo_supportBreakingTheLineWhenLineLengthIsExceededAndAlsoIncreaseIncrementation()
+	{
+		var lotOfAs = "A".repeat(80);
+		sut.append(lotOfAs);
+
+		assertThat(sut.currentIndentation()).isZero();
+		sut.spaceOrBreakAndIndentTo(1).append("B");
+
+		assertGenerated("""
+			%s
+			  B""".formatted(lotOfAs));
+
+		assertThat(sut.currentIndentation()).isEqualTo(1);
+	}
+
 	private void assertGenerated(String expected)
 	{
 		assertThat(sut.toString()).isEqualToNormalizingNewlines(expected);

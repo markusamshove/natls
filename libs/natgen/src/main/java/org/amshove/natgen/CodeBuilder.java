@@ -93,7 +93,7 @@ public final class CodeBuilder
 	/// Append a whitespace or break the line if max line length has been exceeded.
 	/// When breaking the line, add indentation if the passed level is higher than
 	/// the current indentation.
-	public CodeBuilder spaceOrBreakIndentTo(int level)
+	public CodeBuilder spaceOrBreakAndIndentTo(int level)
 	{
 		if (currentLineLength + 1 >= MAX_LINE_LENGTH)
 		{
