@@ -10,10 +10,8 @@ import org.amshove.natgen.generatable.definedata.Variable;
 
 import java.util.Locale;
 
-import static io.swagger.v3.parser.util.SchemaTypeUtil.OBJECT_TYPE;
-import static io.swagger.v3.parser.util.SchemaTypeUtil.STRING_TYPE;
-import static org.amshove.natgen.generatable.NaturalCode.assignment;
-import static org.amshove.natgen.generatable.NaturalCode.stringLiteral;
+import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
+import static org.amshove.natgen.generatable.NaturalCode.*;
 
 class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 {
@@ -40,11 +38,47 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		var naturalSchemaName = "#" + schemaName.toUpperCase(Locale.ROOT);
 		var theType = schema.getTypes().stream().findFirst().orElseThrow(() -> new IllegalStateException("Can not determine type from Schema %s".formatted(schema)));
 
+		var currentSchemaPath = appendPath(currentPath, schemaName);
+		var valueJsonPath = appendPath(currentSchemaPath, PARSED_DATA);
+
 		if (theType.equals(STRING_TYPE))
 		{
 			var naturalType = schema.getMaxLength() != null ? VariableType.alphanumeric(schema.getMaxLength()) : VariableType.alphanumericDynamic();
 			var theVariable = parentVariable.addVariable(naturalSchemaName, naturalType);
-			var valueJsonPath = appendPath(currentPath, PARSED_DATA);
+
+			decide
+				.addBranch(stringLiteral(valueJsonPath))
+				.addToBody(assignPrimitiveValue(theVariable, theType, currentPath));
+
+			return;
+		}
+
+		if (theType.equals(NUMBER_TYPE))
+		{
+			var naturalType = switch (schema.getFormat())
+			{
+				case "double", "float" -> VariableType.floating(8);
+				case null, default -> VariableType.integer(4);
+			};
+			var theVariable = parentVariable.addVariable(naturalSchemaName, naturalType);
+
+			decide
+				.addBranch(stringLiteral(valueJsonPath))
+				.addToBody(assignPrimitiveValue(theVariable, theType, currentPath));
+
+			return;
+		}
+
+		if (theType.equals(INTEGER_TYPE))
+		{
+
+
+			var naturalType = switch (schema.getFormat())
+			{
+				case "int64" -> VariableType.numeric(8);
+				case null, default -> VariableType.integer(4);
+			};
+			var theVariable = parentVariable.addVariable(naturalSchemaName, naturalType);
 
 			decide
 				.addBranch(stringLiteral(valueJsonPath))
@@ -73,7 +107,12 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			return assignment(variable, jsonValue);
 		}
 
-		return null;
+		if (NUMBER_TYPE.equals(type) || INTEGER_TYPE.equals(type))
+		{
+			return assignment(variable, val(jsonValue));
+		}
+
+		throw new UnsupportedOperationException("No value assignment implemented for type <%s>".formatted(type));
 	}
 
 }

@@ -138,13 +138,19 @@ public final class Variable implements IGeneratableDefineDataElement
 			firstLevelVariable = firstLevelVariable.parent;
 		}
 
-		return "%s.%s".formatted(firstLevelVariable, name);
+		return "%s.%s".formatted(firstLevelVariable.name, name);
 	}
 
 	@Override
 	public String toString()
 	{
-		return generate();
+		return "Variable{" +
+			"level=" + level +
+			", name='" + name + '\'' +
+			", fqn='" + generate() + "'" +
+			", scope=" + scope +
+			", type=" + type +
+			'}';
 	}
 
 	/// Generate a dimension access for this variable, e.g. `#ARR(1)`
