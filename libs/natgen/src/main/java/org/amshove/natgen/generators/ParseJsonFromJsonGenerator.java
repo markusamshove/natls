@@ -10,7 +10,6 @@ import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natgen.generatable.IGeneratableStatement;
 import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.definedata.Variable;
-import org.amshove.natparse.natural.VariableScope;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,81 +19,34 @@ import java.util.stream.Stream;
 
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
-public class ParseJsonFromJsonGenerator
+public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 {
 	private static final String JSON_SEPARATOR = "/";
 	private static final String START_OBJECT = "<";
 	private static final String END_OBJECT = ">";
 	private static final String START_ARRAY = "(";
 	private static final String PARSED_DATA = "$";
-	private final Settings settings;
-	private Variable jsonParsingGroup;
-	private Variable jsonValue;
+
+	private final String rawJson;
 
 	private final Map<String, Variable> variablesByJsonPath = new HashMap<>();
 	private final Map<Variable, Variable> arraySizeVariablesByArray = new HashMap<>();
 
-	public ParseJsonFromJsonGenerator()
+	ParseJsonFromJsonGenerator(String rawJson, Settings settings)
 	{
-		this(new Settings());
+		super(settings);
+		this.rawJson = rawJson;
 	}
 
-	public ParseJsonFromJsonGenerator(Settings settings)
-	{
-		this.settings = settings;
-	}
-
-	public static class Settings
-	{
-		private String parsedJsonGroupName = "##PARSED-JSON";
-		private VariableScope jsonSourceScope = VariableScope.LOCAL;
-
-		public void setParsedJsonGroupName(String name)
-		{
-			parsedJsonGroupName = name;
-		}
-
-		public String parsedJsonGroupName()
-		{
-			return parsedJsonGroupName;
-		}
-
-		public void setJsonSourceScope(VariableScope jsonSourceScope)
-		{
-			this.jsonSourceScope = jsonSourceScope;
-		}
-	}
-
-	/// Creates a [CodeGenerationContext] which contains all variables and a single `PARSE JSON`
-	/// statement to parse the given JSON.
-	public CodeGenerationContext generate(String json)
+	@Override
+	protected void createDecideOnBranches(CodeGenerationContext context, DecideOn decide)
 	{
 		var gson = new Gson();
-		var rootElement = gson.fromJson(json, JsonElement.class);
+		var rootElement = gson.fromJson(rawJson, JsonElement.class);
 
-		var context = new CodeGenerationContext();
-		jsonParsingGroup = context.addVariable(new Variable(1, VariableScope.LOCAL, "##JSON-PARSING", VariableType.group()));
-		var jsonPath = jsonParsingGroup.addVariable("#PATH", VariableType.alphanumericDynamic());
-		jsonValue = jsonParsingGroup.addVariable("#VALUE", VariableType.alphanumericDynamic());
-		var jsonErrCode = jsonParsingGroup.addVariable("#ERR-CODE", VariableType.integer(4));
-		var jsonErrSubcode = jsonParsingGroup.addVariable("#ERR-SUBCODE", VariableType.integer(4));
-		var parsedJsonRoot = context.addVariable(VariableScope.LOCAL, settings.parsedJsonGroupName, VariableType.group());
+		createDecideOnJsonElementBranches(decide, parsedJsonRoot, "", rootElement, "");
 
-		var jsonSourceVariable = context.addVariable(settings.jsonSourceScope, "#JSON-SOURCE", VariableType.alphanumericDynamic());
-		var decideOnJsonPath = decideOnFirst(jsonPath);
-		var parseJsonStatement = parseJson(jsonSourceVariable)
-			.intoPath(jsonPath)
-			.intoValue(jsonValue)
-			.givingErrorCode(jsonErrCode)
-			.givingErrorSubcode(jsonErrSubcode)
-			.addToBody(decideOnJsonPath);
-
-		createDecideOnJsonElementBranches(decideOnJsonPath, parsedJsonRoot, "", rootElement, "");
-
-		createResetArrayVariablesForNestedArrays(decideOnJsonPath);
-
-		context.addStatement(parseJsonStatement);
-		return context;
+		createResetArrayVariablesForNestedArrays(decide);
 	}
 
 	private void createDecideOnJsonElementBranches(

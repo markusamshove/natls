@@ -7,6 +7,7 @@ import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natgen.generators.DefineDataGenerator;
 import org.amshove.natgen.generators.ModuleGenerator;
 import org.amshove.natgen.generators.ParseJsonFromJsonGenerator;
+import org.amshove.natgen.generators.ParseJsonGenerator;
 import org.amshove.natparse.infrastructure.IFilesystem;
 import org.amshove.natparse.natural.VariableScope;
 import org.amshove.natparse.natural.project.NaturalFileType;
@@ -57,8 +58,8 @@ public class ParseJsonCommand implements Callable<Integer>
 		}
 
 		var jsonContent = Files.readString(jsonFile.toPath(), StandardCharsets.UTF_8);
-		var parseJsonGenerator = new ParseJsonFromJsonGenerator(generationSettings);
-		var context = parseJsonGenerator.generate(jsonContent);
+		var parseJsonGenerator = ParseJsonGenerator.forRawJson(jsonContent, generationSettings);
+		var context = parseJsonGenerator.generate();
 
 		CodeGenerationContext contextForDefineData = context;
 		if (outputPda != null)
