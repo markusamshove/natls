@@ -6,8 +6,10 @@ dependencies {
     implementation project(':natparse')
     implementation libraries.picocli
     implementation libraries.gson
+    implementation 'io.swagger.parser.v3:swagger-parser:2.1.37'
 
     testImplementation project(':testhelpers')
+    testImplementation libraries.slf4j_nop
 }
 
 jar {
