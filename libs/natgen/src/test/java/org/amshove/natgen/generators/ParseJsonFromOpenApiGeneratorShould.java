@@ -53,6 +53,25 @@ components:
 	}
 
 	@Test
+	void generateAVariableForUUIDFormat()
+	{
+		var context = generate("Person", """
+openapi: 3.1.0
+components:
+  schemas:
+    Person:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+			""");
+
+		assertOn(context)
+			.hasVariable(3, "##PARSED-JSON.#ID", VariableScope.LOCAL, VariableType.alphanumeric(36));
+	}
+
+	@Test
 	void generateForAnObjectWithAConstrainedStringProperty()
 	{
 		var context = generate("Person", """
