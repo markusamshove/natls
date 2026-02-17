@@ -71,14 +71,23 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 		if (theType.equals(INTEGER_TYPE))
 		{
-
-
 			var naturalType = switch (schema.getFormat())
 			{
 				case "int64" -> VariableType.numeric(8);
 				case null, default -> VariableType.integer(4);
 			};
 			var theVariable = parentVariable.addVariable(naturalSchemaName, naturalType);
+
+			decide
+				.addBranch(stringLiteral(valueJsonPath))
+				.addToBody(assignPrimitiveValue(theVariable, theType, currentPath));
+
+			return;
+		}
+
+		if (theType.equals(BOOLEAN_TYPE))
+		{
+			var theVariable = parentVariable.addVariable(naturalSchemaName, VariableType.logical());
 
 			decide
 				.addBranch(stringLiteral(valueJsonPath))
@@ -110,6 +119,11 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		if (NUMBER_TYPE.equals(type) || INTEGER_TYPE.equals(type))
 		{
 			return assignment(variable, val(jsonValue));
+		}
+
+		if (BOOLEAN_TYPE.equals(type))
+		{
+			return assignment(variable, functionCall("ATOB", jsonValue));
 		}
 
 		throw new UnsupportedOperationException("No value assignment implemented for type <%s>".formatted(type));

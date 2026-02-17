@@ -168,4 +168,32 @@ components:
 
 		assertOn(context).hasVariable(3, "##PARSED-JSON.#BIP", VariableScope.LOCAL, VariableType.numeric(8));
 	}
+
+	@Test
+	void generateAssignmentsForBooleans()
+	{
+		var context = generate("Different", """
+openapi: 3.1.0
+components:
+  schemas:
+    Different:
+      type: object
+      properties:
+        employed:
+          type: boolean
+			""");
+
+		assertOn(context)
+			.hasVariable(3, "##PARSED-JSON.#EMPLOYED", VariableScope.LOCAL, VariableType.logical())
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</employed/$'
+				      ##PARSED-JSON.#EMPLOYED := ATOB(<##JSON-PARSING.#VALUE>)
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE""");
+	}
+
 }
