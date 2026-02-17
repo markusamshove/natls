@@ -41,53 +41,25 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		var currentSchemaPath = appendPath(currentPath, schemaName);
 		var valueJsonPath = appendPath(currentSchemaPath, PARSED_DATA);
 
-		if (theType.equals(STRING_TYPE))
-		{
-			var naturalType = schema.getMaxLength() != null ? VariableType.alphanumeric(schema.getMaxLength()) : VariableType.alphanumericDynamic();
-			var theVariable = parentVariable.addVariable(naturalSchemaName, naturalType);
-
-			decide
-				.addBranch(stringLiteral(valueJsonPath))
-				.addToBody(assignPrimitiveValue(theVariable, theType, currentPath));
-
-			return;
-		}
-
-		if (theType.equals(NUMBER_TYPE))
-		{
-			var naturalType = switch (schema.getFormat())
-			{
-				case "double", "float" -> VariableType.floating(8);
+		var naturalType = switch(theType) {
+			case STRING_TYPE -> schema.getMaxLength() != null
+				? VariableType.alphanumeric(schema.getMaxLength())
+				: VariableType.alphanumericDynamic();
+			case NUMBER_TYPE -> switch (schema.getFormat()) {
+				case DOUBLE_FORMAT, FLOAT_FORMAT -> VariableType.floating(8);
 				case null, default -> VariableType.integer(4);
 			};
-			var theVariable = parentVariable.addVariable(naturalSchemaName, naturalType);
-
-			decide
-				.addBranch(stringLiteral(valueJsonPath))
-				.addToBody(assignPrimitiveValue(theVariable, theType, currentPath));
-
-			return;
-		}
-
-		if (theType.equals(INTEGER_TYPE))
-		{
-			var naturalType = switch (schema.getFormat())
-			{
-				case "int64" -> VariableType.numeric(8);
+			case INTEGER_TYPE -> switch (schema.getFormat()) {
+				case INTEGER64_FORMAT -> VariableType.numeric(8);
 				case null, default -> VariableType.integer(4);
 			};
-			var theVariable = parentVariable.addVariable(naturalSchemaName, naturalType);
+			case BOOLEAN_TYPE -> VariableType.logical();
+			default -> null;
+		};
 
-			decide
-				.addBranch(stringLiteral(valueJsonPath))
-				.addToBody(assignPrimitiveValue(theVariable, theType, currentPath));
-
-			return;
-		}
-
-		if (theType.equals(BOOLEAN_TYPE))
+		if (naturalType != null)
 		{
-			var theVariable = parentVariable.addVariable(naturalSchemaName, VariableType.logical());
+			var theVariable = parentVariable.addVariable(naturalSchemaName, naturalType);
 
 			decide
 				.addBranch(stringLiteral(valueJsonPath))
