@@ -51,6 +51,8 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			case STRING_TYPE -> switch (schema.getFormat()) {
 				case DATE_FORMAT -> VariableType.date();
 				case UUID_FORMAT -> VariableType.alphanumeric(36);
+				case BINARY_FORMAT -> VariableType.binaryDynamic();
+				case BYTE_FORMAT -> VariableType.alphanumericDynamic();
 				case null, default -> schema.getMaxLength() != null
 					? VariableType.alphanumeric(schema.getMaxLength())
 					: VariableType.alphanumericDynamic();

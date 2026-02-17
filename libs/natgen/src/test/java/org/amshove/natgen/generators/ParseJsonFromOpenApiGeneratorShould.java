@@ -72,6 +72,44 @@ components:
 	}
 
 	@Test
+	void generateAVariableForBinaryFormat()
+	{
+		var context = generate("File", """
+openapi: 3.1.0
+components:
+  schemas:
+    File:
+      type: object
+      properties:
+        filecontent:
+          type: string
+          format: binary
+			""");
+
+		assertOn(context)
+			.hasVariable(3, "##PARSED-JSON.#FILECONTENT", VariableScope.LOCAL, VariableType.binaryDynamic());
+	}
+
+	@Test
+	void generateAVariableForByteFormat()
+	{
+		var context = generate("File", """
+openapi: 3.1.0
+components:
+  schemas:
+    File:
+      type: object
+      properties:
+        filecontent:
+          type: string
+          format: byte
+			""");
+
+		assertOn(context)
+			.hasVariable(3, "##PARSED-JSON.#FILECONTENT", VariableScope.LOCAL, VariableType.alphanumericDynamic());
+	}
+
+	@Test
 	void generateForAnObjectWithAConstrainedStringProperty()
 	{
 		var context = generate("Person", """
