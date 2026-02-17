@@ -3,6 +3,7 @@ package org.amshove.natgen.generators;
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.generatable.definedata.IGeneratableDefineDataElement;
+import org.amshove.natgen.generatable.definedata.RedefinitionMember;
 import org.amshove.natgen.generatable.definedata.Using;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
@@ -74,7 +75,8 @@ public class DefineDataGenerator
 		{
 			switch (element)
 			{
-				case Using using -> {
+				case Using using ->
+				{
 					code.append(System.lineSeparator()).append(using.generate());
 					needsScopeToStart = true;
 				}
@@ -156,7 +158,19 @@ public class DefineDataGenerator
 			for (var redefineChild : redefinition.members())
 			{
 				code.lineBreak();
-				generateVariable(code, redefineChild);
+				switch (redefineChild)
+				{
+					case RedefinitionMember.Filler filler -> code
+						.indent()
+						.append("%d FILLER %dX".formatted(
+							variable.level() + 1,
+							filler.size())
+						)
+						.unindent();
+					case RedefinitionMember.VariableMember variableMember ->
+						generateVariable(code, variableMember.variable());
+				}
+
 			}
 		}
 

@@ -223,4 +223,52 @@ components:
 				  END-DECIDE
 				END-PARSE""");
 	}
+
+	@Test
+	void generateAssignmentsForDateTimeTypes()
+	{
+		var context = generate("Baby", """
+openapi: 3.1.0
+components:
+  schemas:
+    Baby:
+      type: object
+      properties:
+        birthdatetime:
+          type: string
+          format: date-time
+			""");
+
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 ##JSON-PARSING
+				  2 #PATH (A) DYNAMIC
+				  2 #VALUE (A) DYNAMIC
+				  2 #ERR-CODE (I4)
+				  2 #ERR-SUBCODE (I4)
+				1 ##PARSED-JSON
+				  2 #BABY
+				    3 #BIRTHDATETIME (A20)
+				    3 REDEFINE #BIRTHDATETIME
+				      4 #BIRTHDATETIME-DATEPART (A10)
+				      4 FILLER 1X
+				      4 #BIRTHDATETIME-TIMEPART (A8)
+				    3 #BIRTHDATETIME-DATE (D)
+				    3 #BIRTHDATETIME-TIME (T)
+				1 #JSON-SOURCE (A) DYNAMIC
+				END-DEFINE""")
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</birthdatetime/$'
+				      ##PARSED-JSON.#BIRTHDATETIME := ##JSON-PARSING.#VALUE
+				      MOVE EDITED ##PARSED-JSON.#BIRTHDATETIME-DATEPART TO ##PARSED-JSON.#BIRTHDATETIME-DATE (EM=YYYY-MM-DD)
+				      MOVE EDITED ##PARSED-JSON.#BIRTHDATETIME-TIMEPART TO ##PARSED-JSON.#BIRTHDATETIME-TIME (EM=HH:II:SS)
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE""");
+	}
 }

@@ -21,7 +21,7 @@ public final class Variable implements IGeneratableDefineDataElement
 	private final String name;
 	private final VariableType type;
 	private final List<Variable> childVariables = new ArrayList<>();
-	private final List<Redefinition> redefitions = new ArrayList<>();
+	private final List<Redefinition> redefinitions = new ArrayList<>();
 	private Variable parent;
 
 	private String constValue = null;
@@ -53,7 +53,7 @@ public final class Variable implements IGeneratableDefineDataElement
 	public Redefinition newRedefine()
 	{
 		var redefinition = new Redefinition(this);
-		redefitions.add(redefinition);
+		redefinitions.add(redefinition);
 		return redefinition;
 	}
 
@@ -108,7 +108,7 @@ public final class Variable implements IGeneratableDefineDataElement
 
 	public List<Redefinition> redefinitions()
 	{
-		return redefitions;
+		return redefinitions;
 	}
 
 	public VariableType type()
@@ -122,6 +122,11 @@ public final class Variable implements IGeneratableDefineDataElement
 		variable.parent = this;
 		childVariables.add(variable);
 		return variable;
+	}
+
+	void setParent(Variable newParent)
+	{
+		this.parent = newParent;
 	}
 
 	@Override

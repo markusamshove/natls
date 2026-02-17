@@ -41,6 +41,12 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		var currentSchemaPath = appendPath(currentPath, schemaName);
 		var valueJsonPath = appendPath(currentSchemaPath, PARSED_DATA);
 
+		if (STRING_TYPE.equals(theType) && DATE_TIME_FORMAT.equals(schema.getFormat()))
+		{
+			decideOnForDateTime(decide, parentVariable, schemaName, valueJsonPath);
+			return;
+		}
+
 		var naturalType = switch(theType) {
 			case STRING_TYPE -> switch (schema.getFormat()) {
 				case DATE_FORMAT -> VariableType.date();
@@ -82,6 +88,30 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 			return;
 		}
+	}
+
+	private void decideOnForDateTime(DecideOn decide, Variable parentVariable, String schemaName, String valueJsonPath)
+	{
+		var naturalBaseName = "#" + schemaName.toUpperCase(Locale.ROOT);
+		var parsingBaseVariable = parentVariable
+			.addVariable(naturalBaseName, VariableType.alphanumeric(20)); // RFC 3339 5.6, e.g. 2017-07-21T17:32:28Z
+
+		var redefinition = parsingBaseVariable.newRedefine();
+
+		var dateParsingPart = redefinition.addVariable(naturalBaseName + "-DATEPART", VariableType.alphanumeric(10));
+		redefinition.withFiller(1); // T
+		var timeParsingPart = redefinition.addVariable(naturalBaseName + "-TIMEPART", VariableType.alphanumeric(8));
+
+		var targetDate = parentVariable
+			.addVariable(naturalBaseName + "-DATE", VariableType.date());
+		var targetTime = parentVariable
+			.addVariable(naturalBaseName + "-TIME", VariableType.time());
+
+		decide
+			.addBranch(stringLiteral(valueJsonPath))
+			.addToBody(assignment(parsingBaseVariable, jsonValue))
+			.addToBody(moveEdited(dateParsingPart, targetDate, "YYYY-MM-DD"))
+			.addToBody(moveEdited(timeParsingPart, targetTime, "HH:II:SS"));
 	}
 
 	private IGeneratableStatement assignPrimitiveValue(Variable variable, String type, String format, String currentPath)
