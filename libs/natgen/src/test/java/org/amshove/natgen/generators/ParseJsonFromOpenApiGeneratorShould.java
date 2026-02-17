@@ -196,4 +196,31 @@ components:
 				END-PARSE""");
 	}
 
+	@Test
+	void generateAssignmentsForDateTypes()
+	{
+		var context = generate("Baby", """
+openapi: 3.1.0
+components:
+  schemas:
+    Baby:
+      type: object
+      properties:
+        birthdate:
+          type: string
+          format: date
+			""");
+
+		assertOn(context)
+			.hasVariable(3, "##PARSED-JSON.#BIRTHDATE", VariableScope.LOCAL, VariableType.date())
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</birthdate/$'
+				      MOVE EDITED ##JSON-PARSING.#VALUE TO ##PARSED-JSON.#BIRTHDATE (EM=YYYY-MM-DD)
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE""");
+	}
 }

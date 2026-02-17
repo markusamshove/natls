@@ -42,9 +42,12 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		var valueJsonPath = appendPath(currentSchemaPath, PARSED_DATA);
 
 		var naturalType = switch(theType) {
-			case STRING_TYPE -> schema.getMaxLength() != null
-				? VariableType.alphanumeric(schema.getMaxLength())
-				: VariableType.alphanumericDynamic();
+			case STRING_TYPE -> switch (schema.getFormat()) {
+				case DATE_FORMAT -> VariableType.date();
+				case null, default -> schema.getMaxLength() != null
+					? VariableType.alphanumeric(schema.getMaxLength())
+					: VariableType.alphanumericDynamic();
+			};
 			case NUMBER_TYPE -> switch (schema.getFormat()) {
 				case DOUBLE_FORMAT, FLOAT_FORMAT -> VariableType.floating(8);
 				case null, default -> VariableType.integer(4);
@@ -63,7 +66,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 			decide
 				.addBranch(stringLiteral(valueJsonPath))
-				.addToBody(assignPrimitiveValue(theVariable, theType, currentPath));
+				.addToBody(assignPrimitiveValue(theVariable, theType, schema.getFormat(), currentPath));
 
 			return;
 		}
@@ -81,11 +84,14 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		}
 	}
 
-	private IGeneratableStatement assignPrimitiveValue(Variable variable, String type, String currentPath)
+	private IGeneratableStatement assignPrimitiveValue(Variable variable, String type, String format, String currentPath)
 	{
 		if (STRING_TYPE.equals(type))
 		{
-			return assignment(variable, jsonValue);
+			return switch(format) {
+				case DATE_FORMAT -> moveEdited(jsonValue, variable, "YYYY-MM-DD");
+				case null, default -> assignment(variable, jsonValue);
+			};
 		}
 
 		if (NUMBER_TYPE.equals(type) || INTEGER_TYPE.equals(type))
