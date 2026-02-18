@@ -37,6 +37,21 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 	private void createDecideOnBranch(DecideOn decide, Variable parentVariable, String schemaName, Schema<?> schema, String currentPath)
 	{
+		if (schema.get$ref() != null)
+		{
+			// Since we always flatten the spec, we assume we're looking
+			// for a component.
+			var splitReference = schema.get$ref().split("/");
+			var componentKey = splitReference[splitReference.length - 1];
+			var referencedComponent = spec.getComponents().getSchemas().get(componentKey);
+			if (referencedComponent == null)
+			{
+				throw new IllegalStateException("Can not find referenced component with reference <%s>".formatted(schema.get$ref()));
+			}
+			createDecideOnBranch(decide, parentVariable, schemaName, referencedComponent, currentPath);
+			return;
+		}
+
 		var naturalSchemaName = "#" + schemaName.toUpperCase(Locale.ROOT);
 		var theType = extractOpenApiType(schema);
 
@@ -64,7 +79,11 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 		if (theType.equals(OBJECT_TYPE))
 		{
-			var currentObjectPath = appendPath(currentPath, START_OBJECT);
+			// The root schema gets embedded, meaning that the object name will not be
+			// included in the JSON path of naturals `PARSE JSON`
+			var objectBasePath = schemaName.equals(rootSchemaName) ? currentPath : currentSchemaPath;
+
+			var currentObjectPath = appendPath(objectBasePath, START_OBJECT);
 			var group = parentVariable.addVariable(naturalSchemaName, VariableType.group());
 			for (var property : schema.getProperties().entrySet())
 			{

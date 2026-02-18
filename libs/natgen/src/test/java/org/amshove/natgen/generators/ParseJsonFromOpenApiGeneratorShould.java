@@ -374,4 +374,59 @@ components:
 				  END-DECIDE
 				END-PARSE""");
 	}
+
+	@Test
+	void supportNestedObjects()
+	{
+		var context = generate("Person", """
+openapi: 3.1.0
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+    Person:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+			""");
+
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 ##JSON-PARSING
+				  2 #PATH (A) DYNAMIC
+				  2 #VALUE (A) DYNAMIC
+				  2 #ERR-CODE (I4)
+				  2 #ERR-SUBCODE (I4)
+				1 ##PARSED-JSON
+				  2 #PERSON
+				    3 #NAME (A) DYNAMIC
+				    3 #ADDRESS
+				      4 #STREET (A) DYNAMIC
+				      4 #CITY (A) DYNAMIC
+				1 #JSON-SOURCE (A) DYNAMIC
+				END-DEFINE""")
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</name/$'
+				      ##PARSED-JSON.#NAME := ##JSON-PARSING.#VALUE
+				    VALUE '</address/</street/$'
+				      ##PARSED-JSON.#STREET := ##JSON-PARSING.#VALUE
+				    VALUE '</address/</city/$'
+				      ##PARSED-JSON.#CITY := ##JSON-PARSING.#VALUE
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE""");
+	}
 }
