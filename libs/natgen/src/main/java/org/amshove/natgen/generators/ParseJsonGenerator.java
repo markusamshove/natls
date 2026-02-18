@@ -25,6 +25,7 @@ public abstract class ParseJsonGenerator
 		private String parsedJsonGroupName = DEFAULT_PARSED_JSON_GROUP_NAME;
 		private VariableScope jsonSourceScope = VariableScope.LOCAL;
 
+		/// Overwrite the group name for the parsed JSON. Default is `##PARSED-JSON`.
 		public void setParsedJsonGroupName(String name)
 		{
 			parsedJsonGroupName = name;
@@ -35,6 +36,7 @@ public abstract class ParseJsonGenerator
 			return parsedJsonGroupName;
 		}
 
+		/// Set the [VariableScope] that the variable containing the raw JSON will have
 		public void setJsonSourceScope(VariableScope jsonSourceScope)
 		{
 			this.jsonSourceScope = jsonSourceScope;
