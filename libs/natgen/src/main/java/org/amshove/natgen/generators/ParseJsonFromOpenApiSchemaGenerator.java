@@ -39,15 +39,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 	{
 		if (schema.get$ref() != null)
 		{
-			// Since we always flatten the spec, we assume we're looking
-			// for a component.
-			var splitReference = schema.get$ref().split("/");
-			var componentKey = splitReference[splitReference.length - 1];
-			var referencedComponent = spec.getComponents().getSchemas().get(componentKey);
-			if (referencedComponent == null)
-			{
-				throw new IllegalStateException("Can not find referenced component with reference <%s>".formatted(schema.get$ref()));
-			}
+			var referencedComponent = findSchemaByReference(schema.get$ref());
 			createDecideOnBranch(decide, parentVariable, schemaName, referencedComponent, currentPath);
 			return;
 		}
@@ -56,6 +48,66 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		var theType = extractOpenApiType(schema);
 
 		var currentSchemaPath = appendPath(currentPath, schemaName);
+		if (theType.equals(OBJECT_TYPE))
+		{
+			// The root schema gets embedded, meaning that the object name will not be
+			// included in the JSON path of naturals `PARSE JSON`
+			var objectBasePath = schemaName.equals(rootSchemaName) ? currentPath : currentSchemaPath;
+
+			// If the current parent variable is an array we want to pass it down.
+			// This happens when an object (this) is within an array. The object
+			// definition (natural group) should be the array, not each single property
+			var nextParentVariable = parentVariable.type().isArray()
+				? parentVariable
+				: parentVariable.addVariable(naturalSchemaName, VariableType.group());
+
+			var currentObjectPath = appendPath(objectBasePath, START_OBJECT);
+			for (var property : schema.getProperties().entrySet())
+			{
+				createDecideOnBranch(decide, nextParentVariable, property.getKey(), property.getValue(), currentObjectPath);
+			}
+
+			return;
+		}
+
+		if (theType.equals("array"))
+		{
+			var arrayItemSchema = schema.getItems();
+			var openApiTypeOfItems = extractOpenApiType(arrayItemSchema);
+			var arrayVariable = getVariableForProperty(currentSchemaPath, parentVariable, schemaName, inferNaturalType(arrayItemSchema));
+			arrayVariable.type().withDimension(Dimension.upperUnbound());
+			var sizeVariable = findSizeVariableForArray(arrayVariable);
+
+			var arrayStartPath = appendPath(currentSchemaPath, START_ARRAY);
+			var newArrayValuePath = openApiTypeOfItems.equals(OBJECT_TYPE)
+				? appendPath(arrayStartPath, START_OBJECT) // Array expansion needs to happen when a new object starts
+				: appendPath(arrayStartPath, PARSED_DATA); // Array expansion needs to happen on every new primitive value
+
+			var numberOfDimensions = getNumberOfDimensions(arrayStartPath);
+			var branch = decide
+				.addBranch(stringLiteral(newArrayValuePath))
+				.addToBody(incrementVariable(sizeVariable))
+				.addToBody(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
+
+			if (openApiTypeOfItems.equals(OBJECT_TYPE))
+			{
+				createDecideOnBranch(decide, arrayVariable, schemaName, arrayItemSchema, arrayStartPath);
+			}
+			else
+			{
+				branch.addToBody(
+					assignValueToVariable(
+						arrayVariable, extractOpenApiType(arrayItemSchema),
+						arrayItemSchema.getFormat(), newArrayValuePath
+					)
+				);
+			}
+
+			return;
+		}
+
+		// Primitive values
+
 		var valueJsonPath = appendPath(currentSchemaPath, PARSED_DATA);
 
 		if (STRING_TYPE.equals(theType) && DATE_TIME_FORMAT.equals(schema.getFormat()))
@@ -74,42 +126,6 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 				.addBranch(stringLiteral(valueJsonPath))
 				.addToBody(assignValueToVariable(theVariable, theType, schema.getFormat(), currentPath));
 
-			return;
-		}
-
-		if (theType.equals(OBJECT_TYPE))
-		{
-			// The root schema gets embedded, meaning that the object name will not be
-			// included in the JSON path of naturals `PARSE JSON`
-			var objectBasePath = schemaName.equals(rootSchemaName) ? currentPath : currentSchemaPath;
-
-			var currentObjectPath = appendPath(objectBasePath, START_OBJECT);
-			var group = parentVariable.addVariable(naturalSchemaName, VariableType.group());
-			for (var property : schema.getProperties().entrySet())
-			{
-				createDecideOnBranch(decide, group, property.getKey(), property.getValue(), currentObjectPath);
-			}
-
-			return;
-		}
-
-		if (theType.equals("array"))
-		{
-			var arrayItemSchema = schema.getItems();
-			var arrayVariable = getVariableForProperty(currentSchemaPath, parentVariable, schemaName, inferNaturalType(arrayItemSchema));
-			arrayVariable.type().withDimension(Dimension.upperUnbound());
-			var sizeVariable = findSizeVariableForArray(arrayVariable);
-
-			var arrayStartPath = appendPath(currentSchemaPath, START_ARRAY);
-			var newArrayValuePath = appendPath(arrayStartPath, PARSED_DATA);
-
-			var numberOfDimensions = getNumberOfDimensions(arrayStartPath);
-			var branch = decide
-				.addBranch(stringLiteral(newArrayValuePath))
-				.addToBody(incrementVariable(sizeVariable))
-				.addToBody(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
-
-			branch.addToBody(assignValueToVariable(arrayVariable, extractOpenApiType(arrayItemSchema), arrayItemSchema.getFormat(), newArrayValuePath));
 		}
 	}
 
@@ -176,8 +192,13 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		throw new UnsupportedOperationException("No value assignment implemented for type <%s>".formatted(type));
 	}
 
-	private static VariableType inferNaturalType(Schema<?> schema)
+	private VariableType inferNaturalType(Schema<?> schema)
 	{
+		if (schema.get$ref() != null)
+		{
+			return inferNaturalType(findSchemaByReference(schema.get$ref()));
+		}
+
 		var firstType = extractOpenApiType(schema);
 		return switch(firstType) {
 			case STRING_TYPE -> switch (schema.getFormat()) {
@@ -198,12 +219,33 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 				case null, default -> VariableType.integer(4);
 			};
 			case BOOLEAN_TYPE -> VariableType.logical();
+			case OBJECT_TYPE -> VariableType.group();
 			default -> null;
 		};
 	}
 
-	private static String extractOpenApiType(Schema<?> schema)
+	private String extractOpenApiType(Schema<?> schema)
 	{
+		if (schema.get$ref() != null)
+		{
+			return extractOpenApiType(findSchemaByReference(schema.get$ref()));
+		}
+
 		return schema.getTypes().stream().findFirst().orElseThrow(() -> new IllegalStateException("Can not extract type from Schema %s".formatted(schema)));
+	}
+
+	private Schema<?> findSchemaByReference(String reference)
+	{
+		// Since we always flatten the spec, we assume we're looking
+		// for a component.
+		var splitReference = reference.split("/");
+		var componentKey = splitReference[splitReference.length - 1];
+		var referencedComponentSchema = spec.getComponents().getSchemas().get(componentKey);
+		if (referencedComponentSchema == null)
+		{
+			throw new IllegalStateException("Can not find referenced component with reference <%s>".formatted(reference));
+		}
+
+		return referencedComponentSchema;
 	}
 }

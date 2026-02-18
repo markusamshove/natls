@@ -429,4 +429,67 @@ components:
 				  END-DECIDE
 				END-PARSE""");
 	}
+
+	@Test
+	void supportArrayOfObjects()
+	{
+		var context = generate("Person", """
+openapi: 3.1.0
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+    Person:
+      type: object
+      properties:
+        name:
+          type: string
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+			""");
+
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 ##JSON-PARSING
+				  2 #PATH (A) DYNAMIC
+				  2 #VALUE (A) DYNAMIC
+				  2 #ERR-CODE (I4)
+				  2 #ERR-SUBCODE (I4)
+				  2 #S-#ADDRESSES (I4)
+				1 ##PARSED-JSON
+				  2 #PERSON
+				    3 #NAME (A) DYNAMIC
+				    3 #ADDRESSES (1:*)
+				      4 #STREET (A) DYNAMIC
+				      4 #CITY (A) DYNAMIC
+				1 #JSON-SOURCE (A) DYNAMIC
+				END-DEFINE""")
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</name/$'
+				      ##PARSED-JSON.#NAME := ##JSON-PARSING.#VALUE
+				    VALUE '</addresses/(/<'
+				      ADD 1 TO ##JSON-PARSING.#S-#ADDRESSES
+				      EXPAND ARRAY ##PARSED-JSON.#ADDRESSES TO (1:##JSON-PARSING.#S-#ADDRESSES)
+				    VALUE '</addresses/(/addresses/</street/$'
+				      ##PARSED-JSON.#STREET(#S-#ADDRESSES) := ##JSON-PARSING.#VALUE
+				    VALUE '</addresses/(/addresses/</city/$'
+				      ##PARSED-JSON.#CITY(#S-#ADDRESSES) := ##JSON-PARSING.#VALUE
+				    VALUE '>'
+				      RESET ##JSON-PARSING.#S-#ADDRESSES
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE""");
+	}
 }
