@@ -163,6 +163,13 @@ public class NaturalCode implements IGeneratable
 		);
 	}
 
+	/// Create a `MOVE EDITED` statement where `attribute` is set on `target` resulting in
+	/// `MOVE EDITED source TO target (EM=editMask)`
+	public static IGeneratableStatement moveEdited(IGeneratable source, IGeneratable target, String editMask)
+	{
+		return new GeneratableStatement("MOVE EDITED %s TO %s (EM=%s)".formatted(source.generate(), target.generate(), editMask));
+	}
+
 	private record GeneratableStatement(String plainCode) implements IGeneratableStatement
 	{
 		@Override

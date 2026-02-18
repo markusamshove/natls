@@ -14,7 +14,7 @@ class VariableShould
 	void generateItsName()
 	{
 		var variable = new Variable(1, VariableScope.LOCAL, "#VAR", VariableType.alphanumeric(1));
-		assertThat(variable).hasToString("#VAR");
+		assertThat(variable.generate()).isEqualTo("#VAR");
 	}
 
 	@Test
@@ -22,7 +22,7 @@ class VariableShould
 	{
 		var variable = new Variable(1, VariableScope.LOCAL, "#VAR", VariableType.alphanumeric(1));
 		var subVariable = variable.addVariable("SUB", VariableType.integer(4));
-		assertThat(subVariable).hasToString("#VAR.SUB");
+		assertThat(subVariable.generate()).isEqualTo("#VAR.SUB");
 	}
 
 	@Test
@@ -31,7 +31,7 @@ class VariableShould
 		var variable = new Variable(1, VariableScope.LOCAL, "#VAR", VariableType.group());
 		var subVariable = variable.addVariable("SUB", VariableType.alphanumeric(10));
 		var subsubVariable = subVariable.addVariable("SUBSUB", VariableType.integer(8));
-		assertThat(subsubVariable).hasToString("#VAR.SUBSUB");
+		assertThat(subsubVariable.generate()).isEqualTo("#VAR.SUBSUB");
 	}
 
 	@Test
