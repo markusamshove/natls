@@ -328,4 +328,50 @@ components:
 				  END-DECIDE
 				END-PARSE""");
 	}
+
+	@Test
+	void supportPrimitiveArrayTypes()
+	{
+		var context = generate("Book", """
+openapi: 3.1.0
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        editions:
+          type: array
+          items:
+            type: string
+			""");
+
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 ##JSON-PARSING
+				  2 #PATH (A) DYNAMIC
+				  2 #VALUE (A) DYNAMIC
+				  2 #ERR-CODE (I4)
+				  2 #ERR-SUBCODE (I4)
+				  2 #S-#EDITIONS (I4)
+				1 ##PARSED-JSON
+				  2 #BOOK
+				    3 #EDITIONS (A/1:*) DYNAMIC
+				1 #JSON-SOURCE (A) DYNAMIC
+				END-DEFINE""")
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</editions/(/$'
+				      ADD 1 TO ##JSON-PARSING.#S-#EDITIONS
+				      EXPAND ARRAY ##PARSED-JSON.#EDITIONS TO (1:##JSON-PARSING.#S-#EDITIONS)
+				      ##PARSED-JSON.#EDITIONS(#S-#EDITIONS) := ##JSON-PARSING.#VALUE
+				    VALUE '>'
+				      RESET ##JSON-PARSING.#S-#EDITIONS
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE""");
+	}
 }

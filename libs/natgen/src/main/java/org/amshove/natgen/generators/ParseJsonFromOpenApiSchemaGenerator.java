@@ -3,8 +3,10 @@ package org.amshove.natgen.generators;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
 import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.Dimension;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn;
+import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natgen.generatable.IGeneratableStatement;
 import org.amshove.natgen.generatable.definedata.Variable;
 
@@ -16,7 +18,7 @@ import static org.amshove.natgen.generatable.NaturalCode.*;
 class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 {
 	private final OpenAPI spec;
-	private final Schema<?> schema;
+	private final Schema<?> rootSchema;
 	private final String rootSchemaName;
 
 	protected ParseJsonFromOpenApiSchemaGenerator(OpenAPI spec, String schemaName, Schema<?> schema, Settings settings)
@@ -24,19 +26,19 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		super(settings);
 		this.spec = spec;
 		this.rootSchemaName = schemaName;
-		this.schema = schema;
+		this.rootSchema = schema;
 	}
 
 	@Override
 	protected void generateInternal(CodeGenerationContext context, DecideOn decide)
 	{
-		createDecideOnBranch(decide, parsedJsonRoot, rootSchemaName, schema, "");
+		createDecideOnBranch(decide, parsedJsonRoot, rootSchemaName, rootSchema, "");
 	}
 
 	private void createDecideOnBranch(DecideOn decide, Variable parentVariable, String schemaName, Schema<?> schema, String currentPath)
 	{
 		var naturalSchemaName = "#" + schemaName.toUpperCase(Locale.ROOT);
-		var theType = schema.getTypes().stream().findFirst().orElseThrow(() -> new IllegalStateException("Can not determine type from Schema %s".formatted(schema)));
+		var theType = extractOpenApiType(schema);
 
 		var currentSchemaPath = appendPath(currentPath, schemaName);
 		var valueJsonPath = appendPath(currentSchemaPath, PARSED_DATA);
@@ -47,27 +49,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			return;
 		}
 
-		var naturalType = switch(theType) {
-			case STRING_TYPE -> switch (schema.getFormat()) {
-				case DATE_FORMAT -> VariableType.date();
-				case UUID_FORMAT -> VariableType.alphanumeric(36);
-				case BINARY_FORMAT -> VariableType.binaryDynamic();
-				case BYTE_FORMAT -> VariableType.alphanumericDynamic();
-				case null, default -> schema.getMaxLength() != null
-					? VariableType.alphanumeric(schema.getMaxLength())
-					: VariableType.alphanumericDynamic();
-			};
-			case NUMBER_TYPE -> switch (schema.getFormat()) {
-				case DOUBLE_FORMAT, FLOAT_FORMAT -> VariableType.floating(8);
-				case null, default -> VariableType.integer(4);
-			};
-			case INTEGER_TYPE -> switch (schema.getFormat()) {
-				case INTEGER64_FORMAT -> VariableType.numeric(8);
-				case null, default -> VariableType.integer(4);
-			};
-			case BOOLEAN_TYPE -> VariableType.logical();
-			default -> null;
-		};
+		var naturalType = inferNaturalType(schema);
 
 		if (naturalType != null)
 		{
@@ -75,7 +57,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 			decide
 				.addBranch(stringLiteral(valueJsonPath))
-				.addToBody(assignPrimitiveValue(theVariable, theType, schema.getFormat(), currentPath));
+				.addToBody(assignValueToVariable(theVariable, theType, schema.getFormat(), currentPath));
 
 			return;
 		}
@@ -90,6 +72,25 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			}
 
 			return;
+		}
+
+		if (theType.equals("array"))
+		{
+			var arrayItemSchema = schema.getItems();
+			var arrayVariable = getVariableForProperty(currentSchemaPath, parentVariable, schemaName, inferNaturalType(arrayItemSchema));
+			arrayVariable.type().withDimension(Dimension.upperUnbound());
+			var sizeVariable = findSizeVariableForArray(arrayVariable);
+
+			var arrayStartPath = appendPath(currentSchemaPath, START_ARRAY);
+			var newArrayValuePath = appendPath(arrayStartPath, PARSED_DATA);
+
+			var numberOfDimensions = getNumberOfDimensions(arrayStartPath);
+			var branch = decide
+				.addBranch(stringLiteral(newArrayValuePath))
+				.addToBody(incrementVariable(sizeVariable))
+				.addToBody(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
+
+			branch.addToBody(assignValueToVariable(arrayVariable, extractOpenApiType(arrayItemSchema), arrayItemSchema.getFormat(), newArrayValuePath));
 		}
 	}
 
@@ -117,27 +118,73 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			.addToBody(moveEdited(timeParsingPart, targetTime, "HH:II:SS"));
 	}
 
-	private IGeneratableStatement assignPrimitiveValue(Variable variable, String type, String format, String currentPath)
+	private IGeneratableStatement assignValueToVariable(Variable variable, String type, String format, String currentPath)
 	{
+		if (currentPath.contains(START_ARRAY))
+		{
+			var arrayAccessVariables = findAllArrayAccessVariablesForCurrentPathInOrder(currentPath);
+			return assignment(variable.arrayAccess(arrayAccessVariables), primitiveValueAssignment(type));
+		}
+
 		if (STRING_TYPE.equals(type))
 		{
 			return switch(format) {
 				case DATE_FORMAT -> moveEdited(jsonValue, variable, "YYYY-MM-DD");
-				case null, default -> assignment(variable, jsonValue);
+				case null, default -> assignment(variable, primitiveValueAssignment(type));
 			};
+		}
+
+		return assignment(variable, primitiveValueAssignment(type));
+	}
+
+	private IGeneratable primitiveValueAssignment(String type)
+	{
+		if (STRING_TYPE.equals(type))
+		{
+			return jsonValue;
 		}
 
 		if (NUMBER_TYPE.equals(type) || INTEGER_TYPE.equals(type))
 		{
-			return assignment(variable, val(jsonValue));
+			return val(jsonValue);
 		}
 
 		if (BOOLEAN_TYPE.equals(type))
 		{
-			return assignment(variable, functionCall("ATOB", jsonValue));
+			return functionCall("ATOB", jsonValue);
 		}
 
 		throw new UnsupportedOperationException("No value assignment implemented for type <%s>".formatted(type));
 	}
 
+	private static VariableType inferNaturalType(Schema<?> schema)
+	{
+		var firstType = extractOpenApiType(schema);
+		return switch(firstType) {
+			case STRING_TYPE -> switch (schema.getFormat()) {
+				case DATE_FORMAT -> VariableType.date();
+				case UUID_FORMAT -> VariableType.alphanumeric(36);
+				case BINARY_FORMAT -> VariableType.binaryDynamic();
+				case BYTE_FORMAT -> VariableType.alphanumericDynamic();
+				case null, default -> schema.getMaxLength() != null
+					? VariableType.alphanumeric(schema.getMaxLength())
+					: VariableType.alphanumericDynamic();
+			};
+			case NUMBER_TYPE -> switch (schema.getFormat()) {
+				case DOUBLE_FORMAT, FLOAT_FORMAT -> VariableType.floating(8);
+				case null, default -> VariableType.integer(4);
+			};
+			case INTEGER_TYPE -> switch (schema.getFormat()) {
+				case INTEGER64_FORMAT -> VariableType.numeric(8);
+				case null, default -> VariableType.integer(4);
+			};
+			case BOOLEAN_TYPE -> VariableType.logical();
+			default -> null;
+		};
+	}
+
+	private static String extractOpenApiType(Schema<?> schema)
+	{
+		return schema.getTypes().stream().findFirst().orElseThrow(() -> new IllegalStateException("Can not extract type from Schema %s".formatted(schema)));
+	}
 }

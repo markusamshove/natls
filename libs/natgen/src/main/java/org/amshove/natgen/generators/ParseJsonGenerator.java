@@ -11,7 +11,9 @@ import org.amshove.natparse.natural.VariableScope;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
@@ -90,6 +92,8 @@ public abstract class ParseJsonGenerator
 
 		var decideOnJsonPath = decideOnFirst(jsonPath);
 		generateInternal(context, decideOnJsonPath);
+
+		createResetArrayVariablesForNestedArrays(decideOnJsonPath);
 
 		var parseJsonStatement = parseJson(jsonSourceVariable)
 			.intoPath(jsonPath)
@@ -187,5 +191,33 @@ public abstract class ParseJsonGenerator
 			array,
 			_ -> jsonParsingGroup.addVariable("#S-" + array.name(), VariableType.integer(4))
 		);
+	}
+
+	protected Variable getVariableForProperty(
+		String propertyNamePath, Variable parentVariable, String propertyName,
+		VariableType naturalType
+	)
+	{
+		return variablesByJsonPath.computeIfAbsent(propertyNamePath, _ ->
+		{
+			if (parentVariable == null || propertyName == null || naturalType == null)
+			{
+				// this shouldn't happen. the only way this can happen is
+				// when looking up an S- variable for an array but the array doesn't exist yet
+				throw new IllegalStateException("Can't create variable if it does not target a json element");
+			}
+			var variableName = new StringBuilder("#" + propertyName.toUpperCase(Locale.ROOT));
+			while (variableNameIsTaken(variableName.toString()))
+			{
+				variableName.insert(0, "#");
+			}
+			return parentVariable.addVariable(variableName.toString(), naturalType);
+		});
+	}
+
+	protected boolean variableNameIsTaken(String plannedName)
+	{
+		return Stream.concat(variablesByJsonPath.values().stream(), arraySizeVariablesByArray.values().stream())
+			.anyMatch(v -> v.name().equals(plannedName));
 	}
 }

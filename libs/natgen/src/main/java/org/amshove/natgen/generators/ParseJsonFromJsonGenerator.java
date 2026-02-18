@@ -11,7 +11,6 @@ import org.amshove.natgen.generatable.IGeneratableStatement;
 import org.amshove.natgen.generatable.definedata.Variable;
 
 import java.util.Locale;
-import java.util.stream.Stream;
 
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
@@ -32,8 +31,6 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 		var rootElement = gson.fromJson(rawJson, JsonElement.class);
 
 		createDecideOnJsonElementBranches(decide, parsedJsonRoot, "", rootElement, "");
-
-		createResetArrayVariablesForNestedArrays(decide);
 	}
 
 	private void createDecideOnJsonElementBranches(
@@ -46,7 +43,7 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 		{
 			var valueJsonPath = appendPath(currentPath, PARSED_DATA);
 
-			var variableForPrimitive = getVariableForProperty(currentPath, parentVariable, elementName, currentElement);
+			var variableForPrimitive = getVariableForProperty(currentPath, parentVariable, elementName, inferJsonType(currentElement));
 
 			decideStatement
 				.addBranch(stringLiteral(valueJsonPath))
@@ -57,7 +54,7 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 		if (currentElement.isJsonArray())
 		{
 			// This is the primitive path
-			var arrayVariable = getVariableForProperty(currentPath, parentVariable, elementName, currentElement);
+			var arrayVariable = getVariableForProperty(currentPath, parentVariable, elementName, inferJsonType(currentElement));
 			var sizeVariable = findSizeVariableForArray(arrayVariable);
 			var firstElementInArray = currentElement.getAsJsonArray().get(0);
 
@@ -145,29 +142,6 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 		throw new UnsupportedOperationException("Unknown json primitive: %s".formatted(primitive));
 	}
 
-	private Variable getVariableForProperty(
-		String propertyNamePath, Variable parentVariable, String propertyName,
-		JsonElement property
-	)
-	{
-		return variablesByJsonPath.computeIfAbsent(propertyNamePath, _ ->
-		{
-			if (parentVariable == null || propertyName == null || property == null)
-			{
-				// this shouldn't happen. the only way this can happen is
-				// when looking up an S- variable for an array but the array doesn't exist yet
-				throw new IllegalStateException("Can't create variable if it does not target a json element");
-			}
-			var type = inferJsonType(property);
-			var variableName = new StringBuilder("#" + propertyName.toUpperCase(Locale.ROOT));
-			while (variableNameIsTaken(variableName.toString()))
-			{
-				variableName.insert(0, "#");
-			}
-			return parentVariable.addVariable(variableName.toString(), type);
-		});
-	}
-
 	private IGeneratableStatement assignValueToVariable(Variable variableForPrimitive, JsonElement element, String currentPath)
 	{
 		if (currentPath.contains(START_ARRAY))
@@ -213,11 +187,5 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 		}
 
 		return VariableType.alphanumericDynamic();
-	}
-
-	private boolean variableNameIsTaken(String plannedName)
-	{
-		return Stream.concat(variablesByJsonPath.values().stream(), arraySizeVariablesByArray.values().stream())
-			.anyMatch(v -> v.name().equals(plannedName));
 	}
 }
