@@ -25,4 +25,16 @@ public class CliOutput
 	{
 		info(String.format(format, args));
 	}
+
+	/// Writes an error message to stderr.
+	public void error(String message)
+	{
+		System.err.println(message);
+	}
+
+	/// Writes an error message to stderr.
+	public void error(String format, Object... args)
+	{
+		error(String.format(format, args));
+	}
 }

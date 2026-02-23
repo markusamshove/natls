@@ -84,9 +84,10 @@ class RequestDocumentGenerationShould extends CodeGenerationTest
 		assertGenerated(requestDocument, """
 			REQUEST DOCUMENT FROM 'https://softwareag.com'
 			  WITH
-			    HEADER NAME 'Content-Type' VALUE 'application/json'
-			    HEADER NAME 'REQUEST-METHOD' VALUE 'DELETE'
-			    HEADER NAME 'Authentication' VALUE #AUTH-TOKEN
+			    HEADER
+			      NAME 'Content-Type' VALUE 'application/json'
+			      NAME 'REQUEST-METHOD' VALUE 'DELETE'
+			      NAME 'Authentication' VALUE #AUTH-TOKEN
 			  RETURN
 			    RESPONSE #RC""");
 	}

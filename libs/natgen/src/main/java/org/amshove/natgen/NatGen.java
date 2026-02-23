@@ -1,7 +1,7 @@
 package org.amshove.natgen;
 
 import org.amshove.natgen.commands.GenerateCommand;
-import org.amshove.natgen.commands.ParseJsonCommand;
+import org.amshove.natgen.commands.GenerateParseJsonCommand;
 import picocli.CommandLine;
 
 public class NatGen
@@ -14,7 +14,8 @@ public class NatGen
 	public int run(String... args)
 	{
 		var cli = new CommandLine(new GenerateCommand())
-			.addSubcommand(new ParseJsonCommand());
+			.addSubcommand(new GenerateParseJsonCommand())
+			.setCaseInsensitiveEnumValuesAllowed(true); // Must come after subcommands
 
 		return cli.execute(args);
 	}

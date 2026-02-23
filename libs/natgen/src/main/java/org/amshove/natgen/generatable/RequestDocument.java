@@ -155,9 +155,19 @@ public class RequestDocument implements IGeneratableStatement
 		if (!requestHeaderPairs.isEmpty())
 		{
 			hasWith = appendWith(hasWith, builder);
+			builder.append("HEADER").appendIf(requestHeaderPairs.size() == 1, " ");
+			if (requestHeaderPairs.size() > 1)
+			{
+				builder.lineBreak().indent();
+			}
+
 			for (var pair : requestHeaderPairs)
 			{
-				builder.append("HEADER NAME ").append(pair.name()).append(" VALUE ").appendLine(pair.value());
+				builder.append("NAME ").append(pair.name()).append(" VALUE ").appendLine(pair.value());
+			}
+			if (requestHeaderPairs.size() > 1)
+			{
+				builder.unindent();
 			}
 		}
 

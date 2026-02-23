@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.amshove.natgen.generatable.definedata.RedefinitionMember.Filler;
+import static org.amshove.natgen.generatable.definedata.RedefinitionMember.VariableMember;
+
 public class DefineDataGenerator
 {
 	/// Generates a DEFINE DATA block with all variables
@@ -74,7 +77,8 @@ public class DefineDataGenerator
 		{
 			switch (element)
 			{
-				case Using using -> {
+				case Using using ->
+				{
 					code.append(System.lineSeparator()).append(using.generate());
 					needsScopeToStart = true;
 				}
@@ -156,7 +160,18 @@ public class DefineDataGenerator
 			for (var redefineChild : redefinition.members())
 			{
 				code.lineBreak();
-				generateVariable(code, redefineChild);
+				switch (redefineChild)
+				{
+					case Filler(var size) -> code
+						.indent()
+						.append("%d FILLER %dX".formatted(
+							variable.level() + 1,
+							size)
+						)
+						.unindent();
+					case VariableMember(var member) ->
+						generateVariable(code, member);
+				}
 			}
 		}
 

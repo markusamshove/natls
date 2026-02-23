@@ -1,5 +1,6 @@
 package org.amshove.natgen.generators;
 
+import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.CodeGenerationTest;
 import org.amshove.natgen.Dimension;
 import org.amshove.natgen.VariableType;
@@ -8,12 +9,15 @@ import org.junit.jupiter.api.Test;
 
 class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 {
-	private final ParseJsonFromJsonGenerator sut = new ParseJsonFromJsonGenerator();
+	private CodeGenerationContext generate(String json)
+	{
+		return new ParseJsonFromJsonGenerator(json, new ParseJsonGenerator.Settings()).generate();
+	}
 
 	@Test
 	void createVariablesForJsonParsing()
 	{
-		var context = sut.generate("{ }");
+		var context = generate("{ }");
 		assertOn(context)
 			.hasVariable(1, "#JSON-SOURCE", VariableScope.LOCAL)
 			.hasVariable(1, "##JSON-PARSING", VariableScope.LOCAL)
@@ -26,7 +30,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	@Test
 	void generateASimpleParseJsonFromEmptyJson()
 	{
-		var context = sut.generate("{ }");
+		var context = generate("{ }");
 		assertOn(context)
 			.generatesStatements("""
 				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
@@ -40,7 +44,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	@Test
 	void parseSimpleScalarStrings()
 	{
-		var context = sut.generate("{ \"name\": \"natls\" }");
+		var context = generate("{ \"name\": \"natls\" }");
 		assertOn(context)
 			.hasVariable(2, "##PARSED-JSON.#NAME", VariableScope.LOCAL, VariableType.alphanumericDynamic())
 			.generatesStatements("""
@@ -57,7 +61,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	@Test
 	void parseSimpleScalarNumbers()
 	{
-		var context = sut.generate("{ \"age\": 10 }");
+		var context = generate("{ \"age\": 10 }");
 		assertOn(context)
 			.hasVariable(2, "##PARSED-JSON.#AGE", VariableScope.LOCAL, VariableType.numeric(12.7))
 			.generatesStatements("""
@@ -74,7 +78,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	@Test
 	void parseSimpleScalarBooleans()
 	{
-		var context = sut.generate("{ \"nice\": true }");
+		var context = generate("{ \"nice\": true }");
 		assertOn(context)
 			.hasVariable(2, "##PARSED-JSON.#NICE", VariableScope.LOCAL, VariableType.logical())
 			.generatesStatements("""
@@ -91,7 +95,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	@Test
 	void parseArrayOfPrimitiveStringsWhichItselfIsAProperty()
 	{
-		var context = sut.generate("{ \"names\": [ \"natls\", \"natparse\" ] }");
+		var context = generate("{ \"names\": [ \"natls\", \"natparse\" ] }");
 		assertOn(context)
 			.hasVariable(2, "##JSON-PARSING.#S-#NAMES", VariableScope.LOCAL, VariableType.integer(4))
 			.hasVariable(
@@ -117,7 +121,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	@Test
 	void parseNestedObjectsAsGroupsWithVariables()
 	{
-		var context = sut.generate("{ \"person\": { \"name\": \"Peter\", \"age\": 30 } }");
+		var context = generate("{ \"person\": { \"name\": \"Peter\", \"age\": 30 } }");
 
 		assertOn(context)
 			.hasVariable(2, "##PARSED-JSON.#PERSON", VariableScope.LOCAL, VariableType.group())
@@ -153,7 +157,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	@Test
 	void parseNestedObjectsWithinArrays()
 	{
-		var context = sut.generate("{ \"persons\": [ { \"name\": \"Peter\", \"age\": 30 }, { \"name\": \"Hilde\", \"age\": 28 } ] }");
+		var context = generate("{ \"persons\": [ { \"name\": \"Peter\", \"age\": 30 }, { \"name\": \"Hilde\", \"age\": 28 } ] }");
 
 		assertOn(context)
 			.generatesDefineData("""
@@ -192,7 +196,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	@Test
 	void parseObjectsWithArraysWithinArrays()
 	{
-		var context = sut.generate("{ \"persons\": [ { \"name\": \"Peter\", \"numbers\": [ 30, 35 ] }, { \"name\": \"Hilde\", \"numbers\": [ 40, 45 ] } ] }");
+		var context = generate("{ \"persons\": [ { \"name\": \"Peter\", \"numbers\": [ 30, 35 ] }, { \"name\": \"Hilde\", \"numbers\": [ 40, 45 ] } ] }");
 
 		assertOn(context)
 			.generatesDefineData("""
@@ -236,7 +240,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	@Test
 	void disambiguatePropertyNames()
 	{
-		var context = sut.generate("{ \"employee\": { \"name\": \"Heinz\" }, \"boss\": { \"name\": \"Bossman\" } }");
+		var context = generate("{ \"employee\": { \"name\": \"Heinz\" }, \"boss\": { \"name\": \"Bossman\" } }");
 
 		assertOn(context)
 			.generatesDefineData("""
@@ -270,7 +274,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	@Test
 	void disambiguateSizeVariableNames()
 	{
-		var context = sut.generate("{ \"obj1\": { \"numbers\": [1, 2, 3] }, \"obj2\": { \"numbers\": [4, 5,6] } }");
+		var context = generate("{ \"obj1\": { \"numbers\": [1, 2, 3] }, \"obj2\": { \"numbers\": [4, 5,6] } }");
 
 		assertOn(context)
 			.generatesDefineData("""
@@ -314,7 +318,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 	@Test
 	void inferAlphanumericForNulls()
 	{
-		var context = sut.generate("{ \"name\": null }");
+		var context = generate("{ \"name\": null }");
 		assertOn(context)
 			.generatesDefineData("""
 					DEFINE DATA
