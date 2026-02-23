@@ -1,5 +1,8 @@
 package org.amshove.natgen.commands;
 
+import io.swagger.parser.OpenAPIParser;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.parser.core.models.ParseOptions;
 import org.amshove.natgen.CliOutput;
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
@@ -24,12 +27,24 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 
 @Command(name = "parse-json")
-public class ParseJsonCommand implements Callable<Integer>
+public class GenerateParseJsonCommand implements Callable<Integer>
 {
 	private static final CliOutput output = new CliOutput();
 
 	@Parameters(arity = "1")
-	File jsonFile;
+	File inputFile;
+
+	@CommandLine.Option(names =
+	{
+		"--input-format"
+	}, description = "Specify the input format. Valid values: ${COMPLETION-CANDIDATES}", required = true)
+	ParseJsonInputFormat inputFormat;
+
+	@CommandLine.Option(names =
+	{
+		"--schema-name"
+	}, description = "Specify the schema/component name to be generated. Only relevant for input format openapi")
+	String openApiSchemaName;
 
 	@CommandLine.Option(names =
 	{
@@ -43,23 +58,29 @@ public class ParseJsonCommand implements Callable<Integer>
 	}, description = "Generate code in to the given file path")
 	Path outModule;
 
+	private ParseJsonGenerator.Settings generationSettings;
+
 	@Override
 	public Integer call() throws Exception
 	{
 		output.info("/*********");
-		output.info("Generating code for %s", jsonFile);
+		output.info("Generating code for %s", inputFile);
+		output.info("Type: %s", inputFormat);
 		output.info("/*********");
 
-		var generationSettings = new ParseJsonFromJsonGenerator.Settings();
+		if (inputFormat == ParseJsonInputFormat.OPENAPI && openApiSchemaName == null)
+		{
+			throw new IllegalStateException("--schema-name must be specified when --input-format=openapi is specified");
+		}
+
+		generationSettings = new ParseJsonFromJsonGenerator.Settings();
 		if (outputPda != null)
 		{
 			generationSettings.setParsedJsonGroupName(IFilesystem.filenameWithoutExtension(outputPda));
 			generationSettings.setJsonSourceScope(VariableScope.PARAMETER);
 		}
 
-		var jsonContent = Files.readString(jsonFile.toPath(), StandardCharsets.UTF_8);
-		var parseJsonGenerator = ParseJsonGenerator.forRawJson(jsonContent, generationSettings);
-		var context = parseJsonGenerator.generate();
+		var context = generateContext();
 
 		CodeGenerationContext contextForDefineData = context;
 		if (outputPda != null)
@@ -86,6 +107,32 @@ public class ParseJsonCommand implements Callable<Integer>
 		printGeneratedCode(context, outModule);
 
 		return 0;
+	}
+
+	private CodeGenerationContext generateContext() throws IOException
+	{
+		var fileContent = Files.readString(inputFile.toPath(), StandardCharsets.UTF_8);
+		var generator = switch (inputFormat)
+		{
+			case JSON -> ParseJsonGenerator.forRawJson(fileContent, generationSettings);
+			case OPENAPI -> ParseJsonGenerator.forOpenAPISchema(parseOpenApiSpec(fileContent), openApiSchemaName, generationSettings);
+		};
+
+		return generator.generate();
+	}
+
+	private OpenAPI parseOpenApiSpec(String fileContent)
+	{
+		var options = new ParseOptions();
+		options.setFlatten(true);
+		var parser = new OpenAPIParser();
+		var parseResult = parser.readContents(fileContent, null, options);
+		for (var message : parseResult.getMessages())
+		{
+			output.error("OpenAPI Message: %s", message);
+		}
+
+		return parseResult.getOpenAPI();
 	}
 
 	private void printGeneratedDefineData(CodeGenerationContext context, Path filePath) throws IOException
@@ -124,5 +171,11 @@ public class ParseJsonCommand implements Callable<Integer>
 		var generatedModule = moduleGenerator.generate(context, NaturalFileType.fromPath(filePath));
 		Files.writeString(filePath, generatedModule, StandardCharsets.UTF_8);
 		output.info("  -> Generated %s", filePath);
+	}
+
+	public enum ParseJsonInputFormat
+	{
+		JSON,
+		OPENAPI
 	}
 }

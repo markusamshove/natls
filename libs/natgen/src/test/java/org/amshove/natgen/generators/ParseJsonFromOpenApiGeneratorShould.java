@@ -19,9 +19,8 @@ class ParseJsonFromOpenApiGeneratorShould extends CodeGenerationTest
 		options.setFlatten(true);
 		var result = openAPIParser.readContents(openApiSpec, null, options);
 		var spec = result.getOpenAPI();
-		var schema = spec.getComponents().getSchemas().get(schemaName);
 		var generatorSettings = new ParseJsonGenerator.Settings();
-		var generator = ParseJsonGenerator.forOpenAPISchema(spec, schemaName, schema, generatorSettings);
+		var generator = ParseJsonGenerator.forOpenAPISchema(spec, schemaName, generatorSettings);
 		return generator.generate();
 	}
 
@@ -30,6 +29,9 @@ class ParseJsonFromOpenApiGeneratorShould extends CodeGenerationTest
 	{
 		var context = generate("Person", """
 openapi: 3.1.0
+info:
+  title: api API
+  version: 1.0.0
 components:
   schemas:
     Person:

@@ -12,7 +12,7 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-class ParseJsonCommandShould
+class GenerateParseJsonCommandShould
 {
 	private NatGen natgen;
 
@@ -33,7 +33,7 @@ class ParseJsonCommandShould
 			var jsonFile = workingDirectory.resolve("test.json");
 			Files.writeString(jsonFile, "{ \"name\": \"natgen\" }");
 
-			natgen.run("parse-json", jsonFile.toAbsolutePath().toString());
+			natgen.run("parse-json", "--input-format=json", jsonFile.toAbsolutePath().toString());
 
 			assertThat(outs.stdOut())
 				.contains("DEFINE DATA")
@@ -53,7 +53,7 @@ class ParseJsonCommandShould
 			var moduleFile = workingDirectory.resolve("MOD.NSP");
 
 			natgen.run(
-				"parse-json", jsonFile.toAbsolutePath().toString(), "--out-pda",
+				"parse-json", "--input-format", "json", jsonFile.toAbsolutePath().toString(), "--out-pda",
 				pdaFile.toAbsolutePath().toString(), "--out-module", moduleFile.toAbsolutePath().toString()
 			);
 
@@ -79,13 +79,51 @@ class ParseJsonCommandShould
 
 			var moduleFile = workingDirectory.resolve("MOD");
 
-			natgen.run("parse-json", jsonFile.toAbsolutePath().toString(), "--out-module", moduleFile.toAbsolutePath().toString());
+			natgen.run("parse-json", jsonFile.toAbsolutePath().toString(), "--input-format", "json", "--out-module", moduleFile.toAbsolutePath().toString());
 
 			// .NSN is added by the generator
 			var moduleContent = Files.readString(moduleFile.getParent().resolve("MOD.NSN"), StandardCharsets.UTF_8);
 
 			assertThat(moduleContent)
 				.containsIgnoringWhitespaces("##PARSED-JSON.#NAME := ##JSON-PARSING.#VALUE");
+		}
+	}
+
+	@Test
+	void generateAParseJsonFromOpenAPISpecification() throws IOException
+	{
+		try (var _ = OutputCapture.captureStdStreams())
+		{
+			var specFile = workingDirectory.resolve("spec.yaml");
+			Files.writeString(specFile, """
+				openapi: 3.1.0
+				components:
+				  schemas:
+				    Person:
+				      type: object
+				      properties:
+				        name:
+				          type: string
+				""");
+
+			var pdaFile = workingDirectory.resolve("MYPDA.NSA");
+			var moduleFile = workingDirectory.resolve("MOD.NSP");
+
+			natgen.run(
+				"parse-json", "--input-format", "openapi", specFile.toAbsolutePath().toString(), "--out-pda",
+				pdaFile.toAbsolutePath().toString(), "--out-module", moduleFile.toAbsolutePath().toString(),
+				"--schema-name", "Person"
+			);
+
+			var pdaContent = Files.readString(pdaFile, StandardCharsets.UTF_8);
+			var moduleContent = Files.readString(moduleFile, StandardCharsets.UTF_8);
+
+			// PDA name is used as group name
+			assertThat(pdaContent).contains("1 MYPDA");
+
+			assertThat(moduleContent)
+				.contains("USING MYPDA")
+				.containsIgnoringWhitespaces("MYPDA.#NAME := ##JSON-PARSING.#VALUE");
 		}
 	}
 }

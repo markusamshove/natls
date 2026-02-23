@@ -21,12 +21,12 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 	private final Schema<?> rootSchema;
 	private final String rootSchemaName;
 
-	protected ParseJsonFromOpenApiSchemaGenerator(OpenAPI spec, String schemaName, Schema<?> schema, Settings settings)
+	protected ParseJsonFromOpenApiSchemaGenerator(OpenAPI spec, String schemaName, Settings settings)
 	{
 		super(settings);
 		this.spec = spec;
 		this.rootSchemaName = schemaName;
-		this.rootSchema = schema;
+		this.rootSchema = spec.getComponents().getSchemas().get(schemaName);
 	}
 
 	@Override
