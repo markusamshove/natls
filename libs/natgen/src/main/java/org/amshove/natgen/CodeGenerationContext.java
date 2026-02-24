@@ -9,7 +9,7 @@ import org.amshove.natparse.natural.VariableScope;
 import java.util.*;
 
 /// Holds the building blocks for code that is going to be generated.
-public class CodeGenerationContext
+public final class CodeGenerationContext
 {
 	private final List<Variable> variables = new ArrayList<>();
 	private final EnumMap<VariableScope, Set<Using>> usings = new EnumMap<>(VariableScope.class);
@@ -88,9 +88,10 @@ public class CodeGenerationContext
 	}
 
 	/// Adds a statement to the context
-	public void addStatement(IGeneratableStatement statement)
+	public CodeGenerationContext addStatement(IGeneratableStatement statement)
 	{
 		statements.add(statement);
+		return this;
 	}
 
 	public List<IGeneratableStatement> statements()

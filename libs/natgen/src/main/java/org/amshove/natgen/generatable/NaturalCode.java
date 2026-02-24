@@ -60,6 +60,11 @@ public class NaturalCode implements IGeneratable
 		return new NaturalCode("'%s'".formatted(plaintext));
 	}
 
+	public static NaturalCode numberLiteral(String plaintext)
+	{
+		return plain(plaintext);
+	}
+
 	public static IGeneratableStatement incrementVariable(IGeneratable variable)
 	{
 		return new GeneratableStatement("ADD 1 TO " + variable.generate());
@@ -151,6 +156,11 @@ public class NaturalCode implements IGeneratable
 	public static DecideOn decideOnEvery(IGeneratable reference)
 	{
 		return new DecideOn(reference, DecideOnValueCheck.EVERY);
+	}
+
+	public static IGeneratableStatement emptyLine()
+	{
+		return new GeneratableStatement("");
 	}
 
 	public static NaturalCode functionCall(String functionName, IGeneratable... parameter)

@@ -168,6 +168,12 @@ public abstract class ParseJsonGenerator
 				continue;
 			}
 
+			// Array does not need RESET, because it is an inline array response
+			if (!path.contains(JSON_SEPARATOR))
+			{
+				continue;
+			}
+
 			var sizeVariable = findSizeVariableForArray(array);
 			// go from `</obj/(/</arrayInObj`
 			// to `</obj/(/>` to get the path of closing the enclosing object

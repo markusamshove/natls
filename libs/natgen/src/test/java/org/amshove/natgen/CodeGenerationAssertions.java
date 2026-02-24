@@ -48,6 +48,7 @@ public class CodeGenerationAssertions
 		for (var statement : context.statements())
 		{
 			statement.generateInto(builder);
+			builder.lineBreak();
 		}
 		assertThat(builder.toString())
 			.isEqualToNormalizingNewlines(expectedSource);

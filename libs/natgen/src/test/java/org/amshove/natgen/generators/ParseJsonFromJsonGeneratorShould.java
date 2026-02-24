@@ -38,7 +38,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -55,7 +56,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -72,7 +74,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -89,7 +92,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -115,7 +119,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -151,7 +156,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -190,7 +196,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -234,7 +241,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -268,7 +276,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -312,7 +321,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -340,6 +350,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 }

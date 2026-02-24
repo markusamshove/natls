@@ -51,7 +51,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -136,7 +137,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -163,7 +165,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@ParameterizedTest
@@ -252,7 +255,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -280,7 +284,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -328,7 +333,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -374,7 +380,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -429,7 +436,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -492,6 +500,7 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 }

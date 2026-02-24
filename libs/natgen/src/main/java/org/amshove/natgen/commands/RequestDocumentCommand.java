@@ -3,12 +3,11 @@ package org.amshove.natgen.commands;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import org.amshove.natgen.CliOutput;
-import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generators.ModuleGenerator;
 import org.amshove.natgen.generators.ParseJsonGenerator;
-import org.amshove.natparse.natural.VariableScope;
+import org.amshove.natgen.generators.RequestDocumentForOpenApiGenerator;
 import org.amshove.natparse.natural.project.NaturalFileType;
 import picocli.CommandLine;
 
@@ -19,7 +18,6 @@ import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 import static org.amshove.natgen.generatable.NaturalCode.assignment;
-import static org.amshove.natgen.generatable.NaturalCode.stringLiteral;
 
 @CommandLine.Command(name = "request-document")
 public class RequestDocumentCommand implements Callable<Integer>
@@ -57,34 +55,17 @@ public class RequestDocumentCommand implements Callable<Integer>
 		{
 			for (var httpMethodOperation : path.getValue().readOperationsMap().entrySet())
 			{
-				// TODO: Validate possible number of modules according to paths/operations
-				var moduleName = String.format(moduleNameFormat, currentModuleNumber++);
-
 				var theMethod = httpMethodOperation.getKey().toString();
 				var theOperation = httpMethodOperation.getValue();
 
-				var context = new CodeGenerationContext();
+				var context = new RequestDocumentForOpenApiGenerator(openApi)
+					.generate(theMethod, path.getKey(), theOperation);
+
+				// TODO: Validate possible number of modules according to paths/operations
+				var moduleName = String.format(moduleNameFormat, currentModuleNumber++);
+
 				context.addParameter("#P-BASE-URL", VariableType.alphanumericDynamic());
-				var requestGroup = context.addVariable(VariableScope.LOCAL, "##REQUEST", VariableType.group());
-				var responseGroup = context.addVariable(VariableScope.LOCAL, "##RESPONSE", VariableType.group());
-				var responseCode = responseGroup.addVariable("#CODE", VariableType.integer(4));
-				var responseBody = responseGroup.addVariable("#BODY", VariableType.alphanumericDynamic());
 				// TODO: BaseURL + Path
-				var theUrl = stringLiteral("http://172.18.0.1:8080" + path.getKey());
-
-				var requestDocument = NaturalCode
-					.requestDocument(theUrl, responseCode)
-					.withMethod(stringLiteral(theMethod));
-				requestDocument
-					.withContentType(
-						stringLiteral(
-							theOperation.getResponses().firstEntry().getValue().getContent().firstEntry()
-								.getKey()
-						)
-					);
-				requestDocument.withResponseBody(responseBody);
-
-				context.addStatement(requestDocument);
 
 				if (path.getKey().equals("/wetter/zufaellig"))
 				{
@@ -102,7 +83,7 @@ public class RequestDocumentCommand implements Callable<Integer>
 								settings.setParsedJsonGroupName("#RESPONSE-" + responseByCode.getKey());
 								var generator = ParseJsonGenerator.forOpenAPISchema(
 									openApi, schemaName,
-									mediaTypeResponse.getValue().getSchema(), settings
+									settings
 								);
 								var parseJsonContext = generator.generate();
 
