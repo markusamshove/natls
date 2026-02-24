@@ -3,10 +3,7 @@ package org.amshove.natgen.commands;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import org.amshove.natgen.CliOutput;
-import org.amshove.natgen.VariableType;
-import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generators.ModuleGenerator;
-import org.amshove.natgen.generators.ParseJsonGenerator;
 import org.amshove.natgen.generators.RequestDocumentForOpenApiGenerator;
 import org.amshove.natparse.natural.project.NaturalFileType;
 import picocli.CommandLine;
@@ -16,8 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
-
-import static org.amshove.natgen.generatable.NaturalCode.assignment;
 
 @CommandLine.Command(name = "request-document")
 public class RequestDocumentCommand implements Callable<Integer>
@@ -63,36 +58,6 @@ public class RequestDocumentCommand implements Callable<Integer>
 
 				// TODO: Validate possible number of modules according to paths/operations
 				var moduleName = String.format(moduleNameFormat, currentModuleNumber++);
-
-				context.addParameter("#P-BASE-URL", VariableType.alphanumericDynamic());
-				// TODO: BaseURL + Path
-
-				if (path.getKey().equals("/wetter/zufaellig"))
-				{
-					for (var responseByCode : theOperation.getResponses().entrySet())
-					{
-						// if response code equals responseByCode.getKey()
-						for (var mediaTypeResponse : responseByCode.getValue().getContent().entrySet())
-						{
-							if (mediaTypeResponse.getKey().equals("application/json"))
-							{
-								var refSplit = mediaTypeResponse.getValue().getSchema().get$ref().split("/");
-								var schemaName = refSplit[refSplit.length - 1];
-
-								var settings = new ParseJsonGenerator.Settings();
-								settings.setParsedJsonGroupName("#RESPONSE-" + responseByCode.getKey());
-								var generator = ParseJsonGenerator.forOpenAPISchema(
-									openApi, schemaName,
-									settings
-								);
-								var parseJsonContext = generator.generate();
-
-								context.addStatement(assignment(NaturalCode.plain("#JSON-SOURCE"), NaturalCode.plain("#BODY")));
-								context.consume(parseJsonContext);
-							}
-						}
-					}
-				}
 
 				var moduleGenerator = new ModuleGenerator();
 				var generatedModule = moduleGenerator.generate(context, NaturalFileType.SUBPROGRAM);

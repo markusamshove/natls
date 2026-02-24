@@ -45,15 +45,44 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 				END-DEFINE""")
 			.generatesStatements("""
 				COMPRESS #P-BASE-URL '/weather' INTO ##REQUEST.#URL LEAVING NO SPACE
-				
+
 				REQUEST DOCUMENT FROM ##REQUEST.#URL
 				  WITH
-				    HEADER
-				      NAME 'REQUEST-METHOD' VALUE 'GET'
-				      NAME 'Content-Type' VALUE 'application/json'
+				    HEADER NAME 'REQUEST-METHOD' VALUE 'GET'
 				  RETURN
 				    PAGE ##RESPONSE.#BODY
 				    RESPONSE ##RESPONSE.#CODE
+
+				DECIDE ON FIRST VALUE OF ##RESPONSE.#CODE
+				  VALUE 200
+				    PERFORM HANDLE-200
+				  NONE VALUE
+				    IGNORE
+				END-DECIDE
+
+				/***********************************************************************
+				DEFINE SUBROUTINE HANDLE-200
+				/***********************************************************************
+
+				#JSON-SOURCE := #BODY
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE 'Response/(/<'
+				      ADD 1 TO ##JSON-PARSING.#S-#RESPONSE
+				      EXPAND ARRAY #RESPONSE-200.#RESPONSE TO (1:##JSON-PARSING.#S-#RESPONSE)
+				    VALUE 'Response/(/</id/$'
+				      #RESPONSE-200.#ID(#S-#RESPONSE) := ##JSON-PARSING.#VALUE
+				    VALUE 'Response/(/</temperature/$'
+				      #RESPONSE-200.#TEMPERATURE(#S-#RESPONSE) := VAL(##JSON-PARSING.#VALUE)
+				    VALUE 'Response/(/</description/$'
+				      #RESPONSE-200.#DESCRIPTION(#S-#RESPONSE) := ##JSON-PARSING.#VALUE
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE
+
+				END-SUBROUTINE
+
 				""");
 	}
 

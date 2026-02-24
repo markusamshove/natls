@@ -102,9 +102,15 @@ public final class CodeGenerationContext
 	/// Merge the passed context into this one
 	public void consume(CodeGenerationContext other)
 	{
+		consumeExceptStatements(other);
+		this.statements.addAll(other.statements);
+	}
+
+	/// Merge the passed context into this one but leave out statements
+	public void consumeExceptStatements(CodeGenerationContext other)
+	{
 		this.variables.addAll(other.variables);
 		this.parameter.addAll(other.parameter);
 		this.usings.putAll(other.usings);
-		this.statements.addAll(other.statements);
 	}
 }

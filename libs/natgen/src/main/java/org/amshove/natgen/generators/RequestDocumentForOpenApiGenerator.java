@@ -58,7 +58,7 @@ public class RequestDocumentForOpenApiGenerator
 		//		decideOnResponse
 		//			.onNoneValue()
 		//			.addToBody();
-		context.addStatement(decideOnResponse);
+		context.addStatement(decideOnResponse).addStatement(emptyLine());
 		for (var response : operation.getResponses().entrySet())
 		{
 			var subroutine = createResponseSubroutine(response.getKey(), response.getValue(), context);
@@ -75,7 +75,7 @@ public class RequestDocumentForOpenApiGenerator
 	{
 		var subroutine = subroutine("HANDLE-" + responseCode);
 
-		if (response.getContent().isEmpty())
+		if (response.getContent() == null || response.getContent().isEmpty())
 		{
 			return subroutine;
 		}
@@ -97,8 +97,9 @@ public class RequestDocumentForOpenApiGenerator
 			);
 			var parseJsonContext = generator.generate();
 
-			context.addStatement(assignment(NaturalCode.plain("#JSON-SOURCE"), NaturalCode.plain("#BODY")));
-			context.consume(parseJsonContext);
+			subroutine.addToBody(assignment(NaturalCode.plain("#JSON-SOURCE"), NaturalCode.plain("#BODY")));
+			context.consumeExceptStatements(parseJsonContext);
+			subroutine.addToBody(parseJsonContext.statements());
 		}
 
 		return subroutine;

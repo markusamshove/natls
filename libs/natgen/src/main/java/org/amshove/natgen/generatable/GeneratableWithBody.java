@@ -3,6 +3,7 @@ package org.amshove.natgen.generatable;
 import org.amshove.natgen.CodeBuilder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 class GeneratableWithBody<T extends IGeneratableStatement>
@@ -13,6 +14,16 @@ class GeneratableWithBody<T extends IGeneratableStatement>
 	public T addToBody(IGeneratableStatement generatable)
 	{
 		bodyParts.add(generatable);
+		return (T) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public T addToBody(Collection<IGeneratableStatement> statements)
+	{
+		for (var statement : statements)
+		{
+			addToBody(statement);
+		}
 		return (T) this;
 	}
 
