@@ -7,6 +7,8 @@ import picocli.CommandLine;
 
 public class NatGen
 {
+	public static final String VERSION = NatGen.class.getPackage().getImplementationVersion();
+
 	static void main(String[] args)
 	{
 		System.exit(new NatGen().run(args));
