@@ -97,4 +97,13 @@ public class CodeGenerationContext
 	{
 		return statements;
 	}
+
+	/// Merge the passed context into this one
+	public void consume(CodeGenerationContext other)
+	{
+		this.variables.addAll(other.variables);
+		this.parameter.addAll(other.parameter);
+		this.usings.putAll(other.usings);
+		this.statements.addAll(other.statements);
+	}
 }

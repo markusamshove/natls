@@ -1,6 +1,7 @@
 package org.amshove.natgen.generators;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.Schema;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn;
@@ -72,10 +73,16 @@ public abstract class ParseJsonGenerator
 		return new ParseJsonFromJsonGenerator(rawJson, settings);
 	}
 
-	/// Create a `PARSE JSON` generator which uses an OpenAPI spec as basis.
+	/// Create a `PARSE JSON` generator which uses an OpenAPI spec as basis searching for the given `schemaName`.
 	public static ParseJsonGenerator forOpenAPISchema(OpenAPI spec, String schemaName, Settings settings)
 	{
 		return new ParseJsonFromOpenApiSchemaGenerator(spec, schemaName, settings);
+	}
+
+	/// Create a `PARSE JSON` generator which uses an OpenAPI spec as basis for a given schema.
+	public static ParseJsonGenerator forOpenAPISchema(OpenAPI spec, String schemaName, Schema<?> schema, Settings settings)
+	{
+		return new ParseJsonFromOpenApiSchemaGenerator(spec, schemaName, schema, settings);
 	}
 
 	/// Creates a [CodeGenerationContext] which contains all variables and a single `PARSE JSON`

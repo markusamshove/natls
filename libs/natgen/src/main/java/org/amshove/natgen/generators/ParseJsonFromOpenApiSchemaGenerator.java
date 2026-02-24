@@ -13,6 +13,8 @@ import org.amshove.natgen.generatable.definedata.Variable;
 import java.util.Locale;
 
 import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
+import static org.amshove.natgen.OpenApiExtensions.findSchemaByReference;
+import static org.amshove.natgen.OpenApiExtensions.resolveSchema;
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
 class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
@@ -23,10 +25,15 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 	protected ParseJsonFromOpenApiSchemaGenerator(OpenAPI spec, String schemaName, Settings settings)
 	{
+		this(spec, schemaName, spec.getComponents().getSchemas().get(schemaName), settings);
+	}
+
+	protected ParseJsonFromOpenApiSchemaGenerator(OpenAPI spec, String schemaName, Schema<?> schema, Settings settings)
+	{
 		super(settings);
 		this.spec = spec;
 		this.rootSchemaName = schemaName;
-		this.rootSchema = spec.getComponents().getSchemas().get(schemaName);
+		this.rootSchema = schema;
 	}
 
 	@Override
@@ -39,7 +46,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 	{
 		if (schema.get$ref() != null)
 		{
-			var referencedComponent = findSchemaByReference(schema.get$ref());
+			var referencedComponent = findSchemaByReference(schema.get$ref(), spec);
 			createDecideOnBranch(decide, parentVariable, schemaName, referencedComponent, currentPath);
 			return;
 		}
@@ -196,7 +203,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 	{
 		if (schema.get$ref() != null)
 		{
-			return inferNaturalType(findSchemaByReference(schema.get$ref()));
+			return inferNaturalType(findSchemaByReference(schema.get$ref(), spec));
 		}
 
 		var firstType = extractOpenApiType(schema);
@@ -226,26 +233,8 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 	private String extractOpenApiType(Schema<?> schema)
 	{
-		if (schema.get$ref() != null)
-		{
-			return extractOpenApiType(findSchemaByReference(schema.get$ref()));
-		}
-
-		return schema.getTypes().stream().findFirst().orElseThrow(() -> new IllegalStateException("Can not extract type from Schema %s".formatted(schema)));
+		var resolvedSchema = resolveSchema(schema, spec);
+		return resolvedSchema.getTypes().stream().findFirst().orElseThrow(() -> new IllegalStateException("Can not extract type from Schema %s".formatted(resolvedSchema)));
 	}
 
-	private Schema<?> findSchemaByReference(String reference)
-	{
-		// Since we always flatten the spec, we assume we're looking
-		// for a component.
-		var splitReference = reference.split("/");
-		var componentKey = splitReference[splitReference.length - 1];
-		var referencedComponentSchema = spec.getComponents().getSchemas().get(componentKey);
-		if (referencedComponentSchema == null)
-		{
-			throw new IllegalStateException("Can not find referenced component with reference <%s>".formatted(reference));
-		}
-
-		return referencedComponentSchema;
-	}
 }

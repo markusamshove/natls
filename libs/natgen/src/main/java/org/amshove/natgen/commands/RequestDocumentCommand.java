@@ -1,0 +1,128 @@
+package org.amshove.natgen.commands;
+
+import io.swagger.parser.OpenAPIParser;
+import io.swagger.v3.parser.core.models.ParseOptions;
+import org.amshove.natgen.CliOutput;
+import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natgen.generators.ModuleGenerator;
+import org.amshove.natgen.generators.ParseJsonGenerator;
+import org.amshove.natparse.natural.VariableScope;
+import org.amshove.natparse.natural.project.NaturalFileType;
+import picocli.CommandLine;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.concurrent.Callable;
+
+import static org.amshove.natgen.generatable.NaturalCode.assignment;
+import static org.amshove.natgen.generatable.NaturalCode.stringLiteral;
+
+@CommandLine.Command(name = "request-document")
+public class RequestDocumentCommand implements Callable<Integer>
+{
+	private static final CliOutput output = new CliOutput();
+
+	@CommandLine.Parameters(arity = "1")
+	File openApiSchemaFile;
+
+	@Override
+	public Integer call() throws Exception
+	{
+		var options = new ParseOptions();
+		options.setFlatten(true);
+		var openApiParseResult = new OpenAPIParser().readLocation(openApiSchemaFile.getAbsolutePath(), null, options);
+		var openApi = openApiParseResult.getOpenAPI();
+
+		if (!openApiParseResult.getMessages().isEmpty())
+		{
+			output.error("Error(s) during Open API parsing");
+			for (var message : openApiParseResult.getMessages())
+			{
+				output.error("Open API: %s", message);
+			}
+			return 1;
+		}
+
+		// TODO: Parameter
+		var moduleBaseName = "WETVOR";
+		var moduleNumberCharacterAmount = 8 - moduleBaseName.length();
+		var moduleNameFormat = moduleBaseName + "%0" + moduleNumberCharacterAmount + "d";
+		var currentModuleNumber = 1;
+
+		for (var path : openApi.getPaths().entrySet())
+		{
+			for (var httpMethodOperation : path.getValue().readOperationsMap().entrySet())
+			{
+				// TODO: Validate possible number of modules according to paths/operations
+				var moduleName = String.format(moduleNameFormat, currentModuleNumber++);
+
+				var theMethod = httpMethodOperation.getKey().toString();
+				var theOperation = httpMethodOperation.getValue();
+
+				var context = new CodeGenerationContext();
+				context.addParameter("#P-BASE-URL", VariableType.alphanumericDynamic());
+				var requestGroup = context.addVariable(VariableScope.LOCAL, "##REQUEST", VariableType.group());
+				var responseGroup = context.addVariable(VariableScope.LOCAL, "##RESPONSE", VariableType.group());
+				var responseCode = responseGroup.addVariable("#CODE", VariableType.integer(4));
+				var responseBody = responseGroup.addVariable("#BODY", VariableType.alphanumericDynamic());
+				// TODO: BaseURL + Path
+				var theUrl = stringLiteral("http://172.18.0.1:8080" + path.getKey());
+
+				var requestDocument = NaturalCode
+					.requestDocument(theUrl, responseCode)
+					.withMethod(stringLiteral(theMethod));
+				requestDocument
+					.withContentType(
+						stringLiteral(
+							theOperation.getResponses().firstEntry().getValue().getContent().firstEntry()
+								.getKey()
+						)
+					);
+				requestDocument.withResponseBody(responseBody);
+
+				context.addStatement(requestDocument);
+
+				if (path.getKey().equals("/wetter/zufaellig"))
+				{
+					for (var responseByCode : theOperation.getResponses().entrySet())
+					{
+						// if response code equals responseByCode.getKey()
+						for (var mediaTypeResponse : responseByCode.getValue().getContent().entrySet())
+						{
+							if (mediaTypeResponse.getKey().equals("application/json"))
+							{
+								var refSplit = mediaTypeResponse.getValue().getSchema().get$ref().split("/");
+								var schemaName = refSplit[refSplit.length - 1];
+
+								var settings = new ParseJsonGenerator.Settings();
+								settings.setParsedJsonGroupName("#RESPONSE-" + responseByCode.getKey());
+								var generator = ParseJsonGenerator.forOpenAPISchema(
+									openApi, schemaName,
+									mediaTypeResponse.getValue().getSchema(), settings
+								);
+								var parseJsonContext = generator.generate();
+
+								context.addStatement(assignment(NaturalCode.plain("#JSON-SOURCE"), NaturalCode.plain("#BODY")));
+								context.consume(parseJsonContext);
+							}
+						}
+					}
+				}
+
+				var moduleGenerator = new ModuleGenerator();
+				var generatedModule = moduleGenerator.generate(context, NaturalFileType.SUBPROGRAM);
+				var modulePath = Path.of(moduleName + ".NSN");
+
+				output.info("%s %s => %s", theMethod, path.getKey(), modulePath);
+
+				Files.writeString(modulePath, generatedModule, StandardCharsets.UTF_8);
+			}
+		}
+
+		return 0;
+	}
+}
