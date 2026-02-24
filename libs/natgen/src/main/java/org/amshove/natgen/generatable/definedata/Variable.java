@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public final class Variable implements IGeneratableDefineDataElement
 {
-	private final int level;
+	private int level;
 	private final VariableScope scope;
 	private final String name;
 	private final VariableType type;
@@ -116,12 +116,21 @@ public final class Variable implements IGeneratableDefineDataElement
 		return type;
 	}
 
-	public Variable addVariable(String name, VariableType type)
+	public Variable addVariable(Variable variable)
 	{
-		var variable = new Variable(level + 1, scope, name, type);
+		if (variable.parent != null)
+		{
+			variable.parent.childVariables.remove(variable);
+		}
 		variable.parent = this;
+		variable.level = level + 1;
 		childVariables.add(variable);
 		return variable;
+	}
+
+	public Variable addVariable(String name, VariableType type)
+	{
+		return addVariable(new Variable(level + 1, scope, name, type));
 	}
 
 	void setParent(Variable newParent)

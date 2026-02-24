@@ -42,7 +42,10 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		createDecideOnBranch(decide, parsedJsonRoot, rootSchemaName, rootSchema, "");
 	}
 
-	private void createDecideOnBranch(DecideOn decide, Variable parentVariable, String schemaName, Schema<?> schema, String currentPath)
+	private void createDecideOnBranch(
+		DecideOn decide, Variable parentVariable, String schemaName, Schema<?> schema,
+		String currentPath
+	)
 	{
 		if (schema.get$ref() != null)
 		{
@@ -54,13 +57,14 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		var naturalSchemaName = "#" + schemaName.toUpperCase(Locale.ROOT);
 		var theType = extractOpenApiType(schema);
 
-		var currentSchemaPath = appendPath(currentPath, schemaName);
+		// The root schema gets embedded, meaning that the schema name will not be
+		// included in the JSON path of naturals `PARSE JSON`
+		var currentSchemaPath = schemaName.equals(rootSchemaName)
+			? currentPath
+			: appendPath(currentPath, schemaName);
+
 		if (theType.equals(OBJECT_TYPE))
 		{
-			// The root schema gets embedded, meaning that the object name will not be
-			// included in the JSON path of naturals `PARSE JSON`
-			var objectBasePath = schemaName.equals(rootSchemaName) ? currentPath : currentSchemaPath;
-
 			// If the current parent variable is an array we want to pass it down.
 			// This happens when an object (this) is within an array. The object
 			// definition (natural group) should be the array, not each single property
@@ -68,10 +72,13 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 				? parentVariable
 				: parentVariable.addVariable(naturalSchemaName, VariableType.group());
 
-			var currentObjectPath = appendPath(objectBasePath, START_OBJECT);
+			var currentObjectPath = appendPath(currentSchemaPath, START_OBJECT);
 			for (var property : schema.getProperties().entrySet())
 			{
-				createDecideOnBranch(decide, nextParentVariable, property.getKey(), property.getValue(), currentObjectPath);
+				createDecideOnBranch(
+					decide, nextParentVariable, property.getKey(), property.getValue(),
+					currentObjectPath
+				);
 			}
 
 			return;
@@ -81,7 +88,10 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		{
 			var arrayItemSchema = schema.getItems();
 			var openApiTypeOfItems = extractOpenApiType(arrayItemSchema);
-			var arrayVariable = getVariableForProperty(currentSchemaPath, parentVariable, schemaName, inferNaturalType(arrayItemSchema));
+			var arrayVariable = getVariableForProperty(
+				currentSchemaPath, parentVariable, schemaName,
+				inferNaturalType(arrayItemSchema)
+			);
 			arrayVariable.type().withDimension(Dimension.upperUnbound());
 			var sizeVariable = findSizeVariableForArray(arrayVariable);
 
@@ -160,7 +170,8 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			.addToBody(moveEdited(timeParsingPart, targetTime, "HH:II:SS"));
 	}
 
-	private IGeneratableStatement assignValueToVariable(Variable variable, String type, String format, String currentPath)
+	private IGeneratableStatement assignValueToVariable(Variable variable, String type, String format,
+		String currentPath)
 	{
 		if (currentPath.contains(START_ARRAY))
 		{
@@ -170,7 +181,8 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 		if (STRING_TYPE.equals(type))
 		{
-			return switch(format) {
+			return switch (format)
+			{
 				case DATE_FORMAT -> moveEdited(jsonValue, variable, "YYYY-MM-DD");
 				case null, default -> assignment(variable, primitiveValueAssignment(type));
 			};
@@ -207,8 +219,10 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		}
 
 		var firstType = extractOpenApiType(schema);
-		return switch(firstType) {
-			case STRING_TYPE -> switch (schema.getFormat()) {
+		return switch (firstType)
+		{
+			case STRING_TYPE -> switch (schema.getFormat())
+			{
 				case DATE_FORMAT -> VariableType.date();
 				case UUID_FORMAT -> VariableType.alphanumeric(36);
 				case BINARY_FORMAT -> VariableType.binaryDynamic();
@@ -217,11 +231,13 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 					? VariableType.alphanumeric(schema.getMaxLength())
 					: VariableType.alphanumericDynamic();
 			};
-			case NUMBER_TYPE -> switch (schema.getFormat()) {
+			case NUMBER_TYPE -> switch (schema.getFormat())
+			{
 				case DOUBLE_FORMAT, FLOAT_FORMAT -> VariableType.floating(8);
 				case null, default -> VariableType.integer(4);
 			};
-			case INTEGER_TYPE -> switch (schema.getFormat()) {
+			case INTEGER_TYPE -> switch (schema.getFormat())
+			{
 				case INTEGER64_FORMAT -> VariableType.numeric(8);
 				case null, default -> VariableType.integer(4);
 			};
@@ -234,7 +250,9 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 	private String extractOpenApiType(Schema<?> schema)
 	{
 		var resolvedSchema = resolveSchema(schema, spec);
-		return resolvedSchema.getTypes().stream().findFirst().orElseThrow(() -> new IllegalStateException("Can not extract type from Schema %s".formatted(resolvedSchema)));
+		return resolvedSchema.getTypes().stream().findFirst().orElseThrow(
+			() -> new IllegalStateException("Can not extract type from Schema %s".formatted(resolvedSchema))
+		);
 	}
 
 }

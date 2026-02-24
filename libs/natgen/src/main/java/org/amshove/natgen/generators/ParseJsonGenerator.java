@@ -8,11 +8,9 @@ import org.amshove.natgen.generatable.DecideOn;
 import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
+import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.amshove.natgen.generatable.NaturalCode.*;
@@ -24,8 +22,10 @@ public abstract class ParseJsonGenerator
 		public static final String DEFAULT_PARSED_JSON_GROUP_NAME = "##PARSED-JSON";
 		private String parsedJsonGroupName = DEFAULT_PARSED_JSON_GROUP_NAME;
 		private VariableScope jsonSourceScope = VariableScope.LOCAL;
+		private @Nullable Variable parsedJsonRoot;
 
 		/// Overwrite the group name for the parsed JSON. Default is `##PARSED-JSON`.
+		/// Has no effect when [#setParsedJsonRoot(Variable)] was set.
 		public void setParsedJsonGroupName(String name)
 		{
 			parsedJsonGroupName = name;
@@ -45,6 +45,13 @@ public abstract class ParseJsonGenerator
 		public VariableScope jsonSourceScope()
 		{
 			return jsonSourceScope;
+		}
+
+		/// Sets the variable which is used to add new variables for parsed data to.
+		/// Can live outside the created context.
+		public void setParsedJsonRoot(@Nullable Variable root)
+		{
+			this.parsedJsonRoot = root;
 		}
 	}
 
@@ -94,7 +101,9 @@ public abstract class ParseJsonGenerator
 		jsonValue = jsonParsingGroup.addVariable("#VALUE", VariableType.alphanumericDynamic());
 		var jsonErrCode = jsonParsingGroup.addVariable("#ERR-CODE", VariableType.integer(4));
 		var jsonErrSubcode = jsonParsingGroup.addVariable("#ERR-SUBCODE", VariableType.integer(4));
-		parsedJsonRoot = context.addVariable(VariableScope.LOCAL, settings.parsedJsonGroupName(), VariableType.group());
+		parsedJsonRoot = settings.parsedJsonRoot != null
+			? settings.parsedJsonRoot
+			: context.addVariable(VariableScope.LOCAL, settings.parsedJsonGroupName(), VariableType.group());
 
 		var jsonSourceVariable = context.addVariable(settings.jsonSourceScope(), "#JSON-SOURCE", VariableType.alphanumericDynamic());
 
@@ -151,6 +160,13 @@ public abstract class ParseJsonGenerator
 
 	protected Variable findSizeVariableByPath(String arrayPath)
 	{
+		// When the arrayPath is just START_ARRAY it means the rootSchema is an inlined array
+		// Its size variable was created with empty path
+		if (arrayPath.equals(START_ARRAY))
+		{
+			return findSizeVariableForArray(variablesByJsonPath.get(""));
+		}
+
 		var variablePath = arrayPath.substring(0, arrayPath.lastIndexOf(START_ARRAY) - 1);
 		return findSizeVariableForArray(variablesByJsonPath.get(variablePath));
 	}

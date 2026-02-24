@@ -8,18 +8,40 @@ import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.RequestDocument;
 import org.amshove.natgen.generatable.Subroutine;
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
+import org.jspecify.annotations.Nullable;
 
 import static org.amshove.natgen.OpenApiExtensions.resolveSchema;
+import static org.amshove.natgen.OpenApiExtensions.resolveSchemaName;
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
 public class RequestDocumentForOpenApiGenerator
 {
+
+	public static class Settings
+	{
+		private @Nullable Variable returnBodyRootGroup;
+
+		/// Sets the variable which is used to add new variables for bodies per HTTP return codes.
+		public void setReturnBodyRootGroup(@Nullable Variable root)
+		{
+			this.returnBodyRootGroup = root;
+		}
+	}
+
 	private final OpenAPI openApi;
+	private final Settings settings;
 
 	public RequestDocumentForOpenApiGenerator(OpenAPI openApi)
 	{
+		this(openApi, new Settings());
+	}
+
+	public RequestDocumentForOpenApiGenerator(OpenAPI openApi, Settings settings)
+	{
 		this.openApi = openApi;
+		this.settings = settings;
 	}
 
 	/// Create a [CodeGenerationContext] for a given HTTP method, path and OpenAPI specification
@@ -85,10 +107,18 @@ public class RequestDocumentForOpenApiGenerator
 		if (mediaType.equals("application/json"))
 		{
 			var schema = resolveSchema(responseContent.getValue().getSchema(), openApi);
-			var schemaName = "Response";
-
+			var schemaName = resolveSchemaName(responseContent.getValue().getSchema(), "Inlineresponse");
 			var settings = new ParseJsonGenerator.Settings();
-			settings.setParsedJsonGroupName("#RESPONSE-" + responseCode);
+			if (this.settings.returnBodyRootGroup != null)
+			{
+				settings.setParsedJsonRoot(
+					this.settings.returnBodyRootGroup.addVariable("#RESPONSE-" + responseCode, VariableType.group())
+				);
+			}
+			else
+			{
+				settings.setParsedJsonGroupName("#RESPONSE-" + responseCode);
+			}
 			var generator = ParseJsonGenerator.forOpenAPISchema(
 				openApi,
 				schemaName,

@@ -31,4 +31,17 @@ public class OpenApiExtensions
 
 		return schema;
 	}
+
+	/// Resolve a name for the given schema. If schema has a `$ref`, then the name will be extracted.
+	/// If not, the `defaultName` will be returned.
+	public static String resolveSchemaName(Schema<?> schema, String defaultName)
+	{
+		if (schema.get$ref() != null)
+		{
+			var splitReference = schema.get$ref().split("/");
+			return splitReference[splitReference.length - 1];
+		}
+
+		return defaultName;
+	}
 }
