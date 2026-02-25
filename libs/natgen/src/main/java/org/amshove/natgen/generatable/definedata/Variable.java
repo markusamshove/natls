@@ -25,6 +25,7 @@ public final class Variable implements IGeneratableDefineDataElement
 	private Variable parent;
 
 	private String constValue = null;
+	private boolean byValue = false;
 
 	public Variable(int level, VariableScope scope, String name, VariableType type)
 	{
@@ -46,6 +47,19 @@ public final class Variable implements IGeneratableDefineDataElement
 	{
 		constValue = value;
 		return this;
+	}
+
+	/// Sets the variable as pass `BY VALUE`. Will only be generated when the
+	/// variable is generated as a parameter
+	public Variable asByValue()
+	{
+		byValue = true;
+		return this;
+	}
+
+	public boolean isByValue()
+	{
+		return byValue;
 	}
 
 	/// Creates a new `Redefinition` for this variable.

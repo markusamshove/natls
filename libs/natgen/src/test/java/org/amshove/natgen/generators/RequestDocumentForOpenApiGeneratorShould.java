@@ -27,7 +27,7 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 			.generatesDefineData("""
 				DEFINE DATA
 				PARAMETER
-				1 #P-BASE-URL (A) DYNAMIC
+				1 #P-BASE-URL (A) DYNAMIC BY VALUE
 				LOCAL
 				1 ##REQUEST
 				  2 #URL (A) DYNAMIC

@@ -48,7 +48,7 @@ public class RequestDocumentForOpenApiGenerator
 	public CodeGenerationContext generate(String method, String path, Operation operation)
 	{
 		var context = new CodeGenerationContext();
-		var baseUrlParameter = context.addParameter("#P-BASE-URL", VariableType.alphanumericDynamic());
+		var baseUrlParameter = context.addParameter("#P-BASE-URL", VariableType.alphanumericDynamic()).asByValue();
 		var requestGroup = context.addVariable(VariableScope.LOCAL, "##REQUEST", VariableType.group());
 		var calledUrl = requestGroup.addVariable("#URL", VariableType.alphanumericDynamic());
 		var responseGroup = context.addVariable(VariableScope.LOCAL, "##RESPONSE", VariableType.group());

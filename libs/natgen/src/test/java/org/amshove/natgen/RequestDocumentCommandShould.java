@@ -110,7 +110,7 @@ class RequestDocumentCommandShould extends NatGenTest
 			/***********************************************************************
 			DEFINE DATA
 			PARAMETER
-			1 #P-BASE-URL (A) DYNAMIC
+			1 #P-BASE-URL (A) DYNAMIC BY VALUE
 			PARAMETER USING FORE001P
 			LOCAL
 			1 ##REQUEST

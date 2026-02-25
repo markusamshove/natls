@@ -153,6 +153,11 @@ public class DefineDataGenerator
 			code.append(" CONST<").append(variable.constValue()).append(">");
 		}
 
+		if (variable.isByValue() && variable.scope() == VariableScope.PARAMETER)
+		{
+			code.append(" BY VALUE");
+		}
+
 		for (var redefinition : variable.redefinitions())
 		{
 			code.lineBreak();

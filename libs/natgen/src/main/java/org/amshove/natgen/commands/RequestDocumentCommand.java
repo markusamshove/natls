@@ -119,7 +119,7 @@ public class RequestDocumentCommand implements Callable<Integer>
 			}
 		}
 
-		if (operation.getTags() != null &&!operation.getTags().isEmpty())
+		if (operation.getTags() != null && !operation.getTags().isEmpty())
 		{
 			moduleGenerator.addDocumentationLine("");
 			moduleGenerator.addDocumentationLine("Tags:");
