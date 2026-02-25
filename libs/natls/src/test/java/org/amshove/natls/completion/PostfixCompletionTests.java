@@ -787,4 +787,36 @@ class PostfixCompletionTests extends CompletionTest
 				.assertContainsCompleting("compress", CompletionItemKind.Snippet, "COMPRESS #AGRP INTO ${1:#RESULT} ${0:WITH ALL DELIMITER ';'}");
 		}
 	}
+
+	@Nested
+	class TheForSnippetShould
+	{
+		@ParameterizedTest
+		@ValueSource(strings =
+		{
+			"I4", "N12", "F8", "N8", "P4"
+		})
+		void createALoopWithScalarNumericVariableAsUpperBound(String type)
+		{
+			assertCompletions("LIBONE", "SUB.NSN", ".", """
+				DEFINE DATA
+				LOCAL
+				1 #VAR (%s)
+				END-DEFINE
+				#VAR.${}$
+				END
+				""".formatted(type))
+				.assertContainsCompletionResultingIn("for", """
+					DEFINE DATA
+					LOCAL
+					1 #I-#VAR (I4)
+					1 #VAR (%s)
+					END-DEFINE
+					FOR #I-#VAR := 1 TO #VAR
+					  ${0:IGNORE}
+					END-FOR
+					END
+					""".formatted(type));
+		}
+	}
 }
