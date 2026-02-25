@@ -19,6 +19,10 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 		var operation = path.getGet();
 		var context = sut.generate("GET", "/weather", operation);
 
+		// NOTE: If a JSON document has an array as its root element then Naturals PARSE JSON
+		// starts with a JSON_SEPARATOR. Meaning it will start with '/(' instead of '('.
+		// For an object as root element it would start with '<'
+
 		assertOn(context)
 			.generatesDefineData("""
 				DEFINE DATA
@@ -35,9 +39,9 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 				  2 #VALUE (A) DYNAMIC
 				  2 #ERR-CODE (I4)
 				  2 #ERR-SUBCODE (I4)
-				  2 #S-#RESPONSE (I4)
+				  2 #S-#INLINERESPONSE (I4)
 				1 #RESPONSE-200
-				  2 #RESPONSE (1:*)
+				  2 #INLINERESPONSE (1:*)
 				    3 #ID (A36)
 				    3 #TEMPERATURE (F8)
 				    3 #DESCRIPTION (A) DYNAMIC
@@ -67,15 +71,15 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 				#JSON-SOURCE := #BODY
 				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
-				    VALUE 'Response/(/<'
-				      ADD 1 TO ##JSON-PARSING.#S-#RESPONSE
-				      EXPAND ARRAY #RESPONSE-200.#RESPONSE TO (1:##JSON-PARSING.#S-#RESPONSE)
-				    VALUE 'Response/(/</id/$'
-				      #RESPONSE-200.#ID(#S-#RESPONSE) := ##JSON-PARSING.#VALUE
-				    VALUE 'Response/(/</temperature/$'
-				      #RESPONSE-200.#TEMPERATURE(#S-#RESPONSE) := VAL(##JSON-PARSING.#VALUE)
-				    VALUE 'Response/(/</description/$'
-				      #RESPONSE-200.#DESCRIPTION(#S-#RESPONSE) := ##JSON-PARSING.#VALUE
+				    VALUE '/(/<'
+				      ADD 1 TO ##JSON-PARSING.#S-#INLINERESPONSE
+				      EXPAND ARRAY #RESPONSE-200.#INLINERESPONSE TO (1:##JSON-PARSING.#S-#INLINERESPONSE)
+				    VALUE '/(/</id/$'
+				      #RESPONSE-200.#ID(#S-#INLINERESPONSE) := ##JSON-PARSING.#VALUE
+				    VALUE '/(/</temperature/$'
+				      #RESPONSE-200.#TEMPERATURE(#S-#INLINERESPONSE) := VAL(##JSON-PARSING.#VALUE)
+				    VALUE '/(/</description/$'
+				      #RESPONSE-200.#DESCRIPTION(#S-#INLINERESPONSE) := ##JSON-PARSING.#VALUE
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE

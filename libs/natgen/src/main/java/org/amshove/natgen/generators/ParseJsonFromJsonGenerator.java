@@ -38,7 +38,6 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 		String currentPath
 	)
 	{
-
 		if (currentElement.isJsonPrimitive() || currentElement.isJsonNull())
 		{
 			var valueJsonPath = appendPath(currentPath, PARSED_DATA);
@@ -53,6 +52,12 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 
 		if (currentElement.isJsonArray())
 		{
+			if (elementName.isEmpty())
+			{
+				// The root element of the document is an array, and we don't have a better name for it
+				elementName = "inline";
+			}
+
 			// This is the primitive path
 			var arrayVariable = getVariableForProperty(currentPath, parentVariable, elementName, inferJsonType(currentElement));
 			var sizeVariable = findSizeVariableForArray(arrayVariable);

@@ -130,7 +130,12 @@ public abstract class ParseJsonGenerator
 	{
 		if (currentPath.isEmpty())
 		{
-			return newPathElement;
+			// When the `currentPath` is empty and the start of an array (not object) is appended
+			// it means the root JSON element is an array.
+			// Naturals PARSE JSON PATH starts with a JSON_SEPARATOR in this case (not documented).
+			return newPathElement.equals(START_ARRAY)
+				? JSON_SEPARATOR + newPathElement
+				: newPathElement;
 		}
 
 		return "%s%s%s".formatted(currentPath, JSON_SEPARATOR, newPathElement);
