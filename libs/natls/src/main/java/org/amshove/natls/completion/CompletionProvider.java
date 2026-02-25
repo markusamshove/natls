@@ -180,14 +180,21 @@ public class CompletionProvider
 			addCollectionMatchExpressionPostfix(completionItems, identifierName, variableInvokedOn, rangeToInsert, deleteEdit);
 		}
 
-		if (variableInvokedOn instanceof ITypedVariableNode typedVar && typedVar.type().emptyValue() != null)
+		if (variableInvokedOn instanceof ITypedVariableNode typedVar)
 		{
-			addIsDefaultPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
-			addCaseTranslationPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
-			addValPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
-			addIncrementDecrementPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
-			addTrimPostfixes(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
-			addScanAndMask(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+			if (typedVar.type().emptyValue() != null)
+			{
+				addIsDefaultPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+				addCaseTranslationPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+				addValPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+				addIncrementDecrementPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+				addTrimPostfixes(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+				addScanAndMask(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+			}
+			if (!typedVar.isArray() && typedVar.type().isNumericFamily())
+			{
+				addForLoopOnVariablePostfix(file, completionItems, identifierName, rangeToInsert, deleteEdit);
+			}
 		}
 
 		if (variableInvokedOn.scope().isParameter() && variableInvokedOn.findDescendantToken(SyntaxKind.OPTIONAL) != null)
@@ -451,6 +458,30 @@ public class CompletionProvider
 		var editBuilder = new WorkspaceEditBuilder();
 		editBuilder
 			.addsVariable(file, new Variable(1, VariableScope.LOCAL, "#S-%s".formatted(sanitizedName), VariableType.integer(4)))
+			.addsVariable(file, new Variable(1, VariableScope.LOCAL, "#I-%s".formatted(sanitizedName), VariableType.integer(4)));
+		var workspaceEdit = editBuilder.build();
+		if (workspaceEdit.getChanges().containsKey(file.getUri()))
+		{
+			item.getAdditionalTextEdits().addAll(workspaceEdit.getChanges().get(file.getUri()));
+		}
+
+		completionItems.add(item);
+	}
+
+	private static void addForLoopOnVariablePostfix(
+		LanguageServerFile file, List<CompletionItem> completionItems,
+		String identifierName, Range rangeToInsert, TextEdit deleteEdit
+	)
+	{
+		var sanitizedName = identifierName.replace(".", "-");
+		var edit = new TextEdit(rangeToInsert, """
+			FOR #I-%s := 1 TO %s
+			  ${0:IGNORE}
+			END-FOR""".formatted(sanitizedName, identifierName));
+
+		var item = createSnippetPostfixCompletionItem("for", edit, deleteEdit);
+		var editBuilder = new WorkspaceEditBuilder();
+		editBuilder
 			.addsVariable(file, new Variable(1, VariableScope.LOCAL, "#I-%s".formatted(sanitizedName), VariableType.integer(4)));
 		var workspaceEdit = editBuilder.build();
 		if (workspaceEdit.getChanges().containsKey(file.getUri()))
