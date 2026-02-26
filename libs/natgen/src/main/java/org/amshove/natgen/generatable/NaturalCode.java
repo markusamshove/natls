@@ -158,6 +158,18 @@ public class NaturalCode implements IGeneratable
 		return new DecideOn(reference, DecideOnValueCheck.EVERY);
 	}
 
+	/// Create a new EXAMINE statement
+	public static Examine examine(IGeneratable examined)
+	{
+		return new Examine(examined);
+	}
+
+	/// Create a new EXAMINE FULL statement
+	public static Examine examineFull(IGeneratable examined)
+	{
+		return new Examine(examined).asExamineFull();
+	}
+
 	public static IGeneratableStatement emptyLine()
 	{
 		return new GeneratableStatement("");
