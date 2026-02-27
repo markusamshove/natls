@@ -35,6 +35,28 @@ class ExamineShould extends CodeGenerationTest
 	}
 
 	@Test
+	void generateAnExamineDelete()
+	{
+		var examine = examine(examined)
+			._for(stringLiteral("Hello"))
+			.delete();
+
+		assertGenerated(examine, """
+			EXAMINE #EXAMINED FOR 'Hello' DELETE""");
+	}
+
+	@Test
+	void generateAnExamineDeleteFirst()
+	{
+		var examine = examine(examined)
+			._for(stringLiteral("Hello"))
+			.deleteFirst();
+
+		assertGenerated(examine, """
+			EXAMINE #EXAMINED FOR 'Hello' DELETE FIRST""");
+	}
+
+	@Test
 	void generateAnExamineReplaceForPattern()
 	{
 		var examine = examine(examined)

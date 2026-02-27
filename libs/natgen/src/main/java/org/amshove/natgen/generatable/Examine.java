@@ -15,6 +15,8 @@ public final class Examine implements IGeneratableStatement
 	private boolean isWithDefaultDelimiter;
 	private IGeneratable delimiter;
 	private boolean isWithFirstOption;
+	private boolean isDelete;
+	private boolean isDeleteFirst;
 
 	public Examine(IGeneratable examined)
 	{
@@ -56,6 +58,22 @@ public final class Examine implements IGeneratableStatement
 	{
 		isWithFirstOption = true;
 		return replaceWith(replacer);
+	}
+
+	/// Make this examine as `DELETE`
+	public Examine delete()
+	{
+		isDeleteFirst = false;
+		isDelete = true;
+		return this;
+	}
+
+	/// Make this examine as `DELETE FIRST`
+	public Examine deleteFirst()
+	{
+		isDelete = true;
+		isDeleteFirst = true;
+		return this;
 	}
 
 	/// Set the examine `DIRECTION FORWARD`
@@ -173,6 +191,13 @@ public final class Examine implements IGeneratableStatement
 				.appendIf(isWithFirstOption, "FIRST ")
 				.append("WITH ")
 				.append(replacer);
+		}
+
+		if (isDelete)
+		{
+			builder
+				.append("DELETE")
+				.appendIf(isDeleteFirst, " FIRST");
 		}
 
 		if (didIndent)
