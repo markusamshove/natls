@@ -2,6 +2,9 @@ package org.amshove.natgen.generatable;
 
 import org.amshove.natgen.CodeBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class Examine implements IGeneratableStatement
 {
 	private final IGeneratable examined;
@@ -17,6 +20,10 @@ public final class Examine implements IGeneratableStatement
 	private boolean isWithFirstOption;
 	private boolean isDelete;
 	private boolean isDeleteFirst;
+	private IGeneratable givingNumber;
+	private IGeneratable givingPosition;
+	private IGeneratable givingLength;
+	private List<IGeneratable> givingIndex = new ArrayList<IGeneratable>();
 
 	public Examine(IGeneratable examined)
 	{
@@ -124,6 +131,37 @@ public final class Examine implements IGeneratableStatement
 		return this;
 	}
 
+	/// Add `GIVING NUMBER` to count the number of occurrences
+	public Examine givingNumber(IGeneratable number)
+	{
+		this.givingNumber = number;
+		return this;
+	}
+
+	/// Add `GIVING POSITION` to retrieve the first position
+	/// of the pattern occurrence
+	public Examine givingPosition(IGeneratable position)
+	{
+		this.givingPosition = position;
+		return this;
+	}
+
+	/// Add `GIVING LENGTH` to retrieve length of the examined value
+	/// after all delete/replace operations have been performed
+	public Examine givingLength(IGeneratable length)
+	{
+		this.givingLength = length;
+		return this;
+	}
+
+	/// Add `GIVING INDEX` to retrieve the index within the array
+	/// where the first search value was found
+	public Examine givingIndex(IGeneratable index)
+	{
+		this.givingIndex.add(index);
+		return this;
+	}
+
 	@Override
 	public void generateInto(CodeBuilder builder)
 	{
@@ -169,23 +207,23 @@ public final class Examine implements IGeneratableStatement
 			builder.append(_for);
 		}
 
-		didIndent = builder.spaceOrBreakAndIndent();
-
 		if (isWithDefaultDelimiter)
 		{
-			builder.append("WITH DELIMITER").spaceOrBreak();
+			didIndent = builder.spaceOrBreakAndIndent();
+			builder.append("WITH DELIMITER");
 		}
 		else
 			if (delimiter != null)
 			{
+				didIndent = builder.spaceOrBreakAndIndent();
 				builder
 					.append("WITH DELIMITER ")
-					.append(delimiter)
-					.spaceOrBreak();
+					.append(delimiter);
 			}
 
 		if (replacer != null)
 		{
+			didIndent = builder.spaceOrBreakAndIndent();
 			builder
 				.append("REPLACE ")
 				.appendIf(isWithFirstOption, "FIRST ")
@@ -195,9 +233,43 @@ public final class Examine implements IGeneratableStatement
 
 		if (isDelete)
 		{
+			didIndent = builder.spaceOrBreakAndIndent();
 			builder
 				.append("DELETE")
 				.appendIf(isDeleteFirst, " FIRST");
+		}
+
+		if (givingNumber != null)
+		{
+			didIndent = builder.spaceOrBreakAndIndent();
+			builder
+				.append("GIVING NUMBER ")
+				.append(givingNumber);
+		}
+
+		if (givingPosition != null)
+		{
+			didIndent = builder.spaceOrBreakAndIndent();
+			builder
+				.append("GIVING POSITION ")
+				.append(givingPosition);
+		}
+
+		if (givingLength != null)
+		{
+			didIndent = builder.spaceOrBreakAndIndent();
+			builder
+				.append("GIVING LENGTH ")
+				.append(givingLength);
+		}
+
+		if (!givingIndex.isEmpty())
+		{
+			didIndent = builder.spaceOrBreakAndIndent();
+			builder
+				.append("GIVING INDEX");
+
+			givingIndex.forEach(i -> builder.append(" ").append(i));
 		}
 
 		if (didIndent)

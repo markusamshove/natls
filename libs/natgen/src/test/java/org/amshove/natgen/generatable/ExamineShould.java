@@ -162,4 +162,72 @@ class ExamineShould extends CodeGenerationTest
 		assertGenerated(examine, """
 			EXAMINE #EXAMINED STARTING FROM 5 ENDING AT 10 FOR 'Hello' REPLACE WITH 'World'""");
 	}
+
+	@Test
+	void generateASimpleExamineGiving()
+	{
+		var number = new Variable(1, VariableScope.LOCAL, "#NUMBER", VariableType.integer(4));
+		var examine = examine(examined)
+			._for(stringLiteral("Hello"))
+			.givingNumber(number);
+
+		assertGenerated(examine, """
+			EXAMINE #EXAMINED FOR 'Hello' GIVING NUMBER #NUMBER""");
+	}
+
+	@Test
+	void generateAnExamineGivingPosition()
+	{
+		var position = new Variable(1, VariableScope.LOCAL, "#POSITION", VariableType.integer(4));
+		var examine = examine(examined)
+			._for(stringLiteral("Hello"))
+			.givingPosition(position);
+
+		assertGenerated(examine, """
+			EXAMINE #EXAMINED FOR 'Hello' GIVING POSITION #POSITION""");
+	}
+
+	@Test
+	void generateAnExamineGivingLength()
+	{
+		var length = new Variable(1, VariableScope.LOCAL, "#LENGTH", VariableType.integer(4));
+		var examine = examine(examined)
+			._for(stringLiteral("Hello"))
+			.givingLength(length);
+
+		assertGenerated(examine, """
+			EXAMINE #EXAMINED FOR 'Hello' GIVING LENGTH #LENGTH""");
+	}
+
+	@Test
+	void generateAnExamineGivingIndex()
+	{
+		var index = new Variable(1, VariableScope.LOCAL, "#INDEX", VariableType.integer(4));
+		var examine = examine(examined)
+			._for(stringLiteral("Hello"))
+			.givingIndex(index);
+
+		assertGenerated(examine, """
+			EXAMINE #EXAMINED FOR 'Hello' GIVING INDEX #INDEX""");
+	}
+
+	@Test
+	void generateAndFormatABigExamine()
+	{
+		var number = new Variable(1, VariableScope.LOCAL, "#NUMBER", VariableType.integer(4));
+		var length = new Variable(1, VariableScope.LOCAL, "#LENGTH", VariableType.integer(4));
+		var position = new Variable(1, VariableScope.LOCAL, "#POSITION", VariableType.integer(4));
+
+		var examine = examineFull(examined)
+			.forPattern(stringLiteral("._"))
+			.forward()
+			.givingPosition(position)
+			.givingNumber(number)
+			.givingLength(length)
+			.replaceFirstWith(stringLiteral("Hello"));
+
+		assertGenerated(examine, """
+				EXAMINE DIRECTION FORWARD FULL #EXAMINED FOR PATTERN '._' REPLACE FIRST WITH 'Hello'
+				  GIVING NUMBER #NUMBER GIVING POSITION #POSITION GIVING LENGTH #LENGTH""");
+	}
 }
