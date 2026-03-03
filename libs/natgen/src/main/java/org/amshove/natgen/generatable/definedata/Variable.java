@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public final class Variable implements IGeneratableDefineDataElement
@@ -31,7 +32,7 @@ public final class Variable implements IGeneratableDefineDataElement
 	{
 		this.level = level;
 		this.scope = scope;
-		this.name = name;
+		this.name = name.toUpperCase(Locale.ROOT);
 		this.type = type;
 	}
 

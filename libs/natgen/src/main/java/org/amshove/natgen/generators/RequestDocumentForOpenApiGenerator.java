@@ -32,6 +32,7 @@ public class RequestDocumentForOpenApiGenerator
 
 	private final OpenAPI openApi;
 	private final Settings settings;
+	private Variable baseUrlParameter;
 
 	public RequestDocumentForOpenApiGenerator(OpenAPI openApi)
 	{
@@ -48,32 +49,36 @@ public class RequestDocumentForOpenApiGenerator
 	public CodeGenerationContext generate(String method, String path, Operation operation)
 	{
 		var context = new CodeGenerationContext();
-		var baseUrlParameter = context.addParameter("#P-BASE-URL", VariableType.alphanumericDynamic()).asByValue();
+		baseUrlParameter = context.addParameter("#P-BASE-URL", VariableType.alphanumericDynamic()).asByValue();
+
 		var requestGroup = context.addVariable(VariableScope.LOCAL, "##REQUEST", VariableType.group());
-		var calledUrl = requestGroup.addVariable("#URL", VariableType.alphanumericDynamic());
+		var builtRequestUrl = requestGroup.addVariable("#URL", VariableType.alphanumericDynamic());
 		var responseGroup = context.addVariable(VariableScope.LOCAL, "##RESPONSE", VariableType.group());
 		var responseCode = responseGroup.addVariable("#CODE", VariableType.integer(4));
 		var responseBody = responseGroup.addVariable("#BODY", VariableType.alphanumericDynamic());
 
+		var compressUrl = compress()
+			.withOperand(baseUrlParameter)
+			.withOperand(stringLiteral(path))
+			.into(builtRequestUrl)
+			.leavingNoSpace();
+
 		context
-			.addStatement(
-				compress()
-					.withOperand(baseUrlParameter)
-					.withOperand(stringLiteral(path))
-					.into(calledUrl)
-					.leavingNoSpace()
-			)
-			.addStatement(emptyLine());
+			.addStatement(compressUrl);
 
 		var requestDocument = NaturalCode
-			.requestDocument(calledUrl, responseCode)
+			.requestDocument(builtRequestUrl, responseCode)
 			.withMethod(stringLiteral(method));
+
+		addRequestParameter(context, builtRequestUrl, operation);
 
 		//		addRequestContentType(requestDocument, operation);
 
 		requestDocument.withResponseBody(responseBody);
 
-		context.addStatement(requestDocument);
+		context
+			.addStatement(emptyLine())
+			.addStatement(requestDocument);
 		context.addStatement(emptyLine());
 
 		var decideOnResponse = decideOnFirst(responseCode);
@@ -91,6 +96,27 @@ public class RequestDocumentForOpenApiGenerator
 		}
 
 		return context;
+	}
+
+	private void addRequestParameter(CodeGenerationContext context, Variable requestUrl, Operation operation)
+	{
+		if (operation.getParameters() == null || operation.getParameters().isEmpty())
+		{
+			return;
+		}
+
+		for (var parameter : operation.getParameters())
+		{
+			if (parameter.getIn().equals("path"))
+			{
+				var moduleParameter = context.addParameter("#P-" + parameter.getName(), VariableType.alphanumeric(36)).asByValue();
+				context.addStatement(
+					examineFull(requestUrl)
+						._for(stringLiteral("{%s}".formatted(parameter.getName())))
+						.replaceWith(moduleParameter)
+				);
+			}
+		}
 	}
 
 	private Subroutine createResponseSubroutine(String responseCode, ApiResponse response, CodeGenerationContext context)
