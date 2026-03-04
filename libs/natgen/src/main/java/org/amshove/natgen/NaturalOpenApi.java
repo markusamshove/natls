@@ -14,7 +14,8 @@ import static io.swagger.v3.parser.util.SchemaTypeUtil.INTEGER_TYPE;
 import static io.swagger.v3.parser.util.SchemaTypeUtil.NUMBER_TYPE;
 import static io.swagger.v3.parser.util.SchemaTypeUtil.OBJECT_TYPE;
 
-public class OpenApiExtensions
+/// Common extension methods for OpenAPI schemas in the context of Natural
+public class NaturalOpenApi
 {
 	public static Schema<?> findSchemaByReference(String reference, OpenAPI spec)
 	{

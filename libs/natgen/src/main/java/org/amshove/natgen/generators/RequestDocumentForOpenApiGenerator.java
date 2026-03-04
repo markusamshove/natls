@@ -12,7 +12,7 @@ import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.Nullable;
 
-import static org.amshove.natgen.OpenApiExtensions.*;
+import static org.amshove.natgen.NaturalOpenApi.*;
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
 public class RequestDocumentForOpenApiGenerator

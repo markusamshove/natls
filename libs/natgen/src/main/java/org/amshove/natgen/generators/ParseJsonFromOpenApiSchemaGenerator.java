@@ -13,7 +13,7 @@ import org.amshove.natgen.generatable.definedata.Variable;
 import java.util.Locale;
 
 import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
-import static org.amshove.natgen.OpenApiExtensions.*;
+import static org.amshove.natgen.NaturalOpenApi.*;
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
 class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
