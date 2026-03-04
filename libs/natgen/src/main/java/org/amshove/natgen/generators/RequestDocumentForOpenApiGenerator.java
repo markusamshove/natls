@@ -12,8 +12,7 @@ import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.Nullable;
 
-import static org.amshove.natgen.OpenApiExtensions.resolveSchema;
-import static org.amshove.natgen.OpenApiExtensions.resolveSchemaName;
+import static org.amshove.natgen.OpenApiExtensions.*;
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
 public class RequestDocumentForOpenApiGenerator
@@ -109,7 +108,8 @@ public class RequestDocumentForOpenApiGenerator
 		{
 			if (parameter.getIn().equals("path"))
 			{
-				var moduleParameter = context.addParameter("#P-" + parameter.getName(), VariableType.alphanumeric(36)).asByValue();
+				var inferredType = inferNaturalType(parameter.getSchema(), openApi);
+				var moduleParameter = context.addParameter("#P-" + parameter.getName(), inferredType).asByValue();
 				context.addStatement(
 					examineFull(requestUrl)
 						._for(stringLiteral("{%s}".formatted(parameter.getName())))

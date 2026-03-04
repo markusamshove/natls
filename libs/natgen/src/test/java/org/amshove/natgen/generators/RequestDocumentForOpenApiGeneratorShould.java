@@ -106,6 +106,21 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 				""");
 	}
 
+	@Test
+	void addQueryParameterToTheUrl()
+	{
+		var path = openApi.getPaths().get("/weather/{id}");
+		var operation = path.getDelete();
+		var context = sut.generate("DELETE", "/weather/{id}", operation);
+
+		assertOn(context)
+			.hasParameterByValue(1, "#P-ID", VariableType.alphanumeric(36))
+			.generatedStatementSourceContains("""
+				COMPRESS #P-BASE-URL '/weather/{id}' INTO ##REQUEST.#URL LEAVING NO SPACE
+				EXAMINE FULL ##REQUEST.#URL FOR '{id}' REPLACE WITH #P-ID
+				""");
+	}
+
 	@BeforeAll
 	static void parseOpenApi()
 	{

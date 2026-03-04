@@ -13,8 +13,7 @@ import org.amshove.natgen.generatable.definedata.Variable;
 import java.util.Locale;
 
 import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
-import static org.amshove.natgen.OpenApiExtensions.findSchemaByReference;
-import static org.amshove.natgen.OpenApiExtensions.resolveSchema;
+import static org.amshove.natgen.OpenApiExtensions.*;
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
 class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
@@ -55,7 +54,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		}
 
 		var naturalSchemaName = "#" + schemaName.toUpperCase(Locale.ROOT);
-		var theType = extractOpenApiType(schema);
+		var theType = extractOpenApiType(schema, spec);
 
 		// The root schema gets embedded, meaning that the schema name will not be
 		// included in the JSON path of naturals `PARSE JSON`
@@ -87,10 +86,10 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		if (theType.equals("array"))
 		{
 			var arrayItemSchema = schema.getItems();
-			var openApiTypeOfItems = extractOpenApiType(arrayItemSchema);
+			var openApiTypeOfItems = extractOpenApiType(arrayItemSchema, spec);
 			var arrayVariable = getVariableForProperty(
 				currentSchemaPath, parentVariable, schemaName,
-				inferNaturalType(arrayItemSchema)
+				inferNaturalType(arrayItemSchema, spec)
 			);
 			arrayVariable.type().withDimension(Dimension.upperUnbound());
 			var sizeVariable = findSizeVariableForArray(arrayVariable);
@@ -114,7 +113,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			{
 				branch.addToBody(
 					assignValueToVariable(
-						arrayVariable, extractOpenApiType(arrayItemSchema),
+						arrayVariable, extractOpenApiType(arrayItemSchema, spec),
 						arrayItemSchema.getFormat(), newArrayValuePath
 					)
 				);
@@ -133,7 +132,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			return;
 		}
 
-		var naturalType = inferNaturalType(schema);
+		var naturalType = inferNaturalType(schema, spec);
 
 		if (naturalType != null)
 		{
@@ -209,50 +208,6 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 		}
 
 		throw new UnsupportedOperationException("No value assignment implemented for type <%s>".formatted(type));
-	}
-
-	private VariableType inferNaturalType(Schema<?> schema)
-	{
-		if (schema.get$ref() != null)
-		{
-			return inferNaturalType(findSchemaByReference(schema.get$ref(), spec));
-		}
-
-		var firstType = extractOpenApiType(schema);
-		return switch (firstType)
-		{
-			case STRING_TYPE -> switch (schema.getFormat())
-			{
-				case DATE_FORMAT -> VariableType.date();
-				case UUID_FORMAT -> VariableType.alphanumeric(36);
-				case BINARY_FORMAT -> VariableType.binaryDynamic();
-				case BYTE_FORMAT -> VariableType.alphanumericDynamic();
-				case null, default -> schema.getMaxLength() != null
-					? VariableType.alphanumeric(schema.getMaxLength())
-					: VariableType.alphanumericDynamic();
-			};
-			case NUMBER_TYPE -> switch (schema.getFormat())
-			{
-				case DOUBLE_FORMAT, FLOAT_FORMAT -> VariableType.numeric(12.7);
-				case null, default -> VariableType.integer(4);
-			};
-			case INTEGER_TYPE -> switch (schema.getFormat())
-			{
-				case INTEGER64_FORMAT -> VariableType.numeric(8);
-				case null, default -> VariableType.integer(4);
-			};
-			case BOOLEAN_TYPE -> VariableType.logical();
-			case OBJECT_TYPE -> VariableType.group();
-			default -> null;
-		};
-	}
-
-	private String extractOpenApiType(Schema<?> schema)
-	{
-		var resolvedSchema = resolveSchema(schema, spec);
-		return resolvedSchema.getTypes().stream().findFirst().orElseThrow(
-			() -> new IllegalStateException("Can not extract type from Schema %s".formatted(resolvedSchema))
-		);
 	}
 
 }
