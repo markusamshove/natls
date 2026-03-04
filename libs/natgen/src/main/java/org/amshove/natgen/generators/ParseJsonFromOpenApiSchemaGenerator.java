@@ -233,7 +233,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			};
 			case NUMBER_TYPE -> switch (schema.getFormat())
 			{
-				case DOUBLE_FORMAT, FLOAT_FORMAT -> VariableType.floating(8);
+				case DOUBLE_FORMAT, FLOAT_FORMAT -> VariableType.numeric(12.7);
 				case null, default -> VariableType.integer(4);
 			};
 			case INTEGER_TYPE -> switch (schema.getFormat())

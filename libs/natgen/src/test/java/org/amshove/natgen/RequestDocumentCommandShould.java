@@ -86,7 +86,7 @@ class RequestDocumentCommandShould extends NatGenTest
 			  2 #RESPONSE-200
 			    3 #INLINERESPONSE (1:*)
 			      4 #ID (A36)
-			      4 #TEMPERATURE (F8)
+			      4 #TEMPERATURE (N12,7)
 			      4 #DESCRIPTION (A) DYNAMIC
 			END-DEFINE
 			""");

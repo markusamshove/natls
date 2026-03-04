@@ -44,7 +44,7 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 				1 #RESPONSE-200
 				  2 #INLINERESPONSE (1:*)
 				    3 #ID (A36)
-				    3 #TEMPERATURE (F8)
+				    3 #TEMPERATURE (N12,7)
 				    3 #DESCRIPTION (A) DYNAMIC
 				1 #JSON-SOURCE (A) DYNAMIC
 				END-DEFINE""")

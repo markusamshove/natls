@@ -188,7 +188,7 @@ components:
           format: %s
 			""".formatted(format));
 
-		assertOn(context).hasVariable(3, "##PARSED-JSON.#MONEY", VariableScope.LOCAL, VariableType.floating(8));
+		assertOn(context).hasVariable(3, "##PARSED-JSON.#MONEY", VariableScope.LOCAL, VariableType.numeric(12.7));
 	}
 
 	@ParameterizedTest
