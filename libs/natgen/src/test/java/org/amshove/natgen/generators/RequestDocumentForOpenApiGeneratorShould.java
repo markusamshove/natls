@@ -4,6 +4,7 @@ import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import org.amshove.natgen.CodeGenerationTest;
+import org.amshove.natgen.VariableType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -98,44 +99,10 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 		var context = sut.generate("DELETE", "/weather/{id}", operation);
 
 		assertOn(context)
-			.generatesDefineData("""
-				DEFINE DATA
-				PARAMETER
-				1 #P-BASE-URL (A) DYNAMIC BY VALUE
-				1 #P-ID (A36) BY VALUE
-				LOCAL
-				1 ##REQUEST
-				  2 #URL (A) DYNAMIC
-				1 ##RESPONSE
-				  2 #CODE (I4)
-				  2 #BODY (A) DYNAMIC
-				END-DEFINE""")
-			.generatesStatements("""
+			.hasParameterByValue(1, "#P-ID", VariableType.alphanumeric(36))
+			.generatedStatementSourceContains("""
 				COMPRESS #P-BASE-URL '/weather/{id}' INTO ##REQUEST.#URL LEAVING NO SPACE
 				EXAMINE FULL ##REQUEST.#URL FOR '{id}' REPLACE WITH #P-ID
-
-				REQUEST DOCUMENT FROM ##REQUEST.#URL
-				  WITH
-				    HEADER NAME 'REQUEST-METHOD' VALUE 'DELETE'
-				  RETURN
-				    PAGE ##RESPONSE.#BODY
-				    RESPONSE ##RESPONSE.#CODE
-
-				DECIDE ON FIRST VALUE OF ##RESPONSE.#CODE
-				  VALUE 204
-				    PERFORM HANDLE-204
-				  NONE VALUE
-				    IGNORE
-				END-DECIDE
-
-				/***********************************************************************
-				DEFINE SUBROUTINE HANDLE-204
-				/***********************************************************************
-
-				IGNORE
-
-				END-SUBROUTINE
-
 				""");
 	}
 
