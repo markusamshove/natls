@@ -5,10 +5,12 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.RequestDocument;
 import org.amshove.natgen.generatable.Subroutine;
 import org.amshove.natgen.generatable.definedata.Variable;
+import org.amshove.natparse.natural.DataFormat;
 import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.Nullable;
 
@@ -31,7 +33,8 @@ public class RequestDocumentForOpenApiGenerator
 
 	private final OpenAPI openApi;
 	private final Settings settings;
-	private Variable baseUrlParameter;
+	private Variable requestGroup;
+	private Variable queryDelimiterVariable;
 
 	public RequestDocumentForOpenApiGenerator(OpenAPI openApi)
 	{
@@ -48,9 +51,9 @@ public class RequestDocumentForOpenApiGenerator
 	public CodeGenerationContext generate(String method, String path, Operation operation)
 	{
 		var context = new CodeGenerationContext();
-		baseUrlParameter = context.addParameter("#P-BASE-URL", VariableType.alphanumericDynamic()).asByValue();
+		Variable baseUrlParameter = context.addParameter("#P-BASE-URL", VariableType.alphanumericDynamic()).asByValue();
 
-		var requestGroup = context.addVariable(VariableScope.LOCAL, "##REQUEST", VariableType.group());
+		requestGroup = context.addVariable(VariableScope.LOCAL, "##REQUEST", VariableType.group());
 		var builtRequestUrl = requestGroup.addVariable("#URL", VariableType.alphanumericDynamic());
 		var responseGroup = context.addVariable(VariableScope.LOCAL, "##RESPONSE", VariableType.group());
 		var responseCode = responseGroup.addVariable("#CODE", VariableType.integer(4));
@@ -116,7 +119,46 @@ public class RequestDocumentForOpenApiGenerator
 						.replaceWith(moduleParameter)
 				);
 			}
+
+			if (parameter.getIn().equals("query"))
+			{
+				var inferredType = inferNaturalType(parameter.getSchema(), openApi);
+				var moduleParameter = context.addParameter("#P-" + parameter.getName(), inferredType).asByValue();
+				var queryDelimiterVariable = getQueryDelimiterVariable(context);
+				context.addStatement(
+					compress()
+						.withOperand(requestUrl)
+						.withOperand(queryDelimiterVariable)
+						.withOperand(stringLiteral(parameter.getName() + "="))
+						.withOperand(variableRhsValue(moduleParameter))
+						.into(requestUrl)
+						.leavingNoSpace()
+				);
+				context.addStatement(
+					assignment(queryDelimiterVariable, stringLiteral("&"))
+				);
+			}
 		}
+	}
+
+	private IGeneratable variableRhsValue(Variable variable)
+	{
+		if (variable.type().format() == DataFormat.LOGIC)
+		{
+			return functionCall("BOOL2STR", variable);
+		}
+
+		return variable;
+	}
+
+	private Variable getQueryDelimiterVariable(CodeGenerationContext context)
+	{
+		if (queryDelimiterVariable == null)
+		{
+			queryDelimiterVariable = requestGroup.addVariable("#QUERY-DELIMITER", VariableType.alphanumeric(1)).withInitialValue(stringLiteral("?"));
+		}
+
+		return queryDelimiterVariable;
 	}
 
 	private Subroutine createResponseSubroutine(String responseCode, ApiResponse response, CodeGenerationContext context)

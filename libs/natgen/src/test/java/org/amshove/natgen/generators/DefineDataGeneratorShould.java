@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import static org.amshove.natgen.generatable.NaturalCode.stringLiteral;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 class DefineDataGeneratorShould extends CodeGenerationTest
@@ -221,10 +222,22 @@ class DefineDataGeneratorShould extends CodeGenerationTest
 		var variable = new Variable(1, VariableScope.LOCAL, "#MYVAR", VariableType.alphanumericDynamic());
 		var sut = new DefineDataGenerator();
 
-		variable.withConstantValue("'Hello'");
+		variable.withConstantValue(stringLiteral("Hello"));
 
 		assertThat(sut.generateVariableDeclarationWithoutScope(variable))
 			.isEqualToNormalizingNewlines("1 #MYVAR (A) DYNAMIC CONST<'Hello'>");
+	}
+
+	@Test
+	void generateASingleVariableWithInitValue()
+	{
+		var variable = new Variable(1, VariableScope.LOCAL, "#MYVAR", VariableType.alphanumericDynamic());
+		var sut = new DefineDataGenerator();
+
+		variable.withInitialValue(stringLiteral("Hello"));
+
+		assertThat(sut.generateVariableDeclarationWithoutScope(variable))
+			.isEqualToNormalizingNewlines("1 #MYVAR (A) DYNAMIC INIT<'Hello'>");
 	}
 
 	@Test

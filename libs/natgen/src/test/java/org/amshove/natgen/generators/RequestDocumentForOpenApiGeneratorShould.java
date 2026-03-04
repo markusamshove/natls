@@ -109,15 +109,21 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 	@Test
 	void addQueryParameterToTheUrl()
 	{
-		var path = openApi.getPaths().get("/weather/{id}");
-		var operation = path.getDelete();
-		var context = sut.generate("DELETE", "/weather/{id}", operation);
+		var path = openApi.getPaths().get("/weather/filter");
+		var operation = path.getGet();
+		var context = sut.generate("GET", "/weather/filter", operation);
 
 		assertOn(context)
-			.hasParameterByValue(1, "#P-ID", VariableType.alphanumeric(36))
+			.hasParameterByValue(1, "#P-REVERSE", VariableType.logical())
+			.hasParameterByValue(1, "#P-SKIP", VariableType.integer(4))
 			.generatedStatementSourceContains("""
-				COMPRESS #P-BASE-URL '/weather/{id}' INTO ##REQUEST.#URL LEAVING NO SPACE
-				EXAMINE FULL ##REQUEST.#URL FOR '{id}' REPLACE WITH #P-ID
+				COMPRESS #P-BASE-URL '/weather/filter' INTO ##REQUEST.#URL LEAVING NO SPACE
+				COMPRESS ##REQUEST.#URL ##REQUEST.#QUERY-DELIMITER 'reverse=' BOOL2STR(<#P-REVERSE>)
+				INTO ##REQUEST.#URL LEAVING NO SPACE
+				##REQUEST.#QUERY-DELIMITER := '&'
+				COMPRESS ##REQUEST.#URL ##REQUEST.#QUERY-DELIMITER 'skip=' #P-SKIP INTO ##REQUEST.#URL
+				LEAVING NO SPACE
+				##REQUEST.#QUERY-DELIMITER := '&'
 				""");
 	}
 
@@ -183,6 +189,27 @@ paths:
       summary: Delete
       tags:
       - Weatherforecast
+  /weather/filter:
+    get:
+      parameters:
+      - name: reverse
+        in: query
+        schema:
+          type: boolean
+      - name: skip
+        in: query
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Forecast"
 info:
   title: api API
   version: 1.0.0

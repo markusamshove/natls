@@ -25,7 +25,8 @@ public final class Variable implements IGeneratableDefineDataElement
 	private final List<Redefinition> redefinitions = new ArrayList<>();
 	private Variable parent;
 
-	private String constValue = null;
+	private IGeneratable constValue = null;
+	private IGeneratable initValue = null;
 	private boolean byValue = false;
 
 	public Variable(int level, VariableScope scope, String name, VariableType type)
@@ -36,17 +37,31 @@ public final class Variable implements IGeneratableDefineDataElement
 		this.type = type;
 	}
 
-	/// CONST literal value to be generated within DEFINE DATA
+	/// `CONST` value to be generated within DEFINE DATA
 	@Nullable
-	public String constValue()
+	public IGeneratable constValue()
 	{
 		return constValue;
 	}
 
-	/// Sets the value that will be generated in a CONST block in DEFINE DATA
-	public Variable withConstantValue(String value)
+	/// Sets the value that will be generated in a `CONST` block in `DEFINE DATA`
+	public Variable withConstantValue(IGeneratable value)
 	{
 		constValue = value;
+		return this;
+	}
+
+	/// `iNIT` value to be generated within DEFINE DATA
+	@Nullable
+	public IGeneratable initValue()
+	{
+		return initValue;
+	}
+
+	/// Sets the value that will be generated in an `INIT` block in `DEFINE DATA``
+	public Variable withInitialValue(IGeneratable value)
+	{
+		initValue = value;
 		return this;
 	}
 
