@@ -2,6 +2,7 @@ package org.amshove.natgen.generatable;
 
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.generatable.conditions.IConditional;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natgen.generators.DefineDataGenerator;
 import org.amshove.natgen.VariableType;
@@ -37,6 +38,11 @@ public class NaturalCode implements IGeneratable
 	public static Variable newLocalVariable(String name, VariableType type)
 	{
 		return new Variable(1, VariableScope.LOCAL, name, type);
+	}
+
+	public static If _if(IConditional conditional)
+	{
+		return new If(conditional);
 	}
 
 	@Override
