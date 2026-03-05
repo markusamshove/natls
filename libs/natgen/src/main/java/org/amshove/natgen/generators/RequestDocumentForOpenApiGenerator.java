@@ -13,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 
 import static org.amshove.natgen.NaturalOpenApi.*;
 import static org.amshove.natgen.generatable.NaturalCode.*;
+import static org.amshove.natgen.generatable.conditions.Conditions.specified;
 
 public class RequestDocumentForOpenApiGenerator
 {
@@ -122,18 +123,31 @@ public class RequestDocumentForOpenApiGenerator
 				var inferredType = inferNaturalType(parameter.getSchema(), openApi);
 				var moduleParameter = context.addParameter("#P-" + parameter.getName(), inferredType).asByValue();
 				var queryDelimiterVariable = getQueryDelimiterVariable(context);
-				context.addStatement(
-					compress()
-						.withOperand(requestUrl)
-						.withOperand(queryDelimiterVariable)
-						.withOperand(stringLiteral(parameter.getName() + "="))
-						.withOperand(variableRhsValue(moduleParameter))
-						.into(requestUrl)
-						.leavingNoSpace()
-				);
-				context.addStatement(
-					assignment(queryDelimiterVariable, stringLiteral("&"))
-				);
+
+				var compress = compress()
+					.withOperand(requestUrl)
+					.withOperand(queryDelimiterVariable)
+					.withOperand(stringLiteral(parameter.getName() + "="))
+					.withOperand(variableRhsValue(moduleParameter))
+					.into(requestUrl)
+					.leavingNoSpace();
+				var delimiterAssignment = assignment(queryDelimiterVariable, stringLiteral("&"));
+
+				if (parameter.getRequired())
+				{
+					context
+						.addStatement(compress)
+						.addStatement(delimiterAssignment);
+				}
+				else
+				{
+					moduleParameter.asOptional();
+					var ifSpecified = _if(specified(moduleParameter))
+						.addToBody(compress)
+						.addToBody(delimiterAssignment);
+					context.addStatement(ifSpecified);
+				}
+
 			}
 		}
 	}
@@ -152,13 +166,17 @@ public class RequestDocumentForOpenApiGenerator
 	{
 		if (queryDelimiterVariable == null)
 		{
-			queryDelimiterVariable = requestGroup.addVariable("#QUERY-DELIMITER", VariableType.alphanumeric(1)).withInitialValue(stringLiteral("?"));
+			queryDelimiterVariable = requestGroup.addVariable("#QUERY-DELIMITER", VariableType.alphanumeric(1))
+				.withInitialValue(stringLiteral("?"));
 		}
 
 		return queryDelimiterVariable;
 	}
 
-	private Subroutine createResponseSubroutine(String responseCode, ApiResponse response, CodeGenerationContext context)
+	private Subroutine createResponseSubroutine(
+		String responseCode, ApiResponse response,
+		CodeGenerationContext context
+	)
 	{
 		var subroutine = subroutine("HANDLE-" + responseCode);
 

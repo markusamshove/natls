@@ -241,6 +241,16 @@ class DefineDataGeneratorShould extends CodeGenerationTest
 	}
 
 	@Test
+	void generateAnOptionalParameter()
+	{
+		var variable = new Variable(1, VariableScope.PARAMETER, "#MYPARM", VariableType.alphanumericDynamic());
+		var sut = new DefineDataGenerator();
+
+		assertThat(sut.generateVariableDeclarationWithoutScope(variable.asOptional()))
+			.isEqualToNormalizingNewlines("1 #MYPARM (A) DYNAMIC OPTIONAL");
+	}
+
+	@Test
 	void generateRedefinitions()
 	{
 		var variable = new Variable(1, VariableScope.LOCAL, "#TO-REDEFINE", VariableType.numeric(20));

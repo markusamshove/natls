@@ -28,6 +28,7 @@ public final class Variable implements IGeneratableDefineDataElement
 	private IGeneratable constValue = null;
 	private IGeneratable initValue = null;
 	private boolean byValue = false;
+	private boolean isOptional;
 
 	public Variable(int level, VariableScope scope, String name, VariableType type)
 	{
@@ -71,6 +72,19 @@ public final class Variable implements IGeneratableDefineDataElement
 	{
 		byValue = true;
 		return this;
+	}
+
+	/// Marks this variable as `OPTIONAL`. Will only be added to the generated
+	/// source when the variable is generated as parameter
+	public Variable asOptional()
+	{
+		isOptional = true;
+		return this;
+	}
+
+	public boolean isOptional()
+	{
+		return isOptional;
 	}
 
 	public boolean isByValue()

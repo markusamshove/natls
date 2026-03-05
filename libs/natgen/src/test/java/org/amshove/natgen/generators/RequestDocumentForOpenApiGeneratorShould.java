@@ -114,13 +114,15 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 		var context = sut.generate("GET", "/weather/filter", operation);
 
 		assertOn(context)
-			.hasParameterByValue(1, "#P-REVERSE", VariableType.logical())
-			.hasParameterByValue(1, "#P-SKIP", VariableType.integer(4))
+			.generatedDefineDataSourceContains("1 #P-REVERSE (L) BY VALUE OPTIONAL")
+			.generatedDefineDataSourceContains("1 #P-SKIP (I4) BY VALUE")
 			.generatedStatementSourceContains("""
 				COMPRESS #P-BASE-URL '/weather/filter' INTO ##REQUEST.#URL LEAVING NO SPACE
-				COMPRESS ##REQUEST.#URL ##REQUEST.#QUERY-DELIMITER 'reverse=' L2JBOOL(<#P-REVERSE>)
-				INTO ##REQUEST.#URL LEAVING NO SPACE
-				##REQUEST.#QUERY-DELIMITER := '&'
+				IF #P-REVERSE SPECIFIED
+				  COMPRESS ##REQUEST.#URL ##REQUEST.#QUERY-DELIMITER 'reverse=' L2JBOOL(<#P-REVERSE>)
+				  INTO ##REQUEST.#URL LEAVING NO SPACE
+				  ##REQUEST.#QUERY-DELIMITER := '&'
+				END-IF
 				COMPRESS ##REQUEST.#URL ##REQUEST.#QUERY-DELIMITER 'skip=' #P-SKIP INTO ##REQUEST.#URL
 				LEAVING NO SPACE
 				##REQUEST.#QUERY-DELIMITER := '&'
@@ -198,6 +200,7 @@ paths:
           type: boolean
       - name: skip
         in: query
+        required: true
         schema:
           type: integer
           format: int32

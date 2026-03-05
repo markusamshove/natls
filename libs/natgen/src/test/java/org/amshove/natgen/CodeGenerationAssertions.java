@@ -100,6 +100,15 @@ public class CodeGenerationAssertions
 		return this;
 	}
 
+	public CodeGenerationAssertions generatedDefineDataSourceContains(String expected)
+	{
+		var defineData = new DefineDataGenerator().generate(context);
+		assertThat(defineData)
+			.contains(expected);
+
+		return this;
+	}
+
 	private Stream<Variable> collectParameter()
 	{
 		return context.parameter().stream().flatMap(this::collectParameter);

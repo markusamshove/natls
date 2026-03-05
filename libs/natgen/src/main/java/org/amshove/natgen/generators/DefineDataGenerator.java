@@ -163,6 +163,11 @@ public class DefineDataGenerator
 			code.append(" BY VALUE");
 		}
 
+		if (variable.isOptional() && variable.scope() == VariableScope.PARAMETER)
+		{
+			code.append(" OPTIONAL");
+		}
+
 		for (var redefinition : variable.redefinitions())
 		{
 			code.lineBreak();
