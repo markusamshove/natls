@@ -118,7 +118,7 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 			.hasParameterByValue(1, "#P-SKIP", VariableType.integer(4))
 			.generatedStatementSourceContains("""
 				COMPRESS #P-BASE-URL '/weather/filter' INTO ##REQUEST.#URL LEAVING NO SPACE
-				COMPRESS ##REQUEST.#URL ##REQUEST.#QUERY-DELIMITER 'reverse=' BOOL2STR(<#P-REVERSE>)
+				COMPRESS ##REQUEST.#URL ##REQUEST.#QUERY-DELIMITER 'reverse=' L2JBOOL(<#P-REVERSE>)
 				INTO ##REQUEST.#URL LEAVING NO SPACE
 				##REQUEST.#QUERY-DELIMITER := '&'
 				COMPRESS ##REQUEST.#URL ##REQUEST.#QUERY-DELIMITER 'skip=' #P-SKIP INTO ##REQUEST.#URL

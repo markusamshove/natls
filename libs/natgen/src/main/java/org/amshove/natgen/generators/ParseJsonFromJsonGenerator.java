@@ -8,6 +8,7 @@ import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn;
 import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natgen.generatable.IGeneratableStatement;
+import org.amshove.natgen.generatable.NatGenFunctions;
 import org.amshove.natgen.generatable.definedata.Variable;
 
 import java.util.Locale;
@@ -141,7 +142,7 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 
 		if (primitive.isBoolean())
 		{
-			return functionCall("ATOB", jsonValue);
+			return NatGenFunctions.jsonBooleanToLogical(jsonValue);
 		}
 
 		throw new UnsupportedOperationException("Unknown json primitive: %s".formatted(primitive));

@@ -5,10 +5,7 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.VariableType;
-import org.amshove.natgen.generatable.IGeneratable;
-import org.amshove.natgen.generatable.NaturalCode;
-import org.amshove.natgen.generatable.RequestDocument;
-import org.amshove.natgen.generatable.Subroutine;
+import org.amshove.natgen.generatable.*;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.DataFormat;
 import org.amshove.natparse.natural.VariableScope;
@@ -145,7 +142,7 @@ public class RequestDocumentForOpenApiGenerator
 	{
 		if (variable.type().format() == DataFormat.LOGIC)
 		{
-			return functionCall("BOOL2STR", variable);
+			return NatGenFunctions.logicalToJsonBoolean(variable);
 		}
 
 		return variable;

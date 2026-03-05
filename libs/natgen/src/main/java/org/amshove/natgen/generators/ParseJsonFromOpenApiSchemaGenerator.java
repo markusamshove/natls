@@ -8,6 +8,7 @@ import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn;
 import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natgen.generatable.IGeneratableStatement;
+import org.amshove.natgen.generatable.NatGenFunctions;
 import org.amshove.natgen.generatable.definedata.Variable;
 
 import java.util.Locale;
@@ -204,7 +205,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 		if (BOOLEAN_TYPE.equals(type))
 		{
-			return functionCall("ATOB", jsonValue);
+			return NatGenFunctions.jsonBooleanToLogical(jsonValue);
 		}
 
 		throw new UnsupportedOperationException("No value assignment implemented for type <%s>".formatted(type));
