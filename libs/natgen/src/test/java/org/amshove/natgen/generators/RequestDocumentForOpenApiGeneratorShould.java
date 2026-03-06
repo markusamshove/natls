@@ -129,6 +129,20 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 				""");
 	}
 
+	@Test
+	void addHeaderParameterToTheRequest()
+	{
+		var path = openApi.getPaths().get("/weather/filterheader");
+		var operation = path.getGet();
+		var context = sut.generate("GET", "/weather/filterheader", operation);
+
+		assertOn(context)
+			.generatedDefineDataSourceContains("1 #P-X-REVERSE (L) BY VALUE")
+			.generatedDefineDataSourceContains("1 #P-X-SKIP (I4) BY VALUE")
+			.generatedStatementSourceContains("NAME 'X-Reverse' VALUE #P-X-REVERSE")
+			.generatedStatementSourceContains("NAME 'X-Skip' VALUE #P-X-SKIP");
+	}
+
 	@BeforeAll
 	static void parseOpenApi()
 	{
@@ -200,6 +214,29 @@ paths:
           type: boolean
       - name: skip
         in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Forecast"
+  /weather/filterheader:
+    get:
+      parameters:
+      - name: X-Reverse
+        in: header
+        required: true
+        schema:
+          type: boolean
+      - name: X-Skip
+        in: header
         required: true
         schema:
           type: integer

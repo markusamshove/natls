@@ -70,7 +70,7 @@ public class RequestDocumentForOpenApiGenerator
 			.requestDocument(builtRequestUrl, responseCode)
 			.withMethod(stringLiteral(method));
 
-		addRequestParameter(context, builtRequestUrl, operation);
+		addRequestParameter(context, requestDocument, builtRequestUrl, operation);
 
 		//		addRequestContentType(requestDocument, operation);
 
@@ -98,7 +98,7 @@ public class RequestDocumentForOpenApiGenerator
 		return context;
 	}
 
-	private void addRequestParameter(CodeGenerationContext context, Variable requestUrl, Operation operation)
+	private void addRequestParameter(CodeGenerationContext context, RequestDocument requestDocument, Variable requestUrl, Operation operation)
 	{
 		if (operation.getParameters() == null || operation.getParameters().isEmpty())
 		{
@@ -116,6 +116,14 @@ public class RequestDocumentForOpenApiGenerator
 						._for(stringLiteral("{%s}".formatted(parameter.getName())))
 						.replaceWith(moduleParameter)
 				);
+			}
+
+			if (parameter.getIn().equals("header"))
+			{
+				var inferredType = inferNaturalType(parameter.getSchema(), openApi);
+				var moduleParameter = context.addParameter("#P-" + parameter.getName(), inferredType).asByValue();
+
+				requestDocument.withRequestHeader(stringLiteral(parameter.getName()), moduleParameter);
 			}
 
 			if (parameter.getIn().equals("query"))
@@ -147,7 +155,6 @@ public class RequestDocumentForOpenApiGenerator
 						.addToBody(delimiterAssignment);
 					context.addStatement(ifSpecified);
 				}
-
 			}
 		}
 	}
