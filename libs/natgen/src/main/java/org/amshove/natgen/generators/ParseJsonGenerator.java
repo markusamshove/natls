@@ -23,6 +23,7 @@ public abstract class ParseJsonGenerator
 		private String parsedJsonGroupName = DEFAULT_PARSED_JSON_GROUP_NAME;
 		private VariableScope jsonSourceScope = VariableScope.LOCAL;
 		private @Nullable Variable parsedJsonRoot;
+		private String parsingGroupName = "##JSON-PARSING";
 
 		/// Overwrite the group name for the parsed JSON. Default is `##PARSED-JSON`.
 		/// Has no effect when [#setParsedJsonRoot(Variable)] was set.
@@ -52,6 +53,13 @@ public abstract class ParseJsonGenerator
 		public void setParsedJsonRoot(@Nullable Variable root)
 		{
 			this.parsedJsonRoot = root;
+		}
+
+		/// Set the name for the group variable which contains all the parsing relevant
+		/// variables. Might be useful if a context will contain multiple `PARSE JSON` statements
+		public void setParsingGroupName(String name)
+		{
+			this.parsingGroupName = name;
 		}
 	}
 
@@ -96,7 +104,7 @@ public abstract class ParseJsonGenerator
 	public CodeGenerationContext generate()
 	{
 		var context = new CodeGenerationContext();
-		jsonParsingGroup = context.addVariable(new Variable(1, VariableScope.LOCAL, "##JSON-PARSING", VariableType.group()));
+		jsonParsingGroup = context.addVariable(new Variable(1, VariableScope.LOCAL, settings.parsingGroupName, VariableType.group()));
 		var jsonPath = jsonParsingGroup.addVariable("#PATH", VariableType.alphanumericDynamic());
 		jsonValue = jsonParsingGroup.addVariable("#VALUE", VariableType.alphanumericDynamic());
 		var jsonErrCode = jsonParsingGroup.addVariable("#ERR-CODE", VariableType.integer(4));

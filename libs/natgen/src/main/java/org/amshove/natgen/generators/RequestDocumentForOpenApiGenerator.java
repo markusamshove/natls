@@ -122,7 +122,7 @@ public class RequestDocumentForOpenApiGenerator
 			{
 				var inferredType = inferNaturalType(parameter.getSchema(), openApi);
 				var moduleParameter = context.addParameter("#P-" + parameter.getName(), inferredType).asByValue();
-				var queryDelimiterVariable = getQueryDelimiterVariable(context);
+				var queryDelimiterVariable = getQueryDelimiterVariable();
 
 				var compress = compress()
 					.withOperand(requestUrl)
@@ -162,7 +162,7 @@ public class RequestDocumentForOpenApiGenerator
 		return variable;
 	}
 
-	private Variable getQueryDelimiterVariable(CodeGenerationContext context)
+	private Variable getQueryDelimiterVariable()
 	{
 		if (queryDelimiterVariable == null)
 		{
@@ -192,6 +192,7 @@ public class RequestDocumentForOpenApiGenerator
 			var schema = resolveSchema(responseContent.getValue().getSchema(), openApi);
 			var schemaName = resolveSchemaName(responseContent.getValue().getSchema(), "Inlineresponse");
 			var settings = new ParseJsonGenerator.Settings();
+			settings.setParsingGroupName("##PARSE-" + responseCode);
 			if (this.settings.returnBodyRootGroup != null)
 			{
 				settings.setParsedJsonRoot(

@@ -15,6 +15,7 @@ public final class CodeGenerationContext
 	private final EnumMap<VariableScope, Set<Using>> usings = new EnumMap<>(VariableScope.class);
 	private final List<IGeneratableDefineDataElement> parameter = new ArrayList<>();
 	private final List<IGeneratableStatement> statements = new ArrayList<>();
+	private final Set<String> uniqueVariableNames = new HashSet<>();
 
 	public Variable addParameter(String name, VariableType type)
 	{
@@ -23,6 +24,8 @@ public final class CodeGenerationContext
 
 	public Variable addVariable(Variable variable)
 	{
+		ensureUniqueVariableName(variable);
+
 		if (variable.scope().isParameter())
 		{
 			parameter.add(variable);
@@ -37,6 +40,8 @@ public final class CodeGenerationContext
 	public Variable addVariable(VariableScope scope, String name, VariableType type)
 	{
 		var variable = new Variable(1, scope, name, type);
+		ensureUniqueVariableName(variable);
+
 		if (scope.isParameter())
 		{
 			parameter.add(variable);
@@ -51,6 +56,7 @@ public final class CodeGenerationContext
 	public void removeVariable(Variable variable)
 	{
 		variables.remove(variable);
+		uniqueVariableNames.remove(variable.name());
 	}
 
 	/// Returns all non-parameter scoped Variables added to this context
@@ -109,8 +115,28 @@ public final class CodeGenerationContext
 	/// Merge the passed context into this one but leave out statements
 	public void consumeExceptStatements(CodeGenerationContext other)
 	{
-		this.variables.addAll(other.variables);
-		this.parameter.addAll(other.parameter);
+		for (var variable : other.variables)
+		{
+			addVariable(variable);
+		}
+		for (var param : other.parameter)
+		{
+			switch (param)
+			{
+				case Using u -> this.parameter.add(u);
+				case Variable v -> addVariable(v);
+			}
+		}
 		this.usings.putAll(other.usings);
+	}
+
+	private void ensureUniqueVariableName(Variable variable)
+	{
+		var variablename = variable.name();
+		while (!uniqueVariableNames.add(variablename))
+		{
+			variable.setName("#" + variablename);
+			variablename = variable.name();
+		}
 	}
 }

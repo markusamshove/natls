@@ -14,12 +14,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Variable implements IGeneratableDefineDataElement
 {
 	private int level;
 	private final VariableScope scope;
-	private final String name;
+	private String name;
 	private final VariableType type;
 	private final List<Variable> childVariables = new ArrayList<>();
 	private final List<Redefinition> redefinitions = new ArrayList<>();
@@ -101,6 +102,12 @@ public final class Variable implements IGeneratableDefineDataElement
 		return redefinition;
 	}
 
+	/// Set the unqualified part of the variable name
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
 	/// Creates a Variable for code generation from a parsed Variable from Natural source.
 	/// Child variables get added as well.
 	public static Variable fromParsedVariable(IVariableNode variableNode)
@@ -166,6 +173,12 @@ public final class Variable implements IGeneratableDefineDataElement
 		{
 			variable.parent.childVariables.remove(variable);
 		}
+
+		while (findRootVariable().deepChildren().anyMatch(v -> v.name().equals(variable.name()) && v != variable))
+		{
+			variable.setName("#" + variable.name());
+		}
+
 		variable.parent = this;
 		variable.level = level + 1;
 		childVariables.add(variable);
@@ -221,5 +234,20 @@ public final class Variable implements IGeneratableDefineDataElement
 				.collect(Collectors.joining(", "))
 		);
 		return NaturalCode.plain(generate() + access);
+	}
+
+	private Stream<Variable> deepChildren()
+	{
+		return Stream.concat(childVariables.stream(), childVariables.stream().flatMap(Variable::deepChildren));
+	}
+
+	private Variable findRootVariable()
+	{
+		if (parent == null)
+		{
+			return this;
+		}
+
+		return parent.findRootVariable();
 	}
 }
