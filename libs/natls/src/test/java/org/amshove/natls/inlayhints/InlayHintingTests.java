@@ -307,6 +307,57 @@ class InlayHintingTests extends LanguageServerTest
 			);
 	}
 
+	@Test
+	void parameterInlayHintsShouldBeProvidedForPassedLiterals()
+	{
+		createOrSaveFile("LIBONE", "CALLED.NSN", """
+			DEFINE DATA PARAMETER
+			1 #THE-PARAMETER (A10) BY VALUE
+			END-DEFINE
+			END
+			""");
+		var module = createOrSaveFile("LIBONE", "SUB.NSN", """
+			DEFINE DATA LOCAL
+			END-DEFINE
+
+			CALLNAT 'CALLED' 'Test'
+			END
+			""");
+
+		var request = getContext().documentService().inlayHint(new InlayHintParams(module, LspUtil.newRange(0, 0, 8, 0)));
+		assertThat(request)
+			.succeedsWithin(1, TimeUnit.SECONDS)
+			.satisfies(
+				hints -> assertThat(hints).anyMatch(h -> h.getKind() == InlayHintKind.Parameter && h.getLabel().getLeft().equals("#THE-PARAMETER"))
+			);
+	}
+
+	@Test
+	void parameterInlayHintsForLiteralsShouldBeNotProvidedForPassedNonLiterals()
+	{
+		createOrSaveFile("LIBONE", "CALLED.NSN", """
+			DEFINE DATA PARAMETER
+			1 #THE-PARAMETER (A10) BY VALUE
+			END-DEFINE
+			END
+			""");
+		var module = createOrSaveFile("LIBONE", "SUB.NSN", """
+			DEFINE DATA LOCAL
+			1 #VAR (A10)
+			END-DEFINE
+
+			CALLNAT 'CALLED' #VAR
+			END
+			""");
+
+		var request = getContext().documentService().inlayHint(new InlayHintParams(module, LspUtil.newRange(0, 0, 8, 0)));
+		assertThat(request)
+			.succeedsWithin(1, TimeUnit.SECONDS)
+			.satisfies(
+				hints -> assertThat(hints).isEmpty()
+			);
+	}
+
 	private static LspTestContext testContext;
 
 	@BeforeAll
