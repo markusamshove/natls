@@ -8,4 +8,3 @@ public interface IIncDicNode extends IStatementNode
 	@Nullable
 	SyntaxToken ruleName();
 }
-
