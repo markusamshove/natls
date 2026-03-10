@@ -1,5 +1,7 @@
 package org.amshove.natparse.natural;
 
+import java.util.List;
+
 import org.amshove.natparse.ReadOnlyList;
 import org.amshove.natparse.natural.ddm.IDdmField;
 import org.jspecify.annotations.Nullable;
@@ -33,6 +35,8 @@ public interface IDefineData extends ISyntaxNode
 	ReadOnlyList<ITypedVariableNode> effectiveParameterInOrder();
 
 	ReadOnlyList<IVariableNode> variables();
+
+	List<IVariableNode> findVariablesWithName(String symbolName);
 
 	@Nullable
 	IVariableNode findVariable(String symbolName);

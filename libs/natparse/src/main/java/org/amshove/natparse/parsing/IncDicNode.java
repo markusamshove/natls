@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
  *
  * This statement is also used just before an inline rule without a rule name
  */
-class IncDicNode extends StatementWithBodyNode implements IIncDicNode
+class IncDicNode extends StatementWithBodyNode implements IIncDicNode, IHasDefineNode
 {
 	private SyntaxToken ruleName;
 	private IDefineData define;
@@ -24,7 +24,7 @@ class IncDicNode extends StatementWithBodyNode implements IIncDicNode
 	@Override
 	public SyntaxToken ruleName()
 	{
-	    return this.ruleName;
+		return this.ruleName;
 	}
 
 	public void setDefine(IDefineData define)
@@ -32,6 +32,16 @@ class IncDicNode extends StatementWithBodyNode implements IIncDicNode
 		this.define = define;
 	}
 
+	@Override
+	public boolean hasDefineNode()
+	{
+		return this.define != null;
+	}
+
+	@Override
+	public IDefineData defineNode()
+	{
+		return this.define;
+	}
 
 }
-

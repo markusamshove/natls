@@ -4531,6 +4531,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		var opening = consumeMandatory(work, SyntaxKind.READ);
 		consumeMandatory(work, SyntaxKind.WORK);
 		consumeOptionally(work, SyntaxKind.FILE);
+		// TODO: This operand can also accept a constant variable
 		var number = consumeNonConcatLiteralNode(work, SyntaxKind.NUMBER_LITERAL);
 		checkNumericRange(number, 1, 32);
 		work.setWorkFileNumber(number);
@@ -4620,13 +4621,18 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(node, SyntaxKind.RULEVAR);
 		node.setName(consumeMandatoryIdentifier(node));
 
-		if (peekKind(SyntaxKind.INCDIR)) {
+		if (peekKind(SyntaxKind.INCDIR))
+		{
 			node.setIncDir(incdir());
-		} else if (peekKind(SyntaxKind.INCDIC)) {
-			node.setIncDic(incdic());
 		}
+		else
+			if (peekKind(SyntaxKind.INCDIC))
+			{
+				node.setIncDic(incdic());
+			}
 
-		while (!isAtEnd() && !isStatementStart()) {
+		while (!isAtEnd() && !isStatementStart())
+		{
 			consume(node);
 		}
 
@@ -4652,7 +4658,8 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(node, SyntaxKind.INCDIC);
 
 		SyntaxToken ruleName = null;
-		if (peekKind(SyntaxKind.IDENTIFIER)) {
+		if (peekKind(SyntaxKind.IDENTIFIER))
+		{
 			ruleName = consumeMandatoryIdentifier(node);
 			node.setRuleName(ruleName);
 		}
