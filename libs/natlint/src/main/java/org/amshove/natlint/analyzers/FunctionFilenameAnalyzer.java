@@ -18,10 +18,18 @@ public class FunctionFilenameAnalyzer extends AbstractAnalyzer
 		DiagnosticSeverity.INFO
 	);
 
+	private boolean shouldAnalyse;
+
 	@Override
 	public ReadOnlyList<DiagnosticDescription> getDiagnosticDescriptions()
 	{
 		return ReadOnlyList.of(FUNCTION_FILE_NAME_MISMATCH);
+	}
+
+	@Override
+	public void beforeAnalyzing(IAnalyzeContext context)
+	{
+		shouldAnalyse = context.getConfiguration(context.getModule().file(), "natls.style.function_name_should_match_file_name", OPTION_FALSE).equalsIgnoreCase(OPTION_TRUE);
 	}
 
 	@Override
@@ -32,7 +40,7 @@ public class FunctionFilenameAnalyzer extends AbstractAnalyzer
 
 	private void analyzeFunction(INaturalModule module, IAnalyzeContext context)
 	{
-		if (!context.isFiletype(NaturalFileType.FUNCTION) || !(module instanceof IFunction function))
+		if (!shouldAnalyse || !context.isFiletype(NaturalFileType.FUNCTION) || !(module instanceof IFunction function))
 		{
 			return;
 		}

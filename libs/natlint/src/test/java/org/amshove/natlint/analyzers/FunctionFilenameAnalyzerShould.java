@@ -13,6 +13,10 @@ class FunctionFilenameAnalyzerShould extends AbstractAnalyzerTest
 	@Test
 	void raiseADiagnosticIfFilenameAndFunctionNameDiffer()
 	{
+		configureEditorConfig("""
+			[*]
+			natls.style.function_name_should_match_file_name=true
+			""");
 		testDiagnostics(
 			"FUNCC.NS7", """
 			DEFINE FUNCTION FUNC
@@ -22,6 +26,25 @@ class FunctionFilenameAnalyzerShould extends AbstractAnalyzerTest
 			END
 			""",
 			expectDiagnostic(0, FunctionFilenameAnalyzer.FUNCTION_FILE_NAME_MISMATCH)
+		);
+	}
+
+	@Test
+	void notRaiseADiagnosticIfFilenameAndFunctionNameDifferButSettingIsTurnedOff()
+	{
+		configureEditorConfig("""
+			[*]
+			natls.style.function_name_should_match_file_name=false
+			""");
+		testDiagnostics(
+			"FUNCC.NS7", """
+			DEFINE FUNCTION FUNC
+			RETURNS (L)
+			FUNC := TRUE
+			END-FUNCTION
+			END
+			""",
+			expectNoDiagnosticOfType(FunctionFilenameAnalyzer.FUNCTION_FILE_NAME_MISMATCH)
 		);
 	}
 
