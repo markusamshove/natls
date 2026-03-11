@@ -1,5 +1,6 @@
 package org.amshove.natgen.generatable.definedata;
 
+import org.amshove.natgen.IVariableAddable;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natgen.generatable.NaturalCode;
@@ -16,7 +17,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class Variable implements IGeneratableDefineDataElement
+public final class Variable implements IGeneratableDefineDataElement, IVariableAddable
 {
 	private int level;
 	private final VariableScope scope;

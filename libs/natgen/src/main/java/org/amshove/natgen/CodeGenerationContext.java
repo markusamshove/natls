@@ -9,7 +9,7 @@ import org.amshove.natparse.natural.VariableScope;
 import java.util.*;
 
 /// Holds the building blocks for code that is going to be generated.
-public final class CodeGenerationContext
+public final class CodeGenerationContext implements IVariableAddable
 {
 	private final List<Variable> variables = new ArrayList<>();
 	private final EnumMap<VariableScope, Set<Using>> usings = new EnumMap<>(VariableScope.class);
@@ -35,6 +35,12 @@ public final class CodeGenerationContext
 			variables.add(variable);
 		}
 		return variable;
+	}
+
+	/// Add a new `LOCAL` variable
+	public Variable addVariable(String name, VariableType type)
+	{
+		return addVariable(VariableScope.LOCAL, name, type);
 	}
 
 	public Variable addVariable(VariableScope scope, String name, VariableType type)
@@ -93,6 +99,13 @@ public final class CodeGenerationContext
 		return usings;
 	}
 
+	/// Prepend a statement to the statement list
+	public CodeGenerationContext addStatementToFront(IGeneratableStatement statement)
+	{
+		statements.addFirst(statement);
+		return this;
+	}
+
 	/// Adds a statement to the context
 	public CodeGenerationContext addStatement(IGeneratableStatement statement)
 	{
@@ -138,5 +151,10 @@ public final class CodeGenerationContext
 			variable.setName("#" + variablename);
 			variablename = variable.name();
 		}
+	}
+
+	public void addStatements(List<IGeneratableStatement> statements)
+	{
+		this.statements.addAll(statements);
 	}
 }
