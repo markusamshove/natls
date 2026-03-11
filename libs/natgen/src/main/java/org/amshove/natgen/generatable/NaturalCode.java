@@ -79,17 +79,24 @@ public class NaturalCode implements IGeneratable
 	/// Expand a one dimensional array to `1:upperBound`, where `upperBound` can also be a variable
 	public static IGeneratableStatement expandArray(IGeneratable array, IGeneratable toUpperBound)
 	{
-		return new GeneratableStatement("EXPAND ARRAY %s TO (1:%s)".formatted(array.generate(), toUpperBound.generate()));
+		return new GeneratableStatement(
+			"EXPAND ARRAY %s TO (1:%s)".formatted(array.generate(), toUpperBound.generate())
+		);
 	}
 
 	/// Expand a one dimensional array to `lowerBound:upperBound`
 	public static IGeneratableStatement expandArray(IGeneratable array, int lowerBound, int upperBound)
 	{
-		return new GeneratableStatement("EXPAND ARRAY %s TO (%d:%d)".formatted(array.generate(), lowerBound, upperBound));
+		return new GeneratableStatement(
+			"EXPAND ARRAY %s TO (%d:%d)".formatted(array.generate(), lowerBound, upperBound)
+		);
 	}
 
 	/// Expand the nth dimension of a multidimensional array to `1:upperBound`, where `upperBound` can also be a variable
-	public static IGeneratableStatement expandNthArrayDimension(IGeneratable array, int nthDimension, IGeneratable toUpperBound)
+	public static IGeneratableStatement expandNthArrayDimension(
+		IGeneratable array, int nthDimension,
+		IGeneratable toUpperBound
+	)
 	{
 		var dimensionList = "*, ".repeat(Math.max(0, nthDimension - 1));
 		dimensionList += "1:" + toUpperBound.generate();
@@ -97,7 +104,10 @@ public class NaturalCode implements IGeneratable
 	}
 
 	/// Expand the nth dimension of a multidimensional array to `lowerBound:upperBound`
-	public static IGeneratableStatement expandNthArrayDimension(IGeneratable array, int nthDimension, int lowerBound, int upperBound)
+	public static IGeneratableStatement expandNthArrayDimension(
+		IGeneratable array, int nthDimension, int lowerBound,
+		int upperBound
+	)
 	{
 		var dimensionList = "*, ".repeat(Math.max(0, nthDimension - 1));
 		dimensionList += "%d:%d".formatted(lowerBound, upperBound);
@@ -191,11 +201,28 @@ public class NaturalCode implements IGeneratable
 		);
 	}
 
+	public static IGeneratableStatement callnat(IGeneratable module, IGeneratable... parameter)
+	{
+		return new GeneratableStatement(
+			"CALLNAT %s %s".formatted(
+				module.generate(),
+				Arrays.stream(parameter).map(IGeneratable::generate).collect(Collectors.joining(" "))
+			)
+		);
+	}
+
+	public static IGeneratableStatement setGlobals(String key, IGeneratable value)
+	{
+		return new GeneratableStatement("SET GLOBALS %s=%s".formatted(key, value.generate()));
+	}
+
 	/// Create a `MOVE EDITED` statement where `attribute` is set on `target` resulting in
 	/// `MOVE EDITED source TO target (EM=editMask)`
 	public static IGeneratableStatement moveEdited(IGeneratable source, IGeneratable target, String editMask)
 	{
-		return new GeneratableStatement("MOVE EDITED %s TO %s (EM=%s)".formatted(source.generate(), target.generate(), editMask));
+		return new GeneratableStatement(
+			"MOVE EDITED %s TO %s (EM=%s)".formatted(source.generate(), target.generate(), editMask)
+		);
 	}
 
 	private record GeneratableStatement(String plainCode) implements IGeneratableStatement

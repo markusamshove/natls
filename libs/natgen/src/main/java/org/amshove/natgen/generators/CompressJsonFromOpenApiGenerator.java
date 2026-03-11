@@ -63,18 +63,6 @@ public class CompressJsonFromOpenApiGenerator
 		return context;
 	}
 
-	private void setDecimalSessionParameter()
-	{
-		var sessionParameter = context.addVariable(VariableScope.LOCAL, "##SESSION-PARAMETER", VariableType.alphanumeric(253).withDimension(Dimension.upperBound(4)));
-		var previousDc = sessionParameter.newRedefine().withFiller(70).addVariable("##PREVIOUS-DC", VariableType.alphanumeric(1));
-
-		var jsonDecimalSeparator = context.addVariable(VariableScope.LOCAL, "##C-DECIMAL-CHARACTER", VariableType.alphanumeric(1)).withConstantValue(stringLiteral("."));
-
-		context.addStatement(plainStatement("CALLNAT 'USR1005N' ##SESSION-PARAMETER(*)"));
-		context.addStatement(plainStatement("SET GLOBALS DC=##C-DECIMAL-CHARACTER"));
-		context.addStatement(plainStatement("SET GLOBALS DC=##PREVIOUS-DC"));
-	}
-
 	private void generateSchema(String name, Schema<?> schema, IVariableAddable parentGroup)
 	{
 		var theType = NaturalOpenApi.extractOpenApiType(schema, spec);
@@ -108,7 +96,7 @@ public class CompressJsonFromOpenApiGenerator
 			case STRING_TYPE -> newCompress().withOperand(QUOTE).withOperand(propertyVariable).withOperand(QUOTE);
 			case NUMBER_TYPE, INTEGER_TYPE ->
 			{
-				if (FLOAT_FORMAT.equals(schema.getFormat()))
+				if (FLOAT_FORMAT.equals(schema.getFormat()) || DOUBLE_FORMAT.equals(schema.getFormat()))
 				{
 					needsToSetDecimalSessionParameter = true;
 				}
@@ -116,6 +104,17 @@ public class CompressJsonFromOpenApiGenerator
 			}
 			case BOOLEAN_TYPE -> newCompress().withOperand(NatGenFunctions.logicalToJsonBoolean(propertyVariable));
 		}
+	}
+
+	private void setDecimalSessionParameter()
+	{
+		var jsonDecimalSeparator = context.addVariable(VariableScope.LOCAL, "##C-DECIMAL-CHARACTER", VariableType.alphanumeric(1)).withConstantValue(stringLiteral("."));
+		var previousDc = context.addVariable(VariableScope.LOCAL, "##PREVIOUS-DC", VariableType.alphanumeric(1));
+
+		context.addStatementToFront(setGlobals("DC", jsonDecimalSeparator));
+		context.addStatementToFront(assignment(previousDc, NatGenFunctions.retrieveCurrentDecimalPointCharacterFromSession()));
+
+		context.addStatement(setGlobals("DC", previousDc));
 	}
 
 	private Compress newCompress()

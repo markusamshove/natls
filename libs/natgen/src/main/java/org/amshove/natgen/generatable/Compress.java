@@ -109,18 +109,11 @@ public class Compress implements IGeneratableStatement
 			builder.append(operand);
 		}
 
-		builder.spaceOrBreak().append("INTO ").append(into);
+		builder.spaceOrBreakAndIndentTo(indentationBeforeCompress + 1).append("INTO ").append(into);
 
 		if (leavingNo)
 		{
-			if (builder.currentIndentation() > indentationBeforeCompress)
-			{
-				builder.lineBreak();
-			}
-			else
-			{
-				builder.spaceOrBreak();
-			}
+			builder.spaceOrBreakAndIndentTo(indentationBeforeCompress + 1);
 			builder.append("LEAVING NO SPACE");
 		}
 

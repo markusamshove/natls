@@ -83,8 +83,43 @@ components:
 				COMPRESS NUMERIC ##JSON-RESULT #PERSON.#AGE INTO ##JSON-RESULT LEAVING NO SPACE
 				COMPRESS ##JSON-RESULT ',' INTO ##JSON-RESULT LEAVING NO SPACE
 				COMPRESS ##JSON-RESULT H'22' 'verified' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
-				COMPRESS ##JSON-RESULT L2JBOOL(<#PERSON.#VERIFIED>) INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT LOGICAL-TO-JSON-BOOL(<#PERSON.#VERIFIED>) INTO ##JSON-RESULT
+				  LEAVING NO SPACE
 				COMPRESS ##JSON-RESULT '}' INTO ##JSON-RESULT LEAVING NO SPACE
+				""");
+	}
+
+	@Test
+	void setTheDecimalNotationCharacterWhenFloatingPointNumbersArePresent()
+	{
+		var context = generate("Person", """
+openapi: 3.1.0
+info:
+  title: api API
+  version: 1.0.0
+components:
+  schemas:
+    Person:
+      type: object
+      properties:
+        height:
+          type: number
+          format: double
+			""");
+
+		assertOn(context)
+			.generatedDefineDataSourceContains("1 #PERSON")
+			.generatedDefineDataSourceContains("2 #HEIGHT (N12,7)")
+			.generatedDefineDataSourceContains("1 ##C-DECIMAL-CHARACTER (A1) CONST<'.'>")
+			.generatedDefineDataSourceContains("1 ##PREVIOUS-DC (A1)")
+			.generatesStatements("""
+				##PREVIOUS-DC := GET-CURRENT-DECIMAL-CHARACTER(<>)
+				SET GLOBALS DC=##C-DECIMAL-CHARACTER
+				COMPRESS ##JSON-RESULT '{' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' 'height' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS NUMERIC ##JSON-RESULT #PERSON.#HEIGHT INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT '}' INTO ##JSON-RESULT LEAVING NO SPACE
+				SET GLOBALS DC=##PREVIOUS-DC
 				""");
 	}
 }
