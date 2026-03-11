@@ -48,6 +48,41 @@ components:
 	}
 
 	@Test
+	void handleNullableStrings()
+	{
+		var context = generate("Person", """
+openapi: 3.1.0
+info:
+  title: api API
+  version: 1.0.0
+components:
+  schemas:
+    Person:
+      type: object
+      properties:
+        name:
+          type:
+           - "string"
+           - "null"
+			""");
+
+		assertOn(context)
+			.generatedDefineDataSourceContains("1 #PERSON")
+			.generatedDefineDataSourceContains("2 #NAME (A) DYNAMIC")
+			.generatesStatements("""
+				COMPRESS ##JSON-RESULT '{' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' 'name' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
+				IF #PERSON.#NAME = ' '
+				  COMPRESS ##JSON-RESULT 'null' INTO ##JSON-RESULT LEAVING NO SPACE
+				ELSE
+				  COMPRESS ##JSON-RESULT H'22' #PERSON.#NAME H'22' INTO ##JSON-RESULT LEAVING NO SPACE
+				END-IF
+				COMPRESS ##JSON-RESULT '}' INTO ##JSON-RESULT LEAVING NO SPACE
+				""");
+	}
+
+
+	@Test
 	void generateForAnObjectWithAMultipleSimpleProperties()
 	{
 		var context = generate("Person", """

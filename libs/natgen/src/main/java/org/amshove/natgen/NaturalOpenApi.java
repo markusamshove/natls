@@ -99,8 +99,24 @@ public class NaturalOpenApi
 	public static String extractOpenApiType(Schema<?> schema, OpenAPI spec)
 	{
 		var resolvedSchema = resolveSchema(schema, spec);
-		return resolvedSchema.getTypes().stream().findFirst().orElseThrow(
+		return resolvedSchema.getTypes().stream().filter(t -> !"null".equals(t)).findFirst().orElseThrow(
 			() -> new IllegalStateException("Can not extract type from Schema %s".formatted(resolvedSchema))
 		);
+	}
+
+	/// Check if the given [Schema] can contain null values.
+	public static boolean isNullable(Schema<?> schema)
+	{
+		if(schema.getNullable() != null)
+		{
+			return schema.getNullable();
+		}
+
+		if(schema.get$ref() != null && schema.getAnyOf() == null)
+		{
+			return false;
+		}
+
+		return schema.getTypes().contains("null");
 	}
 }

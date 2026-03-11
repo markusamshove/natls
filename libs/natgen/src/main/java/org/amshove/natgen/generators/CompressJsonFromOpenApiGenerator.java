@@ -6,6 +6,7 @@ import org.amshove.natgen.*;
 import org.amshove.natgen.generatable.Compress;
 import org.amshove.natgen.generatable.NatGenFunctions;
 import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natgen.generatable.conditions.Conditions;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.Nullable;
@@ -13,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 
 import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
+import static org.amshove.natgen.NaturalOpenApi.isNullable;
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
 public class CompressJsonFromOpenApiGenerator
@@ -93,7 +95,20 @@ public class CompressJsonFromOpenApiGenerator
 
 		switch (theType)
 		{
-			case STRING_TYPE -> newCompress().withOperand(QUOTE).withOperand(propertyVariable).withOperand(QUOTE);
+			case STRING_TYPE -> {
+				if (isNullable(schema))
+				{
+					var ifStatement= _if(Conditions.equal(propertyVariable, stringLiteral(" ")));
+					ifStatement.addToBody(newCompressOutsideContext().withOperand(stringLiteral("null")))
+							._else()
+							.addToBody(newCompressOutsideContext().withOperand(QUOTE).withOperand(propertyVariable).withOperand(QUOTE));
+					context.addStatement(ifStatement);
+				}
+				else
+				{
+					newCompress().withOperand(QUOTE).withOperand(propertyVariable).withOperand(QUOTE);
+				}
+			}
 			case NUMBER_TYPE, INTEGER_TYPE ->
 			{
 				if (FLOAT_FORMAT.equals(schema.getFormat()) || DOUBLE_FORMAT.equals(schema.getFormat()))
@@ -117,17 +132,22 @@ public class CompressJsonFromOpenApiGenerator
 		context.addStatement(setGlobals("DC", previousDc));
 	}
 
-	private Compress newCompress()
+	private Compress newCompressOutsideContext()
 	{
-		var compress = compress()
+		return compress()
 			.withOperand(jsonResult)
 			.into(jsonResult)
 			.leavingNoSpace();
+	}
+
+	private Compress newCompress()
+	{
+		var compress = newCompressOutsideContext();
 		context.addStatement(compress);
 		return compress;
 	}
 
-	private NaturalCode propertyNameColonOperand(String name)
+	private static NaturalCode propertyNameColonOperand(String name)
 	{
 		return plain("H'22' '%s' H'22' ':'".formatted(name));
 	}
