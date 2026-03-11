@@ -70,6 +70,19 @@ public class NaturalModuleBuilder
 		return defineData;
 	}
 
+	IDefineData getDefineData(ISyntaxNode scopeNode)
+	{
+		while (scopeNode.parent() != null)
+		{
+			scopeNode = scopeNode.parent();
+			if (scopeNode instanceof IHasDefineNode && ((IHasDefineNode) scopeNode).hasDefineNode())
+			{
+				return new DefineDataNested(defineData, ((IHasDefineNode) scopeNode).defineNode());
+			}
+		}
+		return defineData;
+	}
+
 	IStatementListNode body()
 	{
 		return body;
