@@ -24,9 +24,17 @@ public class CompressJsonFromOpenApiGenerator
 		@Nullable
 		private Variable jsonSourceGroup;
 
-		void setJsonSourceGroup(@Nullable Variable group)
+		@Nullable
+		private Variable jsonResultVariable;
+
+		public void setJsonSourceGroup(@Nullable Variable group)
 		{
 			jsonSourceGroup = group;
+		}
+
+		public void setJsonResultVariable(@Nullable Variable jsonResultVariable)
+		{
+			this.jsonResultVariable = jsonResultVariable;
 		}
 	}
 
@@ -52,7 +60,10 @@ public class CompressJsonFromOpenApiGenerator
 	public CodeGenerationContext generate(String schemaName, Schema<?> schema)
 	{
 		context = new CodeGenerationContext();
-		jsonResult = context.addVariable(VariableScope.LOCAL, "##JSON-RESULT", VariableType.alphanumericDynamic());
+		jsonResult = Objects.requireNonNullElseGet(
+			settings.jsonResultVariable,
+			() -> context.addVariable(VariableScope.LOCAL, "##JSON-RESULT", VariableType.alphanumericDynamic())
+		);
 
 		var whereToAddJsonSourceVariablesTo = Objects.requireNonNullElse(settings.jsonSourceGroup, context);
 		generateSchema(schemaName, schema, whereToAddJsonSourceVariablesTo);
