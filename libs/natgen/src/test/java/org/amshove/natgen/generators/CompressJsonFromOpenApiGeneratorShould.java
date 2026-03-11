@@ -81,7 +81,6 @@ components:
 				""");
 	}
 
-
 	@Test
 	void generateForAnObjectWithAMultipleSimpleProperties()
 	{
@@ -155,6 +154,55 @@ components:
 				COMPRESS NUMERIC ##JSON-RESULT #PERSON.#HEIGHT INTO ##JSON-RESULT LEAVING NO SPACE
 				COMPRESS ##JSON-RESULT '}' INTO ##JSON-RESULT LEAVING NO SPACE
 				SET GLOBALS DC=##PREVIOUS-DC
+				""");
+	}
+
+	@Test
+	void generateNestedObjects()
+	{
+		var context = generate("Person", """
+openapi: 3.1.0
+info:
+  title: api API
+  version: 1.0.0
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+    Person:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+			""");
+
+		assertOn(context)
+			.generatedDefineDataSourceContains("1 #PERSON")
+			.generatedDefineDataSourceContains("2 #NAME (A) DYNAMIC")
+			.generatedDefineDataSourceContains("2 #ADDRESS")
+			.generatedDefineDataSourceContains("3 #STREET (A) DYNAMIC")
+			.generatedDefineDataSourceContains("3 #CITY (A) DYNAMIC")
+			.generatesStatements("""
+				COMPRESS ##JSON-RESULT '{' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' 'name' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' #PERSON.#NAME H'22' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT ',' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' 'address' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT '{' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' 'street' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' #PERSON.#STREET H'22' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT ',' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' 'city' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' #PERSON.#CITY H'22' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT '}' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT '}' INTO ##JSON-RESULT LEAVING NO SPACE
 				""");
 	}
 }

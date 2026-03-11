@@ -107,12 +107,12 @@ public class NaturalOpenApi
 	/// Check if the given [Schema] can contain null values.
 	public static boolean isNullable(Schema<?> schema)
 	{
-		if(schema.getNullable() != null)
+		if (schema.getNullable() != null)
 		{
 			return schema.getNullable();
 		}
 
-		if(schema.get$ref() != null && schema.getAnyOf() == null)
+		if (schema.get$ref() != null && schema.getAnyOf() == null)
 		{
 			return false;
 		}

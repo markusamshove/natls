@@ -15,6 +15,7 @@ import java.util.Objects;
 
 import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
 import static org.amshove.natgen.NaturalOpenApi.isNullable;
+import static org.amshove.natgen.NaturalOpenApi.resolveSchema;
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
 public class CompressJsonFromOpenApiGenerator
@@ -49,6 +50,7 @@ public class CompressJsonFromOpenApiGenerator
 	private final Settings settings;
 	private Variable jsonResult;
 	private CodeGenerationContext context;
+	private String rootSchemaName;
 	private boolean needsToSetDecimalSessionParameter;
 
 	public CompressJsonFromOpenApiGenerator(OpenAPI spec, Settings settings)
@@ -59,6 +61,7 @@ public class CompressJsonFromOpenApiGenerator
 
 	public CodeGenerationContext generate(String schemaName, Schema<?> schema)
 	{
+		rootSchemaName = schemaName;
 		context = new CodeGenerationContext();
 		jsonResult = Objects.requireNonNullElseGet(
 			settings.jsonResultVariable,
@@ -78,17 +81,25 @@ public class CompressJsonFromOpenApiGenerator
 
 	private void generateSchema(String name, Schema<?> schema, IVariableAddable parentGroup)
 	{
+		var isRootSchema = name.equals(rootSchemaName);
+
+		if (!isRootSchema)
+		{
+			newCompress().withOperand(propertyNameColonOperand(name));
+		}
+
 		var theType = NaturalOpenApi.extractOpenApiType(schema, spec);
 		if (theType.equals(OBJECT_TYPE))
 		{
 			var object = parentGroup.addVariable("#" + name, VariableType.group());
+
 			newCompress().withOperand(OBJECT_START);
 
 			var propertyIterator = schema.getProperties().entrySet().iterator();
 			while (propertyIterator.hasNext())
 			{
 				var property = propertyIterator.next();
-				generateSchema(property.getKey(), property.getValue(), object);
+				generateSchema(property.getKey(), resolveSchema(property.getValue(), spec), object);
 				if (propertyIterator.hasNext())
 				{
 					newCompress().withOperand(COMMA);
@@ -99,20 +110,19 @@ public class CompressJsonFromOpenApiGenerator
 			return;
 		}
 
-		newCompress().withOperand(propertyNameColonOperand(name));
-
 		var variableType = NaturalOpenApi.inferNaturalType(schema, spec);
 		var propertyVariable = parentGroup.addVariable("#" + name, variableType);
 
 		switch (theType)
 		{
-			case STRING_TYPE -> {
+			case STRING_TYPE ->
+			{
 				if (isNullable(schema))
 				{
-					var ifStatement= _if(Conditions.equal(propertyVariable, stringLiteral(" ")));
+					var ifStatement = _if(Conditions.equal(propertyVariable, stringLiteral(" ")));
 					ifStatement.addToBody(newCompressOutsideContext().withOperand(stringLiteral("null")))
-							._else()
-							.addToBody(newCompressOutsideContext().withOperand(QUOTE).withOperand(propertyVariable).withOperand(QUOTE));
+						._else()
+						.addToBody(newCompressOutsideContext().withOperand(QUOTE).withOperand(propertyVariable).withOperand(QUOTE));
 					context.addStatement(ifStatement);
 				}
 				else
