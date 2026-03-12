@@ -205,4 +205,47 @@ components:
 				COMPRESS ##JSON-RESULT '}' INTO ##JSON-RESULT LEAVING NO SPACE
 				""");
 	}
+
+	@Test
+	void generatePrimitiveArrays()
+	{
+		var context = generate("Book", """
+openapi: 3.1.0
+info:
+  title: api API
+  version: 1.0.0
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        editions:
+          type: array
+          items:
+            type: string
+			""");
+
+		assertOn(context)
+			.generatedDefineDataSourceContains("1 #BOOK")
+			.generatedDefineDataSourceContains("2 #EDITIONS (A/1:*) DYNAMIC")
+			.generatedDefineDataSourceContains("1 #S-#EDITIONS (I4)")
+			.generatedDefineDataSourceContains("1 #I-#EDITIONS (I4)")
+			.generatesStatements("""
+				COMPRESS ##JSON-RESULT '{' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' 'editions' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT '[' INTO ##JSON-RESULT LEAVING NO SPACE
+				#S-#EDITIONS := *OCC(#BOOK.#EDITIONS)
+				FOR #I-#EDITIONS := 1 TO #S-#EDITIONS
+				  IF #I-#EDITIONS > 1
+				    COMPRESS ##JSON-RESULT ',' INTO ##JSON-RESULT LEAVING NO SPACE
+				  END-IF
+				  COMPRESS ##JSON-RESULT H'22' #BOOK.#EDITIONS(#I-#EDITIONS) H'22' INTO ##JSON-RESULT LEAVING NO SPACE
+				END-FOR
+				COMPRESS ##JSON-RESULT ']' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT '}' INTO ##JSON-RESULT LEAVING NO SPACE
+				""");
+	}
+
+	// TODO: Array of Objects
+	// TODO: Root document is array
 }

@@ -2,7 +2,10 @@ package org.amshove.natgen.generators;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
-import org.amshove.natgen.*;
+import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.IVariableAddable;
+import org.amshove.natgen.NaturalOpenApi;
+import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.Compress;
 import org.amshove.natgen.generatable.NatGenFunctions;
 import org.amshove.natgen.generatable.NaturalCode;
@@ -11,6 +14,8 @@ import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
@@ -52,6 +57,7 @@ public class CompressJsonFromOpenApiGenerator
 	private CodeGenerationContext context;
 	private String rootSchemaName;
 	private boolean needsToSetDecimalSessionParameter;
+	private final Map<Schema<?>, ArrayVariables> arrayVariablesBySchema = new HashMap<>();
 
 	public CompressJsonFromOpenApiGenerator(OpenAPI spec, Settings settings)
 	{
@@ -113,6 +119,29 @@ public class CompressJsonFromOpenApiGenerator
 		var variableType = NaturalOpenApi.inferNaturalType(schema, spec);
 		var propertyVariable = parentGroup.addVariable("#" + name, variableType);
 
+		if (theType.equals("array"))
+		{
+			var iterationVariables = getIterationVariables(schema, name);
+			newCompress().withOperand(ARRAY_START);
+
+			context.addStatement(assignment(iterationVariables.size(), occ(propertyVariable)));
+			var forLoop = _for(iterationVariables.iterator(), numberLiteral(1), iterationVariables.size());
+			forLoop.addToBody(
+				_if(Conditions.greaterThan(iterationVariables.iterator(), numberLiteral(1)))
+					.addToBody(newCompressOutsideContext().withOperand(COMMA))
+			);
+			forLoop.addToBody(
+				newCompressOutsideContext()
+					.withOperand(QUOTE)
+					.withOperand(propertyVariable.arrayAccess(iterationVariables.iterator()))
+					.withOperand(QUOTE)
+			);
+			context.addStatement(forLoop);
+
+			newCompress().withOperand(ARRAY_END);
+			return;
+		}
+
 		switch (theType)
 		{
 			case STRING_TYPE ->
@@ -172,4 +201,18 @@ public class CompressJsonFromOpenApiGenerator
 	{
 		return plain("H'22' '%s' H'22' ':'".formatted(name));
 	}
+
+	private ArrayVariables getIterationVariables(Schema<?> schema, String name)
+	{
+		return arrayVariablesBySchema.computeIfAbsent(schema, _ ->
+		{
+			var size = context.addVariable("#S-#" + name, VariableType.integer(4));
+			var iterator = context.addVariable("#I-#" + name, VariableType.integer(4));
+
+			return new ArrayVariables(size, iterator);
+		});
+	}
+
+	private record ArrayVariables(Variable size, Variable iterator)
+	{}
 }

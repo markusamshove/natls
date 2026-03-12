@@ -71,6 +71,11 @@ public class NaturalCode implements IGeneratable
 		return plain(plaintext);
 	}
 
+	public static NaturalCode numberLiteral(int number)
+	{
+		return plain(Integer.toString(number));
+	}
+
 	public static IGeneratableStatement incrementVariable(IGeneratable variable)
 	{
 		return new GeneratableStatement("ADD 1 TO " + variable.generate());
@@ -243,6 +248,17 @@ public class NaturalCode implements IGeneratable
 	public static RequestDocument requestDocument(IGeneratable uri, IGeneratable responseCode)
 	{
 		return new RequestDocument(uri, responseCode);
+	}
+
+	public static IGeneratable occ(IGeneratable array)
+	{
+		return new NaturalCode("*OCC(%s)".formatted(array.generate()));
+	}
+
+	/// Create a [For] in the form of `FOR iterationVariable := startValue TO upper`
+	public static For _for(IGeneratable iterationVariable, IGeneratable startValue, IGeneratable upper)
+	{
+		return new For(iterationVariable, startValue, upper);
 	}
 
 	/// Creates a [Compress] statement

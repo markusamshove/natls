@@ -67,7 +67,14 @@ public class NaturalOpenApi
 		}
 
 		var firstType = extractOpenApiType(schema, spec);
-		return switch (firstType)
+		var isArray = false;
+		if (firstType.equals("array"))
+		{
+			isArray = true;
+			firstType = extractOpenApiType(schema.getItems(), spec);
+		}
+
+		var inferredType = switch (firstType)
 		{
 			case STRING_TYPE -> switch (schema.getFormat())
 			{
@@ -91,8 +98,10 @@ public class NaturalOpenApi
 			};
 			case BOOLEAN_TYPE -> VariableType.logical();
 			case OBJECT_TYPE -> VariableType.group();
-			default -> null;
+			default -> throw new IllegalStateException("Could not infer Natural type from Open API type <%s>".formatted(firstType));
 		};
+
+		return isArray ? inferredType.withDimension(Dimension.upperUnbound()) : inferredType;
 	}
 
 	/// Extract the OpenApi type (e.g. `number`) for the give [Schema] which is an array.
