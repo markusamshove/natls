@@ -6,9 +6,7 @@ import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.IVariableAddable;
 import org.amshove.natgen.NaturalOpenApi;
 import org.amshove.natgen.VariableType;
-import org.amshove.natgen.generatable.Compress;
-import org.amshove.natgen.generatable.NatGenFunctions;
-import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natgen.generatable.*;
 import org.amshove.natgen.generatable.conditions.Conditions;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
@@ -19,8 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
-import static org.amshove.natgen.NaturalOpenApi.isNullable;
-import static org.amshove.natgen.NaturalOpenApi.resolveSchema;
+import static org.amshove.natgen.NaturalOpenApi.*;
 import static org.amshove.natgen.generatable.NaturalCode.*;
 
 public class CompressJsonFromOpenApiGenerator
@@ -131,10 +128,7 @@ public class CompressJsonFromOpenApiGenerator
 					.addToBody(newCompressOutsideContext().withOperand(COMMA))
 			);
 			forLoop.addToBody(
-				newCompressOutsideContext()
-					.withOperand(QUOTE)
-					.withOperand(propertyVariable.arrayAccess(iterationVariables.iterator()))
-					.withOperand(QUOTE)
+				createCompressValueStatement(extractOpenApiType(schema.getItems(), spec), propertyVariable, schema, iterationVariables.iterator())
 			);
 			context.addStatement(forLoop);
 
@@ -142,21 +136,28 @@ public class CompressJsonFromOpenApiGenerator
 			return;
 		}
 
-		switch (theType)
+		context.addStatement(createCompressValueStatement(theType, propertyVariable, schema));
+	}
+
+	private IGeneratableStatement createCompressValueStatement(String type, Variable sourceVariable, Schema<?> schema, IGeneratable... dimensions)
+	{
+		var sourceAccess = dimensions.length > 0 ? sourceVariable.arrayAccess(dimensions) : sourceVariable;
+
+		return switch (type)
 		{
 			case STRING_TYPE ->
 			{
 				if (isNullable(schema))
 				{
-					var ifStatement = _if(Conditions.equal(propertyVariable, stringLiteral(" ")));
+					var ifStatement = _if(Conditions.equal(sourceAccess, stringLiteral(" ")));
 					ifStatement.addToBody(newCompressOutsideContext().withOperand(stringLiteral("null")))
 						._else()
-						.addToBody(newCompressOutsideContext().withOperand(QUOTE).withOperand(propertyVariable).withOperand(QUOTE));
-					context.addStatement(ifStatement);
+						.addToBody(newCompressOutsideContext().withOperand(QUOTE).withOperand(sourceAccess).withOperand(QUOTE));
+					yield ifStatement;
 				}
 				else
 				{
-					newCompress().withOperand(QUOTE).withOperand(propertyVariable).withOperand(QUOTE);
+					yield newCompressOutsideContext().withOperand(QUOTE).withOperand(sourceAccess).withOperand(QUOTE);
 				}
 			}
 			case NUMBER_TYPE, INTEGER_TYPE ->
@@ -165,10 +166,11 @@ public class CompressJsonFromOpenApiGenerator
 				{
 					needsToSetDecimalSessionParameter = true;
 				}
-				newCompress().numeric().withOperand(propertyVariable);
+				yield newCompressOutsideContext().numeric().withOperand(sourceAccess);
 			}
-			case BOOLEAN_TYPE -> newCompress().withOperand(NatGenFunctions.logicalToJsonBoolean(propertyVariable));
-		}
+			case BOOLEAN_TYPE -> newCompressOutsideContext().withOperand(NatGenFunctions.logicalToJsonBoolean(sourceAccess));
+			default -> throw new IllegalStateException("Unknown OpenAPI type <%s> to create a COMPRESS statement for values".formatted(type));
+		};
 	}
 
 	private void setDecimalSessionParameter()

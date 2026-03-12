@@ -246,6 +246,38 @@ components:
 				""");
 	}
 
+	@Test
+	void generateAnArrayAsRootDocument()
+	{
+		var context = generate("Numbers", """
+openapi: 3.1.0
+info:
+  title: api API
+  version: 1.0.0
+components:
+  schemas:
+    Numbers:
+      type: array
+      items:
+        type: number
+			""");
+
+		assertOn(context)
+			.generatedDefineDataSourceContains("1 #NUMBERS (I4/1:*)")
+			.generatedDefineDataSourceContains("1 #S-#NUMBERS (I4)")
+			.generatedDefineDataSourceContains("1 #I-#NUMBERS (I4)")
+			.generatesStatements("""
+				COMPRESS ##JSON-RESULT '[' INTO ##JSON-RESULT LEAVING NO SPACE
+				#S-#NUMBERS := *OCC(#NUMBERS)
+				FOR #I-#NUMBERS := 1 TO #S-#NUMBERS
+				  IF #I-#NUMBERS > 1
+				    COMPRESS ##JSON-RESULT ',' INTO ##JSON-RESULT LEAVING NO SPACE
+				  END-IF
+				  COMPRESS NUMERIC ##JSON-RESULT #NUMBERS(#I-#NUMBERS) INTO ##JSON-RESULT LEAVING NO SPACE
+				END-FOR
+				COMPRESS ##JSON-RESULT ']' INTO ##JSON-RESULT LEAVING NO SPACE
+				""");
+	}
+
 	// TODO: Array of Objects
-	// TODO: Root document is array
 }
