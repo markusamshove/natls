@@ -12,6 +12,8 @@ import org.amshove.natparse.natural.DataFormat;
 import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
+
 import static org.amshove.natgen.NaturalOpenApi.*;
 import static org.amshove.natgen.generatable.NaturalCode.*;
 import static org.amshove.natgen.generatable.conditions.Conditions.specified;
@@ -21,12 +23,19 @@ public class RequestDocumentForOpenApiGenerator
 
 	public static class Settings
 	{
-		private @Nullable Variable returnBodyRootGroup;
+		private @Nullable Variable responseBodyRootGroup;
+		private @Nullable Variable requestBodyRootGroup;
+
+		/// Sets the variable which is used to add new variables for request bodies.
+		public void setRequestBodyRootGroup(@Nullable Variable root)
+		{
+			this.requestBodyRootGroup = root;
+		}
 
 		/// Sets the variable which is used to add new variables for bodies per HTTP return codes.
-		public void setReturnBodyRootGroup(@Nullable Variable root)
+		public void setResponseBodyRootGroup(@Nullable Variable root)
 		{
-			this.returnBodyRootGroup = root;
+			this.responseBodyRootGroup = root;
 		}
 	}
 
@@ -100,7 +109,10 @@ public class RequestDocumentForOpenApiGenerator
 		return context;
 	}
 
-	private void addRequestParameter(CodeGenerationContext context, RequestDocument requestDocument, Variable requestUrl, Operation operation)
+	private void addRequestParameter(
+		CodeGenerationContext context, RequestDocument requestDocument,
+		Variable requestUrl, Operation operation
+	)
 	{
 		if (operation.getParameters() == null || operation.getParameters().isEmpty())
 		{
@@ -179,7 +191,10 @@ public class RequestDocumentForOpenApiGenerator
 		var content = contentEntry.getValue();
 		var requestSchema = resolveSchema(content.getSchema(), openApi);
 
-		var requestBodyParameter = context.addParameter("#P-BODY", VariableType.group());
+		var requestBodyParameter = Objects.requireNonNullElse(
+			settings.requestBodyRootGroup,
+			context.addParameter("#P-BODY", VariableType.group())
+		);
 		var jsonBodyString = context.addVariable(VariableScope.LOCAL, "##JSON-BODY", VariableType.alphanumericDynamic());
 
 		var jsonSettings = new CompressJsonFromOpenApiGenerator.Settings();
@@ -236,10 +251,10 @@ public class RequestDocumentForOpenApiGenerator
 			var schemaName = resolveSchemaName(responseContent.getValue().getSchema(), "Inlineresponse");
 			var settings = new ParseJsonGenerator.Settings();
 			settings.setParsingGroupName("##PARSE-" + responseCode);
-			if (this.settings.returnBodyRootGroup != null)
+			if (this.settings.responseBodyRootGroup != null)
 			{
 				settings.setParsedJsonRoot(
-					this.settings.returnBodyRootGroup.addVariable("#RESPONSE-" + responseCode, VariableType.group())
+					this.settings.responseBodyRootGroup.addVariable("#RESPONSE-" + responseCode, VariableType.group())
 				);
 			}
 			else

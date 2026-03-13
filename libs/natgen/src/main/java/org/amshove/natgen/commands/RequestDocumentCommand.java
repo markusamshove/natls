@@ -14,6 +14,7 @@ import org.amshove.natparse.natural.project.NaturalFileType;
 import picocli.CommandLine;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -74,12 +75,17 @@ public class RequestDocumentCommand implements Callable<Integer>
 				// TODO: Validate possible number of modules according to paths/operations
 				var moduleName = String.format(moduleNameFormat, currentModuleNumber++);
 
-				var pdaContext = new CodeGenerationContext();
+				var inputPdaContext = new CodeGenerationContext();
+				var inputPdaName = moduleName + "I";
+				var inputPdaGroup = inputPdaContext.addVariable(VariableScope.LOCAL, inputPdaName, VariableType.group());
+
+				var outputPdaContext = new CodeGenerationContext();
 				var outputPdaName = moduleName + "O";
-				var pdaGroup = pdaContext.addVariable(VariableScope.LOCAL, outputPdaName, VariableType.group());
+				var outputPdaGroup = outputPdaContext.addVariable(VariableScope.LOCAL, outputPdaName, VariableType.group());
 
 				var settings = new RequestDocumentForOpenApiGenerator.Settings();
-				settings.setReturnBodyRootGroup(pdaGroup);
+				settings.setRequestBodyRootGroup(inputPdaGroup);
+				settings.setResponseBodyRootGroup(outputPdaGroup);
 				var subprogramContext = new RequestDocumentForOpenApiGenerator(openApi, settings)
 					.generate(theMethod, path.getKey(), theOperation);
 
@@ -88,14 +94,19 @@ public class RequestDocumentCommand implements Callable<Integer>
 				addOpenApiDocumentation(moduleGenerator, theOperation, theMethod, path.getKey());
 				addGeneratorComment(moduleGenerator);
 
-				if (!pdaGroup.children().isEmpty())
+				// TODO: Add a test that checks that input pda was generated
+				if (!inputPdaGroup.children().isEmpty())
 				{
-					subprogramContext.addUsing(VariableScope.PARAMETER, outputPdaName);
-
-					var generatedPda = moduleGenerator.generate(pdaContext, NaturalFileType.PDA);
-					var pdaPath = outputDirectory.resolve(outputPdaName + ".NSA");
+					var pdaPath = outputDirectory.resolve(inputPdaName + ".NSA");
+					generatePda(subprogramContext, inputPdaName, pdaPath, moduleGenerator, inputPdaContext);
 					output.info("%s %s => %s", theMethod, path.getKey(), pdaPath);
-					Files.writeString(pdaPath, generatedPda, StandardCharsets.UTF_8);
+				}
+
+				if (!outputPdaGroup.children().isEmpty())
+				{
+					var pdaPath = outputDirectory.resolve(outputPdaName + ".NSA");
+					generatePda(subprogramContext, outputPdaName, pdaPath, moduleGenerator, outputPdaContext);
+					output.info("%s %s => %s", theMethod, path.getKey(), pdaPath);
 				}
 
 				var generatedModule = moduleGenerator.generate(subprogramContext, NaturalFileType.SUBPROGRAM);
@@ -109,7 +120,21 @@ public class RequestDocumentCommand implements Callable<Integer>
 		return 0;
 	}
 
-	private void addOpenApiDocumentation(ModuleGenerator moduleGenerator, Operation operation, String method, String path)
+	private void generatePda(
+		CodeGenerationContext subprogramContext, String outputPdaName, Path pdaPath,
+		ModuleGenerator moduleGenerator, CodeGenerationContext pdaContext
+	) throws IOException
+	{
+		subprogramContext.addUsing(VariableScope.PARAMETER, outputPdaName);
+
+		var generatedPda = moduleGenerator.generate(pdaContext, NaturalFileType.PDA);
+		Files.writeString(pdaPath, generatedPda, StandardCharsets.UTF_8);
+	}
+
+	private void addOpenApiDocumentation(
+		ModuleGenerator moduleGenerator, Operation operation, String method,
+		String path
+	)
 	{
 		moduleGenerator.addDocumentationLine("%s %s".formatted(method, path));
 		if (operation.getSummary() != null)
