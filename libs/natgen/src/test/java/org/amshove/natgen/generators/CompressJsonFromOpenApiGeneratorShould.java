@@ -23,17 +23,17 @@ class CompressJsonFromOpenApiGeneratorShould extends CodeGenerationTest
 	void generateForAnObjectWithASingleSimpleProperty()
 	{
 		var context = generate("Person", """
-openapi: 3.1.0
-info:
-  title: api API
-  version: 1.0.0
-components:
-  schemas:
-    Person:
-      type: object
-      properties:
-        name:
-          type: string
+			openapi: 3.1.0
+			info:
+			  title: api API
+			  version: 1.0.0
+			components:
+			  schemas:
+			    Person:
+			      type: object
+			      properties:
+			        name:
+			          type: string
 			""");
 
 		assertOn(context)
@@ -51,19 +51,19 @@ components:
 	void handleNullableStrings()
 	{
 		var context = generate("Person", """
-openapi: 3.1.0
-info:
-  title: api API
-  version: 1.0.0
-components:
-  schemas:
-    Person:
-      type: object
-      properties:
-        name:
-          type:
-           - "string"
-           - "null"
+			openapi: 3.1.0
+			info:
+			  title: api API
+			  version: 1.0.0
+			components:
+			  schemas:
+			    Person:
+			      type: object
+			      properties:
+			        name:
+			          type:
+			           - "string"
+			           - "null"
 			""");
 
 		assertOn(context)
@@ -85,22 +85,22 @@ components:
 	void generateForAnObjectWithAMultipleSimpleProperties()
 	{
 		var context = generate("Person", """
-openapi: 3.1.0
-info:
-  title: api API
-  version: 1.0.0
-components:
-  schemas:
-    Person:
-      type: object
-      properties:
-        name:
-          type: string
-        age:
-          type: number
-          format: integer
-        verified:
-          type: boolean
+			openapi: 3.1.0
+			info:
+			  title: api API
+			  version: 1.0.0
+			components:
+			  schemas:
+			    Person:
+			      type: object
+			      properties:
+			        name:
+			          type: string
+			        age:
+			          type: number
+			          format: integer
+			        verified:
+			          type: boolean
 			""");
 
 		assertOn(context)
@@ -127,18 +127,18 @@ components:
 	void setTheDecimalNotationCharacterWhenFloatingPointNumbersArePresent()
 	{
 		var context = generate("Person", """
-openapi: 3.1.0
-info:
-  title: api API
-  version: 1.0.0
-components:
-  schemas:
-    Person:
-      type: object
-      properties:
-        height:
-          type: number
-          format: double
+			openapi: 3.1.0
+			info:
+			  title: api API
+			  version: 1.0.0
+			components:
+			  schemas:
+			    Person:
+			      type: object
+			      properties:
+			        height:
+			          type: number
+			          format: double
 			""");
 
 		assertOn(context)
@@ -161,26 +161,26 @@ components:
 	void generateNestedObjects()
 	{
 		var context = generate("Person", """
-openapi: 3.1.0
-info:
-  title: api API
-  version: 1.0.0
-components:
-  schemas:
-    Address:
-      type: object
-      properties:
-        street:
-          type: string
-        city:
-          type: string
-    Person:
-      type: object
-      properties:
-        name:
-          type: string
-        address:
-          $ref: '#/components/schemas/Address'
+			openapi: 3.1.0
+			info:
+			  title: api API
+			  version: 1.0.0
+			components:
+			  schemas:
+			    Address:
+			      type: object
+			      properties:
+			        street:
+			          type: string
+			        city:
+			          type: string
+			    Person:
+			      type: object
+			      properties:
+			        name:
+			          type: string
+			        address:
+			          $ref: '#/components/schemas/Address'
 			""");
 
 		assertOn(context)
@@ -210,19 +210,19 @@ components:
 	void generatePrimitiveArrays()
 	{
 		var context = generate("Book", """
-openapi: 3.1.0
-info:
-  title: api API
-  version: 1.0.0
-components:
-  schemas:
-    Book:
-      type: object
-      properties:
-        editions:
-          type: array
-          items:
-            type: string
+			openapi: 3.1.0
+			info:
+			  title: api API
+			  version: 1.0.0
+			components:
+			  schemas:
+			    Book:
+			      type: object
+			      properties:
+			        editions:
+			          type: array
+			          items:
+			            type: string
 			""");
 
 		assertOn(context)
@@ -250,16 +250,16 @@ components:
 	void generateAnArrayAsRootDocument()
 	{
 		var context = generate("Numbers", """
-openapi: 3.1.0
-info:
-  title: api API
-  version: 1.0.0
-components:
-  schemas:
-    Numbers:
-      type: array
-      items:
-        type: number
+			openapi: 3.1.0
+			info:
+			  title: api API
+			  version: 1.0.0
+			components:
+			  schemas:
+			    Numbers:
+			      type: array
+			      items:
+			        type: number
 			""");
 
 		assertOn(context)
@@ -279,5 +279,67 @@ components:
 				""");
 	}
 
-	// TODO: Array of Objects
+	@Test
+	void generateObjectsWithinArrays()
+	{
+		var context = generate("Person", """
+			openapi: 3.1.0
+			components:
+			  schemas:
+			    Address:
+			      type: object
+			      properties:
+			        street:
+			          type: string
+			        city:
+			          type: string
+			    Person:
+			      type: object
+			      properties:
+			        name:
+			          type: string
+			        addresses:
+			          type: array
+			          items:
+			            $ref: '#/components/schemas/Address'
+			""");
+
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 ##JSON-RESULT (A) DYNAMIC
+				1 #PERSON
+				  2 #NAME (A) DYNAMIC
+				  2 #ADDRESSES (1:*)
+				    3 #STREET (A) DYNAMIC
+				    3 #CITY (A) DYNAMIC
+				1 #S-#ADDRESSES (I4)
+				1 #I-#ADDRESSES (I4)
+				END-DEFINE""")
+			.generatedStatementSourceContains("""
+				COMPRESS ##JSON-RESULT '{' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' 'name' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' #PERSON.#NAME H'22' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT ',' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' 'addresses' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT '[' INTO ##JSON-RESULT LEAVING NO SPACE
+				#S-#ADDRESSES := *OCC(#PERSON.#STREET)
+				FOR #I-#ADDRESSES := 1 TO #S-#ADDRESSES
+				  IF #I-#ADDRESSES > 1
+				    COMPRESS ##JSON-RESULT ',' INTO ##JSON-RESULT LEAVING NO SPACE
+				  END-IF
+				  COMPRESS ##JSON-RESULT '{' INTO ##JSON-RESULT LEAVING NO SPACE
+				  COMPRESS ##JSON-RESULT H'22' 'street' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
+				  COMPRESS ##JSON-RESULT H'22' #PERSON.#STREET(#I-#ADDRESSES) H'22' INTO ##JSON-RESULT
+				    LEAVING NO SPACE
+				  COMPRESS ##JSON-RESULT ',' INTO ##JSON-RESULT LEAVING NO SPACE
+				  COMPRESS ##JSON-RESULT H'22' 'city' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
+				  COMPRESS ##JSON-RESULT H'22' #PERSON.#CITY(#I-#ADDRESSES) H'22' INTO ##JSON-RESULT LEAVING NO SPACE
+				  COMPRESS ##JSON-RESULT '}' INTO ##JSON-RESULT LEAVING NO SPACE
+				END-FOR
+				COMPRESS ##JSON-RESULT ']' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT '}' INTO ##JSON-RESULT LEAVING NO SPACE
+				""");
+	}
 }

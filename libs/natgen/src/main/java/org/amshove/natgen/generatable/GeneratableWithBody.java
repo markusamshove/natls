@@ -1,28 +1,39 @@
 package org.amshove.natgen.generatable;
 
 import org.amshove.natgen.CodeBuilder;
+import org.amshove.natgen.IStatementAddable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-class GeneratableWithBody<T extends IGeneratableStatement>
+class GeneratableWithBody<T extends IGeneratableStatement> implements IStatementAddable<T>
 {
 	protected final List<IGeneratableStatement> bodyParts = new ArrayList<>();
 
+	@Override
 	@SuppressWarnings("unchecked")
-	public T addToBody(IGeneratableStatement generatable)
+	public T addStatementToFront(IGeneratableStatement statement)
+	{
+		bodyParts.addFirst(statement);
+		return (T) this;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public T addStatement(IGeneratableStatement generatable)
 	{
 		bodyParts.add(generatable);
 		return (T) this;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
-	public T addToBody(Collection<IGeneratableStatement> statements)
+	public T addStatements(Collection<IGeneratableStatement> statements)
 	{
 		for (var statement : statements)
 		{
-			addToBody(statement);
+			addStatement(statement);
 		}
 		return (T) this;
 	}

@@ -55,7 +55,7 @@ class ParseJsonGenerationShould extends CodeGenerationTest
 	{
 		var parseJson = NaturalCode.parseJson(new Variable(1, VariableScope.LOCAL, "#JSON", VariableType.alphanumericDynamic()));
 		parseJson
-			.addToBody(NaturalCode.plainStatement("DISPLAY 'Parsing JSON'"));
+			.addStatement(NaturalCode.plainStatement("DISPLAY 'Parsing JSON'"));
 
 		assertGenerated(parseJson, """
 				PARSE JSON #JSON

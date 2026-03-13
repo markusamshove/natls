@@ -125,9 +125,9 @@ public class NaturalCode implements IGeneratable
 		return new GeneratableStatement("RESET %s".formatted(toReset));
 	}
 
-	public static IGeneratableStatement assignment(IGeneratable lhs, IGeneratable rhs)
+	public static Assignment assignment(IGeneratable lhs, IGeneratable rhs)
 	{
-		return new GeneratableStatement("%s := %s".formatted(lhs.generate(), rhs.generate()));
+		return new Assignment(lhs, rhs);
 	}
 
 	public static NaturalCode definePrototype(
@@ -250,8 +250,20 @@ public class NaturalCode implements IGeneratable
 		return new RequestDocument(uri, responseCode);
 	}
 
+	/// Creates an `*OCC` for the given [IGeneratable]
 	public static IGeneratable occ(IGeneratable array)
 	{
+		return new NaturalCode("*OCC(%s)".formatted(array.generate()));
+	}
+
+	/// Creates an `*OCC` for the given [Variable]. If the variable is a group array, the first child will
+	/// be used.
+	public static IGeneratable occ(Variable array)
+	{
+		if (array.type().isGroup() && !array.children().isEmpty())
+		{
+			array = array.children().getFirst();
+		}
 		return new NaturalCode("*OCC(%s)".formatted(array.generate()));
 	}
 

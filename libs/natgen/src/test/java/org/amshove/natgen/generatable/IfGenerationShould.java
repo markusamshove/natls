@@ -55,7 +55,7 @@ class IfGenerationShould extends CodeGenerationTest
 	void generateIfSpecified()
 	{
 		var variable = new Variable(1, VariableScope.PARAMETER, "#P-OPTIONAL", VariableType.alphanumeric(10));
-		assertGenerated(_if(specified(variable)).addToBody(assignment(variable, stringLiteral("Hi"))), """
+		assertGenerated(_if(specified(variable)).addStatement(assignment(variable, stringLiteral("Hi"))), """
 			IF #P-OPTIONAL SPECIFIED
 			  #P-OPTIONAL := 'Hi'
 			END-IF""");
@@ -65,7 +65,7 @@ class IfGenerationShould extends CodeGenerationTest
 	void generateIfNotSpecified()
 	{
 		var variable = new Variable(1, VariableScope.PARAMETER, "#P-OPTIONAL", VariableType.alphanumeric(10));
-		assertGenerated(_if(notSpecified(variable)).addToBody(assignment(variable, stringLiteral("Hi"))), """
+		assertGenerated(_if(notSpecified(variable)).addStatement(assignment(variable, stringLiteral("Hi"))), """
 			IF #P-OPTIONAL NOT SPECIFIED
 			  #P-OPTIONAL := 'Hi'
 			END-IF""");

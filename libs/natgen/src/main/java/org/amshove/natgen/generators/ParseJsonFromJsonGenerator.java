@@ -47,7 +47,7 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 
 			decideStatement
 				.addBranch(stringLiteral(valueJsonPath))
-				.addToBody(assignValueToVariable(variableForPrimitive, currentElement, valueJsonPath));
+				.addStatement(assignValueToVariable(variableForPrimitive, currentElement, valueJsonPath));
 			return;
 		}
 
@@ -72,12 +72,12 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 			var numberOfDimensions = getNumberOfDimensions(arrayStartPath);
 			var branch = decideStatement
 				.addBranch(stringLiteral(newArrayValuePath))
-				.addToBody(incrementVariable(sizeVariable))
-				.addToBody(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
+				.addStatement(incrementVariable(sizeVariable))
+				.addStatement(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
 
 			if (firstElementInArray.isJsonPrimitive())
 			{
-				branch.addToBody(
+				branch.addStatement(
 					assignValueToVariable(arrayVariable, firstElementInArray.getAsJsonPrimitive(), newArrayValuePath)
 				);
 			}

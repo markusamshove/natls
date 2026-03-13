@@ -93,8 +93,8 @@ class ModuleGeneratorShould
 
 		var subroutine = NaturalCode.subroutine("MY-SUBROUTINE");
 		subroutine
-			.addToBody(NaturalCode.assignment(variable, NaturalCode.plain("42")))
-			.addToBody(NaturalCode.incrementVariable(variable));
+			.addStatement(NaturalCode.assignment(variable, NaturalCode.plain("42")))
+			.addStatement(NaturalCode.incrementVariable(variable));
 
 		context.addStatement(NaturalCode.perform(subroutine));
 		context.addStatement(NaturalCode.plainStatement("WRITE MY-VAR"));
@@ -222,7 +222,7 @@ class ModuleGeneratorShould
 		var parameter = context.addParameter("#P-NAME", VariableType.alphanumericDynamic());
 
 		var nested = NaturalCode.subroutine("NESTED-SUBROUTINE");
-		nested.addToBody(NaturalCode.assignment(parameter, NaturalCode.stringLiteral(" ")));
+		nested.addStatement(NaturalCode.assignment(parameter, NaturalCode.stringLiteral(" ")));
 
 		context.addStatement(NaturalCode.perform(nested));
 		context.addStatement(nested);

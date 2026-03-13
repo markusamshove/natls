@@ -54,7 +54,7 @@ public class ModuleGenerator
 
 		for (var statement : context.statements())
 		{
-			outerSubroutine.addToBody(statement);
+			outerSubroutine.addStatement(statement);
 		}
 
 		outerSubroutine.generateInto(codeBuilder);

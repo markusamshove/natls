@@ -2,6 +2,7 @@ package org.amshove.natgen.generators;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.VariableType;
@@ -71,6 +72,7 @@ public class RequestDocumentForOpenApiGenerator
 			.withMethod(stringLiteral(method));
 
 		addRequestParameter(context, requestDocument, builtRequestUrl, operation);
+		addRequestBody(context, requestDocument, operation.getRequestBody());
 
 		//		addRequestContentType(requestDocument, operation);
 
@@ -92,7 +94,7 @@ public class RequestDocumentForOpenApiGenerator
 			context.addStatement(subroutine);
 			decideOnResponse
 				.addBranch(numberLiteral(response.getKey()))
-				.addToBody(perform(subroutine));
+				.addStatement(perform(subroutine));
 		}
 
 		return context;
@@ -151,12 +153,46 @@ public class RequestDocumentForOpenApiGenerator
 				{
 					moduleParameter.asOptional();
 					var ifSpecified = _if(specified(moduleParameter))
-						.addToBody(compress)
-						.addToBody(delimiterAssignment);
+						.addStatement(compress)
+						.addStatement(delimiterAssignment);
 					context.addStatement(ifSpecified);
 				}
 			}
 		}
+	}
+
+	private void addRequestBody(CodeGenerationContext context, RequestDocument requestDocument, RequestBody requestBody)
+	{
+		if (requestBody == null)
+		{
+			return;
+		}
+
+		var contentEntry = requestBody.getContent().firstEntry();
+		var contentType = contentEntry.getKey();
+		if (!contentType.equals("application/json"))
+		{
+			// TODO: Diagnostic on unsupported content types?
+			return;
+		}
+
+		var content = contentEntry.getValue();
+		var requestSchema = resolveSchema(content.getSchema(), openApi);
+
+		var requestBodyParameter = context.addParameter("#P-BODY", VariableType.group());
+		var jsonBodyString = context.addVariable(VariableScope.LOCAL, "##JSON-BODY", VariableType.alphanumericDynamic());
+
+		var jsonSettings = new CompressJsonFromOpenApiGenerator.Settings();
+		jsonSettings.setJsonSourceGroup(requestBodyParameter);
+		jsonSettings.setJsonResultVariable(jsonBodyString);
+		var compressContext = new CompressJsonFromOpenApiGenerator(openApi, jsonSettings)
+			.generate(resolveSchemaName(content.getSchema(), "body"), requestSchema);
+
+		context.consume(compressContext);
+
+		requestDocument
+			.withRequestHeader(stringLiteral("Content-Type"), stringLiteral(contentType))
+			.withRequestBody(jsonBodyString);
 	}
 
 	private IGeneratable variableRhsValue(Variable variable)
@@ -218,9 +254,9 @@ public class RequestDocumentForOpenApiGenerator
 			);
 			var parseJsonContext = generator.generate();
 
-			subroutine.addToBody(assignment(NaturalCode.plain("#JSON-SOURCE"), NaturalCode.plain("#BODY")));
+			subroutine.addStatement(assignment(NaturalCode.plain("#JSON-SOURCE"), NaturalCode.plain("#BODY")));
 			context.consumeExceptStatements(parseJsonContext);
-			subroutine.addToBody(parseJsonContext.statements());
+			subroutine.addStatements(parseJsonContext.statements());
 		}
 
 		return subroutine;

@@ -103,8 +103,8 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			var numberOfDimensions = getNumberOfDimensions(arrayStartPath);
 			var branch = decide
 				.addBranch(stringLiteral(newArrayValuePath))
-				.addToBody(incrementVariable(sizeVariable))
-				.addToBody(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
+				.addStatement(incrementVariable(sizeVariable))
+				.addStatement(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
 
 			if (openApiTypeOfItems.equals(OBJECT_TYPE))
 			{
@@ -112,7 +112,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			}
 			else
 			{
-				branch.addToBody(
+				branch.addStatement(
 					assignValueToVariable(
 						arrayVariable, extractOpenApiType(arrayItemSchema, spec),
 						arrayItemSchema.getFormat(), newArrayValuePath
@@ -141,7 +141,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 			decide
 				.addBranch(stringLiteral(valueJsonPath))
-				.addToBody(assignValueToVariable(theVariable, theType, schema.getFormat(), currentPath));
+				.addStatement(assignValueToVariable(theVariable, theType, schema.getFormat(), currentPath));
 
 		}
 	}
@@ -165,9 +165,9 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 		decide
 			.addBranch(stringLiteral(valueJsonPath))
-			.addToBody(assignment(parsingBaseVariable, jsonValue))
-			.addToBody(moveEdited(dateParsingPart, targetDate, "YYYY-MM-DD"))
-			.addToBody(moveEdited(timeParsingPart, targetTime, "HH:II:SS"));
+			.addStatement(assignment(parsingBaseVariable, jsonValue))
+			.addStatement(moveEdited(dateParsingPart, targetDate, "YYYY-MM-DD"))
+			.addStatement(moveEdited(timeParsingPart, targetTime, "HH:II:SS"));
 	}
 
 	private IGeneratableStatement assignValueToVariable(Variable variable, String type, String format,

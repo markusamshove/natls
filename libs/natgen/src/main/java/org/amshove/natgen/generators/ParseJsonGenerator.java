@@ -125,7 +125,7 @@ public abstract class ParseJsonGenerator
 			.intoValue(jsonValue)
 			.givingErrorCode(jsonErrCode)
 			.givingErrorSubcode(jsonErrSubcode)
-			.addToBody(decideOnJsonPath);
+			.addStatement(decideOnJsonPath);
 
 		context.addStatement(parseJsonStatement);
 
@@ -209,7 +209,7 @@ public abstract class ParseJsonGenerator
 			var closeObjectPath = path.substring(0, path.lastIndexOf(START_OBJECT)) + END_OBJECT;
 			decideOnJsonPath
 				.addBranch(NaturalCode.stringLiteral(closeObjectPath))
-				.addToBody(reset(sizeVariable));
+				.addStatement(reset(sizeVariable));
 		}
 	}
 

@@ -143,6 +143,47 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 			.generatedStatementSourceContains("NAME 'X-Skip' VALUE #P-X-SKIP");
 	}
 
+	@Test
+	void addApplicationJsonBodyParameter()
+	{
+		var path = openApi.getPaths().get("/weather");
+		var operation = path.getPost();
+		var context = sut.generate("POST", "/weather", operation);
+
+		assertOn(context)
+			.generatedDefineDataSourceContains("1 #P-BODY")
+			.generatedDefineDataSourceContains("2 #FORECAST")
+			.generatedDefineDataSourceContains("3 #ID (A36)")
+			.generatedDefineDataSourceContains("3 #TEMPERATURE (N12,7)")
+			.generatedDefineDataSourceContains("3 #DESCRIPTION (A) DYNAMIC")
+			.generatedStatementSourceContains("""
+				COMPRESS #P-BASE-URL '/weather' INTO ##REQUEST.#URL LEAVING NO SPACE
+				##PREVIOUS-DC := GET-CURRENT-DECIMAL-CHARACTER(<>)
+				SET GLOBALS DC=##C-DECIMAL-CHARACTER
+				COMPRESS ##JSON-BODY '{' INTO ##JSON-BODY LEAVING NO SPACE
+				COMPRESS ##JSON-BODY H'22' 'id' H'22' ':' INTO ##JSON-BODY LEAVING NO SPACE
+				COMPRESS ##JSON-BODY H'22' #P-BODY.#ID H'22' INTO ##JSON-BODY LEAVING NO SPACE
+				COMPRESS ##JSON-BODY ',' INTO ##JSON-BODY LEAVING NO SPACE
+				COMPRESS ##JSON-BODY H'22' 'temperature' H'22' ':' INTO ##JSON-BODY LEAVING NO SPACE
+				COMPRESS NUMERIC ##JSON-BODY #P-BODY.#TEMPERATURE INTO ##JSON-BODY LEAVING NO SPACE
+				COMPRESS ##JSON-BODY ',' INTO ##JSON-BODY LEAVING NO SPACE
+				COMPRESS ##JSON-BODY H'22' 'description' H'22' ':' INTO ##JSON-BODY LEAVING NO SPACE
+				COMPRESS ##JSON-BODY H'22' #P-BODY.#DESCRIPTION H'22' INTO ##JSON-BODY LEAVING NO SPACE
+				COMPRESS ##JSON-BODY '}' INTO ##JSON-BODY LEAVING NO SPACE
+				SET GLOBALS DC=##PREVIOUS-DC
+				
+				REQUEST DOCUMENT FROM ##REQUEST.#URL
+				  WITH
+				    HEADER
+				      NAME 'REQUEST-METHOD' VALUE 'POST'
+				      NAME 'Content-Type' VALUE 'application/json'
+				    DATA ALL ##JSON-BODY
+				  RETURN
+				    PAGE ##RESPONSE.#BODY
+				    RESPONSE ##RESPONSE.#CODE
+				""");
+	}
+
 	@BeforeAll
 	static void parseOpenApi()
 	{
@@ -179,6 +220,18 @@ paths:
       summary: Index
       tags:
       - Weatherforecast
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Forecast"
+        required: true
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
   /weather/random:
     post:
       responses:
