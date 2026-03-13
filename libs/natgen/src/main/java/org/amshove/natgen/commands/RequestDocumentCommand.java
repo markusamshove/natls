@@ -42,6 +42,12 @@ public class RequestDocumentCommand implements Callable<Integer>
 	{
 		outputDirectory = Objects.requireNonNullElse(outputDirectory, Path.of("."));
 
+		if (!openApiSchemaFile.exists())
+		{
+			output.error("OpenAPI file %s not found", openApiSchemaFile.getAbsolutePath());
+			return 1;
+		}
+
 		var options = new ParseOptions();
 		options.setFlatten(true);
 		var openApiParseResult = new OpenAPIParser().readLocation(openApiSchemaFile.getAbsolutePath(), null, options);
