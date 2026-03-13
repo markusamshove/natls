@@ -47,7 +47,7 @@ public class RequestDocumentCommand implements Callable<Integer>
 		var openApiParseResult = new OpenAPIParser().readLocation(openApiSchemaFile.getAbsolutePath(), null, options);
 		var openApi = openApiParseResult.getOpenAPI();
 
-		if (!openApiParseResult.getMessages().isEmpty())
+		if (openApiParseResult.getMessages() != null && !openApiParseResult.getMessages().isEmpty())
 		{
 			for (var message : openApiParseResult.getMessages())
 			{
@@ -69,8 +69,8 @@ public class RequestDocumentCommand implements Callable<Integer>
 				var moduleName = String.format(moduleNameFormat, currentModuleNumber++);
 
 				var pdaContext = new CodeGenerationContext();
-				var pdaName = moduleName + "P";
-				var pdaGroup = pdaContext.addVariable(VariableScope.LOCAL, pdaName, VariableType.group());
+				var outputPdaName = moduleName + "O";
+				var pdaGroup = pdaContext.addVariable(VariableScope.LOCAL, outputPdaName, VariableType.group());
 
 				var settings = new RequestDocumentForOpenApiGenerator.Settings();
 				settings.setReturnBodyRootGroup(pdaGroup);
@@ -84,10 +84,10 @@ public class RequestDocumentCommand implements Callable<Integer>
 
 				if (!pdaGroup.children().isEmpty())
 				{
-					subprogramContext.addUsing(VariableScope.PARAMETER, moduleName + "P");
+					subprogramContext.addUsing(VariableScope.PARAMETER, outputPdaName);
 
 					var generatedPda = moduleGenerator.generate(pdaContext, NaturalFileType.PDA);
-					var pdaPath = outputDirectory.resolve(pdaName + ".NSA");
+					var pdaPath = outputDirectory.resolve(outputPdaName + ".NSA");
 					output.info("%s %s => %s", theMethod, path.getKey(), pdaPath);
 					Files.writeString(pdaPath, generatedPda, StandardCharsets.UTF_8);
 				}

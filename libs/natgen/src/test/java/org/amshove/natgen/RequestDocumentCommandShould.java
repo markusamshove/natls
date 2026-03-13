@@ -61,7 +61,7 @@ class RequestDocumentCommandShould extends NatGenTest
 
 		var subprogramPath = workingDirectory.resolve("FORE001N.NSN");
 		var subprogramSource = Files.readString(subprogramPath);
-		var pdaPath = workingDirectory.resolve("FORE001P.NSA");
+		var pdaPath = workingDirectory.resolve("FORE001O.NSA");
 		var pdaSource = Files.readString(pdaPath);
 
 		assertThat(pdaSource).isEqualToNormalizingNewlines("""
@@ -82,7 +82,7 @@ class RequestDocumentCommandShould extends NatGenTest
 			/* :Mode S
 			/* :CP
 			/* <Natural Source Header
-			1 FORE001P
+			1 FORE001O
 			  2 #RESPONSE-200
 			    3 #INLINERESPONSE (1:*)
 			      4 #ID (A36)
@@ -111,7 +111,7 @@ class RequestDocumentCommandShould extends NatGenTest
 			DEFINE DATA
 			PARAMETER
 			1 #P-BASE-URL (A) DYNAMIC BY VALUE
-			PARAMETER USING FORE001P
+			PARAMETER USING FORE001O
 			LOCAL
 			1 ##REQUEST
 			  2 #URL (A) DYNAMIC
@@ -153,13 +153,13 @@ class RequestDocumentCommandShould extends NatGenTest
 			  DECIDE ON FIRST VALUE OF ##PARSE-200.#PATH
 			    VALUE '/(/<'
 			      ADD 1 TO ##PARSE-200.#S-#INLINERESPONSE
-			      EXPAND ARRAY FORE001P.#INLINERESPONSE TO (1:##PARSE-200.#S-#INLINERESPONSE)
+			      EXPAND ARRAY FORE001O.#INLINERESPONSE TO (1:##PARSE-200.#S-#INLINERESPONSE)
 			    VALUE '/(/</id/$'
-			      FORE001P.#ID(#S-#INLINERESPONSE) := ##PARSE-200.#VALUE
+			      FORE001O.#ID(#S-#INLINERESPONSE) := ##PARSE-200.#VALUE
 			    VALUE '/(/</temperature/$'
-			      FORE001P.#TEMPERATURE(#S-#INLINERESPONSE) := VAL(##PARSE-200.#VALUE)
+			      FORE001O.#TEMPERATURE(#S-#INLINERESPONSE) := VAL(##PARSE-200.#VALUE)
 			    VALUE '/(/</description/$'
-			      FORE001P.#DESCRIPTION(#S-#INLINERESPONSE) := ##PARSE-200.#VALUE
+			      FORE001O.#DESCRIPTION(#S-#INLINERESPONSE) := ##PARSE-200.#VALUE
 			    NONE VALUE
 			      IGNORE
 			  END-DECIDE
