@@ -225,9 +225,16 @@ public final class Variable implements IGeneratableDefineDataElement, IVariableA
 			'}';
 	}
 
-	/// Generate a dimension access for this variable, e.g. `#ARR(1)`
+	/// Generate a dimension access for this variable, e.g. `#ARR(1)`.
+	/// If no dimensions are passed, no index access will be present.
 	public IGeneratable arrayAccess(IGeneratable... dimensions)
 	{
+		// No access needed
+		if (dimensions.length == 0)
+		{
+			return NaturalCode.plain(generate());
+		}
+
 		var access = "(%s)".formatted(
 			Arrays.stream(dimensions)
 				// Dimension access can't use fully qualified variable names :-(

@@ -86,7 +86,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 		if (theType.equals("array"))
 		{
-			var arrayItemSchema = schema.getItems();
+			var arrayItemSchema = resolveSchema(schema.getItems(), spec);
 			var openApiTypeOfItems = extractOpenApiType(arrayItemSchema, spec);
 			var arrayVariable = getVariableForProperty(
 				currentSchemaPath, parentVariable, schemaName,
@@ -173,22 +173,19 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 	private IGeneratableStatement assignValueToVariable(Variable variable, String type, String format,
 		String currentPath)
 	{
-		if (currentPath.contains(START_ARRAY))
-		{
-			var arrayAccessVariables = findAllArrayAccessVariablesForCurrentPathInOrder(currentPath);
-			return assignment(variable.arrayAccess(arrayAccessVariables), primitiveValueAssignment(type));
-		}
+
+		var variableAccess = variable.arrayAccess(findAllArrayAccessVariablesForCurrentPathInOrder(currentPath));
 
 		if (STRING_TYPE.equals(type))
 		{
 			return switch (format)
 			{
-				case DATE_FORMAT -> moveEdited(jsonValue, variable, "YYYY-MM-DD");
-				case null, default -> assignment(variable, primitiveValueAssignment(type));
+				case DATE_FORMAT -> moveEdited(jsonValue, variableAccess, "YYYY-MM-DD");
+				case null, default -> assignment(variableAccess, primitiveValueAssignment(type));
 			};
 		}
 
-		return assignment(variable, primitiveValueAssignment(type));
+		return assignment(variableAccess, primitiveValueAssignment(type));
 	}
 
 	private IGeneratable primitiveValueAssignment(String type)

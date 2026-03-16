@@ -4,6 +4,7 @@ import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.CodeGenerationTest;
+import org.amshove.natgen.Dimension;
 import org.amshove.natgen.VariableType;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;
@@ -281,6 +282,45 @@ components:
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
 				    VALUE '</birthdate/$'
 				      MOVE EDITED ##JSON-PARSING.#VALUE TO ##PARSED-JSON.#BIRTHDATE (EM=YYYY-MM-DD)
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE
+				""");
+	}
+
+	@Test
+	void generateAssignmentsForDateTypeWhenTheDateIsAReferenceWithinAnArray()
+	{
+		var context = generate("Baby", """
+openapi: 3.1.0
+components:
+  schemas:
+    LocalDate:
+      type: string
+      format: date
+      examples:
+      - 2022-03-10
+    Baby:
+      type: object
+      properties:
+        dates:
+          type: array
+          items:
+            $ref: "#/components/schemas/LocalDate"
+			""");
+
+		assertOn(context)
+			.hasVariable(3, "##PARSED-JSON.#DATES", VariableScope.LOCAL, VariableType.date().withDimension(Dimension.upperUnbound()))
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</dates/(/$'
+				      ADD 1 TO ##JSON-PARSING.#S-#DATES
+				      EXPAND ARRAY ##PARSED-JSON.#DATES TO (1:##JSON-PARSING.#S-#DATES)
+				      MOVE EDITED ##JSON-PARSING.#VALUE TO ##PARSED-JSON.#DATES(#S-#DATES) (EM=YYYY-MM-DD)
+				    VALUE '>'
+				      RESET ##JSON-PARSING.#S-#DATES
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
