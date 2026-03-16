@@ -12,16 +12,25 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @NullMarked
 public class NaturalCode implements IGeneratable
 {
 	private final String code;
+	private final @Nullable Supplier<String> lazyCode;
 
 	private NaturalCode(String code)
 	{
 		this.code = code;
+		this.lazyCode = null;
+	}
+
+	private NaturalCode(Supplier<String> lazyCode)
+	{
+		this.code = null;
+		this.lazyCode = lazyCode;
 	}
 
 	public static IGeneratableStatement separatorComment()
@@ -48,6 +57,10 @@ public class NaturalCode implements IGeneratable
 	@Override
 	public String generate()
 	{
+		if (lazyCode != null)
+		{
+			return lazyCode.get();
+		}
 		return code;
 	}
 
@@ -260,11 +273,13 @@ public class NaturalCode implements IGeneratable
 	/// be used.
 	public static IGeneratable occ(Variable array)
 	{
-		if (array.type().isGroup() && !array.children().isEmpty())
+		return new NaturalCode(() ->
 		{
-			array = array.children().getFirst();
-		}
-		return new NaturalCode("*OCC(%s)".formatted(array.generate()));
+			var theArray = array.type().isGroup() && !array.children().isEmpty()
+				? array.children().getFirst()
+				: array;
+			return "*OCC(%s)".formatted(theArray.generate());
+		});
 	}
 
 	/// Create a [For] in the form of `FOR iterationVariable := startValue TO upper`

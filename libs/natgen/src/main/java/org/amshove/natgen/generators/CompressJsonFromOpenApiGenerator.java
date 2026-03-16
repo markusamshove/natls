@@ -120,10 +120,6 @@ public class CompressJsonFromOpenApiGenerator
 			{
 				var resolvedObjectSchema = resolveSchema(schema.getItems(), spec);
 				generateObject(name, resolvedObjectSchema, propertyVariable, forLoop, false, iterationVariables.iterator());
-
-				// Now that child variables are created through `generateObject` we need to reassign the *OCC so that a
-				// child variable of the group object is used.
-				assignment.setRhs(occ(propertyVariable));
 			}
 			else
 			{
