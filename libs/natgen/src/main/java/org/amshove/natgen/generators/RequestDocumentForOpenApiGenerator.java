@@ -191,9 +191,9 @@ public class RequestDocumentForOpenApiGenerator
 		var content = contentEntry.getValue();
 		var requestSchema = resolveSchema(content.getSchema(), openApi);
 
-		var requestBodyParameter = Objects.requireNonNullElse(
+		var requestBodyParameter = Objects.requireNonNullElseGet(
 			settings.requestBodyRootGroup,
-			context.addParameter("#P-BODY", VariableType.group())
+			() -> context.addParameter("#P-BODY", VariableType.group())
 		);
 		var jsonBodyString = context.addVariable(VariableScope.LOCAL, "##JSON-BODY", VariableType.alphanumericDynamic());
 
