@@ -342,4 +342,34 @@ class CompressJsonFromOpenApiGeneratorShould extends CodeGenerationTest
 				COMPRESS ##JSON-RESULT '}' INTO ##JSON-RESULT LEAVING NO SPACE
 				""");
 	}
+
+	@Test
+	void compressADateFormat()
+	{
+		var context = generate("Person", """
+			openapi: 3.1.0
+			info:
+			  title: api API
+			  version: 1.0.0
+			components:
+			  schemas:
+			    Person:
+			      type: object
+			      properties:
+			        birthday:
+			          type: string
+			          format: date
+			""");
+
+		assertOn(context)
+			.generatedDefineDataSourceContains("2 #BIRTHDAY (D)")
+			.generatesStatements("""
+				COMPRESS ##JSON-RESULT '{' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' 'birthday' H'22' ':' INTO ##JSON-RESULT LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT H'22' #PERSON.#BIRTHDAY (EM=YYYY-MM-DD) H'22' INTO ##JSON-RESULT
+				  LEAVING NO SPACE
+				COMPRESS ##JSON-RESULT '}' INTO ##JSON-RESULT LEAVING NO SPACE
+				""");
+	}
+
 }

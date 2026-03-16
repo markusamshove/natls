@@ -180,20 +180,19 @@ public class CompressJsonFromOpenApiGenerator
 		{
 			case STRING_TYPE ->
 			{
+				var stringCompress = newCompressStringType(sourceAccess, schema.getFormat());
+
 				if (isNullable(schema))
 				{
 					var ifStatement = _if(Conditions.equal(sourceAccess, stringLiteral(" ")));
 					ifStatement.addStatement(newCompressOutsideContext().withOperand(stringLiteral("null")))
 						._else()
-						.addStatement(
-							newCompressOutsideContext().withOperand(QUOTE).withOperand(sourceAccess)
-								.withOperand(QUOTE)
-						);
+						.addStatement(stringCompress);
 					yield ifStatement;
 				}
 				else
 				{
-					yield newCompressOutsideContext().withOperand(QUOTE).withOperand(sourceAccess).withOperand(QUOTE);
+					yield stringCompress;
 				}
 			}
 			case NUMBER_TYPE, INTEGER_TYPE ->
@@ -209,6 +208,23 @@ public class CompressJsonFromOpenApiGenerator
 				"Unknown OpenAPI type <%s> to create a COMPRESS statement for values".formatted(type)
 			);
 		};
+	}
+
+	private Compress newCompressStringType(IGeneratable stringVariable, String stringFormat)
+	{
+
+		var compressWithoutClosingQuote = newCompressOutsideContext().withOperand(QUOTE);
+
+		if (DATE_FORMAT.equals(stringFormat))
+		{
+			compressWithoutClosingQuote.withOperand(stringVariable, "YYYY-MM-DD");
+		}
+		else
+		{
+			compressWithoutClosingQuote.withOperand(stringVariable);
+		}
+
+		return compressWithoutClosingQuote.withOperand(QUOTE);
 	}
 
 	private void setDecimalSessionParameter()

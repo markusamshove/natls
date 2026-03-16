@@ -29,6 +29,14 @@ public class Compress implements IGeneratableStatement
 		return this;
 	}
 
+	/// Add an operand with the given edit mask.
+	/// `(EM=)` is added automatically, so `editMask` parameter should be the mask only.
+	public Compress withOperand(IGeneratable operand, String editMask)
+	{
+		operands.add(NaturalCode.plain("%s (EM=%s)".formatted(operand.generate(), editMask)));
+		return this;
+	}
+
 	/// Specify the `LEAVING NO SPACE` option.
 	public Compress leavingNoSpace()
 	{
