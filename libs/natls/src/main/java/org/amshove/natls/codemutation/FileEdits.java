@@ -34,7 +34,6 @@ public class FileEdits
 
 		var theDeclaration = new DefineDataGenerator().generateVariableDeclarationWithoutScope(variable);
 		return variableInsert.toFileEdit(theDeclaration);
-
 	}
 
 	private static FileEdit addVariableToGroup(LanguageServerFile file, String groupPart, String variablePart, VariableType variableType, VariableScope scope)
