@@ -531,9 +531,9 @@ components:
 				    VALUE '</addresses/(/<'
 				      ADD 1 TO ##JSON-PARSING.#S-#ADDRESSES
 				      EXPAND ARRAY ##PARSED-JSON.#ADDRESSES TO (1:##JSON-PARSING.#S-#ADDRESSES)
-				    VALUE '</addresses/(/addresses/</street/$'
+				    VALUE '</addresses/(/</street/$'
 				      ##PARSED-JSON.#STREET(#S-#ADDRESSES) := ##JSON-PARSING.#VALUE
-				    VALUE '</addresses/(/addresses/</city/$'
+				    VALUE '</addresses/(/</city/$'
 				      ##PARSED-JSON.#CITY(#S-#ADDRESSES) := ##JSON-PARSING.#VALUE
 				    VALUE '>'
 				      RESET ##JSON-PARSING.#S-#ADDRESSES

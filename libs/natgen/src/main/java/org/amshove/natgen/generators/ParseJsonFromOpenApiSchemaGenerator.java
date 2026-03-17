@@ -39,27 +39,30 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 	@Override
 	protected void generateInternal(CodeGenerationContext context, DecideOn decide)
 	{
-		createDecideOnBranch(decide, parsedJsonRoot, rootSchemaName, rootSchema, "");
+		createDecideOnBranch(decide, parsedJsonRoot, rootSchemaName, rootSchema, "", true);
 	}
 
 	private void createDecideOnBranch(
 		DecideOn decide, Variable parentVariable, String schemaName, Schema<?> schema,
-		String currentPath
+		String currentPath, boolean isAnonymous
 	)
 	{
 		if (schema.get$ref() != null)
 		{
 			var referencedComponent = findSchemaByReference(schema.get$ref(), spec);
-			createDecideOnBranch(decide, parentVariable, schemaName, referencedComponent, currentPath);
+			createDecideOnBranch(decide, parentVariable, schemaName, referencedComponent, currentPath, isAnonymous);
 			return;
 		}
 
 		var naturalSchemaName = "#" + schemaName.toUpperCase(Locale.ROOT);
 		var theType = extractOpenApiType(schema, spec);
 
-		// The root schema gets embedded, meaning that the schema name will not be
-		// included in the JSON path of naturals `PARSE JSON`
-		var currentSchemaPath = schemaName.equals(rootSchemaName)
+		// The path is considered anonymous when we're dealing with an object or array that is not *directly*
+		// assigned to a property.
+		// This is the case for:
+		// - the document root object/array
+		// - an object within an array (`[ {}, {} ]`)
+		var currentSchemaPath = isAnonymous
 			? currentPath
 			: appendPath(currentPath, schemaName);
 
@@ -77,7 +80,8 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			{
 				createDecideOnBranch(
 					decide, nextParentVariable, property.getKey(), property.getValue(),
-					currentObjectPath
+					currentObjectPath,
+					false
 				);
 			}
 
@@ -108,7 +112,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 			if (openApiTypeOfItems.equals(OBJECT_TYPE))
 			{
-				createDecideOnBranch(decide, arrayVariable, schemaName, arrayItemSchema, arrayStartPath);
+				createDecideOnBranch(decide, arrayVariable, schemaName, arrayItemSchema, arrayStartPath, true);
 			}
 			else
 			{
