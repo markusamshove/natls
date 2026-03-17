@@ -4036,9 +4036,11 @@ class StatementListParserShould extends StatementParseTest
 	@Test
 	void consumeIncDir()
 	{
-		assertParsesSingleStatement("""
-               INCDIR #VAR #VAR1 #VAR2;
+		var incdirNode = assertParsesSingleStatement("""
+               INCDIR DDMNAME FIELDNAME ;
             """, IIncDirNode.class);
+		assertThat(incdirNode.ddmName().source()).isEqualTo("DDMNAME");
+		assertThat(incdirNode.fieldName().source()).isEqualTo("FIELDNAME");
 	}
 
 	@Test
