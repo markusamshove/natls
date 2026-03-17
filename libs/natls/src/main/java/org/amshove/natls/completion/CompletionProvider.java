@@ -11,6 +11,7 @@ import org.amshove.natls.languageserver.UnresolvedCompletionInfo;
 import org.amshove.natls.project.LanguageServerFile;
 import org.amshove.natls.project.LanguageServerLibrary;
 import org.amshove.natls.snippets.SnippetEngine;
+import org.amshove.natparse.IPosition;
 import org.amshove.natparse.ReadOnlyList;
 import org.amshove.natparse.lexing.SyntaxKind;
 import org.amshove.natparse.natural.*;
@@ -93,9 +94,12 @@ public class CompletionProvider
 
 		completionItems.addAll(snippetEngine.provideSnippets(file));
 
+		var replacePosition = completionContext.cursorIsExactlyOnCurrentToken() && completionContext.currentToken() != null
+			? completionContext.currentToken()
+			: null;
 		completionItems.addAll(
 			findVariablesToComplete(module)
-				.map(v -> toVariableCompletion(v, module, file, ""))
+				.map(v -> toVariableCompletion(v, module, file, "", replacePosition))
 				.filter(Objects::nonNull)
 				.toList()
 		);
@@ -124,7 +128,7 @@ public class CompletionProvider
 		completionItems.addAll(
 			findVariablesToComplete(module)
 				.filter(v -> v.qualifiedName().startsWith(qualifiedNameFilter))
-				.map(v -> toVariableCompletion(v, module, file, qualifiedNameFilter))
+				.map(v -> toVariableCompletion(v, module, file, qualifiedNameFilter, null))
 				.filter(Objects::nonNull)
 				.toList()
 		);
@@ -653,14 +657,24 @@ public class CompletionProvider
 
 	private CompletionItem toVariableCompletion(
 		IVariableNode variableNode, INaturalModule module,
-		LanguageServerFile file, String alreadyPresentText
+		LanguageServerFile file, String alreadyPresentText, IPosition replacePosition
 	)
 	{
 		try
 		{
 			var item = createCompletionItem(variableNode, file, module.referencableNodes(), !alreadyPresentText.isEmpty());
-			item.setLabel(item.getLabel().replace(alreadyPresentText, ""));
-			item.setInsertText(item.getInsertText().substring(alreadyPresentText.length()));
+			if (replacePosition != null)
+			{
+				// Replace previous written text
+				var replaceWrittenFilter = new TextEdit(LspUtil.toRange(replacePosition), item.getInsertText());
+				item.setTextEdit(Either.forLeft(replaceWrittenFilter));
+				item.setInsertText(null);
+			}
+			else
+			{
+				item.setLabel(item.getLabel().replace(alreadyPresentText, ""));
+				item.setInsertText(item.getInsertText().substring(alreadyPresentText.length()));
+			}
 			if (item.getKind() == CompletionItemKind.Variable)
 			{
 				item.setData(new UnresolvedCompletionInfo((String) item.getData(), file.getPath().toUri().toString()));
