@@ -46,7 +46,6 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 				    3 #ID (A36)
 				    3 #TEMPERATURE (N12,7)
 				    3 #DESCRIPTION (A) DYNAMIC
-				1 #JSON-SOURCE (A) DYNAMIC
 				END-DEFINE""")
 			.generatesStatements("""
 				COMPRESS #P-BASE-URL '/weather' INTO ##REQUEST.#URL LEAVING NO SPACE
@@ -69,8 +68,7 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 				DEFINE SUBROUTINE HANDLE-200
 				/***********************************************************************
 
-				#JSON-SOURCE := #BODY
-				PARSE JSON #JSON-SOURCE INTO PATH ##PARSE-200.#PATH VALUE ##PARSE-200.#VALUE GIVING ##PARSE-200.#ERR-CODE SUBCODE ##PARSE-200.#ERR-SUBCODE
+				PARSE JSON ##RESPONSE.#BODY INTO PATH ##PARSE-200.#PATH VALUE ##PARSE-200.#VALUE GIVING ##PARSE-200.#ERR-CODE SUBCODE ##PARSE-200.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##PARSE-200.#PATH
 				    VALUE '/(/<'
 				      ADD 1 TO ##PARSE-200.#S-#INLINERESPONSE

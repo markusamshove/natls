@@ -23,6 +23,7 @@ public abstract class ParseJsonGenerator
 		private String parsedJsonGroupName = DEFAULT_PARSED_JSON_GROUP_NAME;
 		private VariableScope jsonSourceScope = VariableScope.LOCAL;
 		private @Nullable Variable parsedJsonRoot;
+		private @Nullable Variable jsonSourceVariable;
 		private String parsingGroupName = "##JSON-PARSING";
 
 		/// Overwrite the group name for the parsed JSON. Default is `##PARSED-JSON`.
@@ -60,6 +61,12 @@ public abstract class ParseJsonGenerator
 		public void setParsingGroupName(String name)
 		{
 			this.parsingGroupName = name;
+		}
+
+		/// Set the variable that contains the JSON source (the literal JSON document string)
+		public void setJsonSourceVariable(@Nullable Variable jsonSourceVariable)
+		{
+			this.jsonSourceVariable = jsonSourceVariable;
 		}
 	}
 
@@ -113,7 +120,10 @@ public abstract class ParseJsonGenerator
 			? settings.parsedJsonRoot
 			: context.addVariable(VariableScope.LOCAL, settings.parsedJsonGroupName(), VariableType.group());
 
-		var jsonSourceVariable = context.addVariable(settings.jsonSourceScope(), "#JSON-SOURCE", VariableType.alphanumericDynamic());
+		var jsonSourceVariable = Objects.requireNonNullElseGet(
+			settings.jsonSourceVariable,
+			() -> context.addVariable(settings.jsonSourceScope(), "#JSON-SOURCE", VariableType.alphanumericDynamic())
+		);
 
 		var decideOnJsonPath = decideOnFirst(jsonPath);
 		generateInternal(context, decideOnJsonPath);

@@ -99,7 +99,7 @@ public class RequestDocumentForOpenApiGenerator
 		context.addStatement(decideOnResponse).addStatement(emptyLine());
 		for (var response : operation.getResponses().entrySet())
 		{
-			var subroutine = createResponseSubroutine(response.getKey(), response.getValue(), context);
+			var subroutine = createResponseSubroutine(response.getKey(), response.getValue(), context, responseBody);
 			context.addStatement(subroutine);
 			decideOnResponse
 				.addBranch(numberLiteral(response.getKey()))
@@ -233,7 +233,8 @@ public class RequestDocumentForOpenApiGenerator
 
 	private Subroutine createResponseSubroutine(
 		String responseCode, ApiResponse response,
-		CodeGenerationContext context
+		CodeGenerationContext context,
+		Variable responseBody
 	)
 	{
 		var subroutine = subroutine("HANDLE-" + responseCode);
@@ -251,6 +252,7 @@ public class RequestDocumentForOpenApiGenerator
 			var schemaName = resolveSchemaName(responseContent.getValue().getSchema(), "Inlineresponse");
 			var settings = new ParseJsonGenerator.Settings();
 			settings.setParsingGroupName("##PARSE-" + responseCode);
+			settings.setJsonSourceVariable(responseBody);
 			if (this.settings.responseBodyRootGroup != null)
 			{
 				settings.setParsedJsonRoot(
@@ -269,7 +271,6 @@ public class RequestDocumentForOpenApiGenerator
 			);
 			var parseJsonContext = generator.generate();
 
-			subroutine.addStatement(assignment(NaturalCode.plain("#JSON-SOURCE"), NaturalCode.plain("#BODY")));
 			context.consumeExceptStatements(parseJsonContext);
 			subroutine.addStatements(parseJsonContext.statements());
 		}
