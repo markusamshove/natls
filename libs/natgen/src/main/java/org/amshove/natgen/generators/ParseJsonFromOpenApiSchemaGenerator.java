@@ -16,6 +16,7 @@ import java.util.Locale;
 import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
 import static org.amshove.natgen.NaturalOpenApi.*;
 import static org.amshove.natgen.generatable.NaturalCode.*;
+import static org.amshove.natgen.generatable.conditions.Conditions.notEqual;
 
 class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 {
@@ -117,10 +118,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			else
 			{
 				branch.addStatement(
-					assignValueToVariable(
-						arrayVariable, extractOpenApiType(arrayItemSchema, spec),
-						arrayItemSchema.getFormat(), newArrayValuePath
-					)
+					assignJsonValue(arrayVariable, arrayItemSchema, newArrayValuePath)
 				);
 			}
 
@@ -145,7 +143,9 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 			decide
 				.addBranch(stringLiteral(valueJsonPath))
-				.addStatement(assignValueToVariable(theVariable, theType, schema.getFormat(), currentPath));
+				.addStatement(
+					assignJsonValue(theVariable, schema, currentPath)
+				);
 
 		}
 	}
@@ -174,10 +174,28 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			.addStatement(moveEdited(timeParsingPart, targetTime, "HH:II:SS"));
 	}
 
+	/// Assigns the parsed JSON value according to the source and target type.
+	/// Does handle nullable types
+	private IGeneratableStatement assignJsonValue(
+		Variable targetVariable, Schema<?> schema,
+		String jsonPath
+	)
+	{
+		var assignValueStatement = assignValueToVariable(targetVariable, extractOpenApiType(schema, spec), schema.getFormat(), jsonPath);
+
+		if (!isNullable(schema))
+		{
+			return assignValueStatement;
+		}
+
+		return _if(notEqual(jsonValue, stringLiteral("null")))
+			.addStatement(assignValueStatement);
+	}
+
+	/// Call `assignJsonValue` to also handle `null` values
 	private IGeneratableStatement assignValueToVariable(Variable variable, String type, String format,
 		String currentPath)
 	{
-
 		var variableAccess = variable.arrayAccess(findAllArrayAccessVariablesForCurrentPathInOrder(currentPath));
 
 		if (STRING_TYPE.equals(type))

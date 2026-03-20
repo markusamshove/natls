@@ -57,6 +57,41 @@ components:
 	}
 
 	@Test
+	void assignNullableStringsAsEmptyWhenTheyreNull()
+	{
+		var context = generate("Person", """
+openapi: 3.1.0
+info:
+  title: api API
+  version: 1.0.0
+components:
+  schemas:
+    Person:
+      type: object
+      properties:
+        name:
+          type:
+            - string
+            - "null"
+			""");
+
+		assertOn(context)
+			.hasVariable(3, "##PARSED-JSON.#NAME", VariableScope.LOCAL, VariableType.alphanumericDynamic())
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</name/$'
+				      IF ##JSON-PARSING.#VALUE <> 'null'
+				        ##PARSED-JSON.#NAME := ##JSON-PARSING.#VALUE
+				      END-IF
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE
+				""");
+	}
+
+	@Test
 	void generateAVariableForUUIDFormat()
 	{
 		var context = generate("Person", """
