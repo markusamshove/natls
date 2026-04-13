@@ -193,6 +193,19 @@ public class InlayHintProvider implements IConfigChangedSubscriber
 				continue;
 			}
 
+			if (passedParameter instanceof ILiteralNode literal)
+			{
+				var hint = new InlayHint();
+				hint.setPosition(LspUtil.toPositionAfter(literal.position()));
+				hint.setLabel(theirParameterInDeclarationOrder.get(parameterIndex)instanceof IVariableNode variable ? variable.name() : "Unknown");
+				hint.setKind(InlayHintKind.Parameter);
+				hint.setPaddingLeft(true);
+				hints.add(hint);
+
+				parameterIndex++;
+				continue;
+			}
+
 			parameterIndex++;
 		}
 	}

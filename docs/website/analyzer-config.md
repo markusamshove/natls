@@ -28,21 +28,22 @@ The severity can be one of:
 
 The following configurations can be set in an `.editorconfig` file to configure preferences for analyzers. Note, that **all** configurations are set to `false` by default, so you have to turn them on individually according to the below table.
 
-| Property                                      | Possible values | Description |
-|-----------------------------------------------| --- | --- |
-| `natls.style.comparisons`                     | `sign`, `short`, `false` | [`NL006`](https://nat-ls.github.io/diagnostics/nl006)|
-| `natls.style.disallowtoplevelvars`            | `true`, `false` | [`NL018`](https://nat-ls.github.io/diagnostics/nl018)|
-| `natls.style.qualifyvars`                     | `true`, `false` | [`NL019`](https://nat-ls.github.io/diagnostics/nl019)|
-| `natls.style.discourage_independent`          | `true`, `false` | [`NL028`](https://nat-ls.github.io/diagnostics/nl028)|
-| `natls.style.discourage_gitmarkers`           | `true`, `false` | [`NL030`](https://nat-ls.github.io/diagnostics/nl030)|
-| `natls.style.discourage_inlineparameters`     | `true`, `false` | [`NL031`](https://nat-ls.github.io/diagnostics/nl031)|
-| `natls.style.discourage_hiddentransactions`   | `true`, `false` | [`NL032`](https://nat-ls.github.io/diagnostics/nl032)|
-| `natls.style.discourage_hiddenworkfiles`      | `true`, `false` | [`NL033`](https://nat-ls.github.io/diagnostics/nl033)|
-| `natls.style.mark_mainframelongline`          | `true`, `false` | [`NL034`](https://nat-ls.github.io/diagnostics/nl034)|
-| `natls.style.discourage_hidden_dbms`          | `true`, `false` | [`NL035`](https://nat-ls.github.io/diagnostics/nl035)|
-| `natls.style.discourage_long_literals`        | `true`, `false` | [`NL038`](https://nat-ls.github.io/diagnostics/nl038)|
-| `natls.style.discourage_lowercase_code`       | `true`, `false` | [`NL039`](https://nat-ls.github.io/diagnostics/nl039)|
-| `natls.style.in_out_groups`                   | `true`, `false` | [`NL041`](https://nat-ls.github.io/diagnostics/nl041/)|
+| Property                                           | Possible values          | Description                                            |
+|----------------------------------------------------|--------------------------|--------------------------------------------------------|
+| `natls.style.comparisons`                          | `sign`, `short`, `false` | [`NL006`](https://nat-ls.github.io/diagnostics/nl006)  |
+| `natls.style.disallowtoplevelvars`                 | `true`, `false`          | [`NL018`](https://nat-ls.github.io/diagnostics/nl018)  |
+| `natls.style.qualifyvars`                          | `true`, `false`          | [`NL019`](https://nat-ls.github.io/diagnostics/nl019)  |
+| `natls.style.function_name_should_match_file_name` | `true`, `false`          | [`NL020`](https://nat-ls.github.io/diagnostics/nl020)  |
+| `natls.style.discourage_independent`               | `true`, `false`          | [`NL028`](https://nat-ls.github.io/diagnostics/nl028)  |
+| `natls.style.discourage_gitmarkers`                | `true`, `false`          | [`NL030`](https://nat-ls.github.io/diagnostics/nl030)  |
+| `natls.style.discourage_inlineparameters`          | `true`, `false`          | [`NL031`](https://nat-ls.github.io/diagnostics/nl031)  |
+| `natls.style.discourage_hiddentransactions`        | `true`, `false`          | [`NL032`](https://nat-ls.github.io/diagnostics/nl032)  |
+| `natls.style.discourage_hiddenworkfiles`           | `true`, `false`          | [`NL033`](https://nat-ls.github.io/diagnostics/nl033)  |
+| `natls.style.mark_mainframelongline`               | `true`, `false`          | [`NL034`](https://nat-ls.github.io/diagnostics/nl034)  |
+| `natls.style.discourage_hidden_dbms`               | `true`, `false`          | [`NL035`](https://nat-ls.github.io/diagnostics/nl035)  |
+| `natls.style.discourage_long_literals`             | `true`, `false`          | [`NL038`](https://nat-ls.github.io/diagnostics/nl038)  |
+| `natls.style.discourage_lowercase_code`            | `true`, `false`          | [`NL039`](https://nat-ls.github.io/diagnostics/nl039)  |
+| `natls.style.in_out_groups`                        | `true`, `false`          | [`NL041`](https://nat-ls.github.io/diagnostics/nl041/) |
 
 # Example
 
