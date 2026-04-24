@@ -1,5 +1,6 @@
 package org.amshove.natgen.generatable.definedata;
 
+import org.amshove.natgen.IVariableAddable;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natgen.generatable.NaturalCode;
@@ -12,40 +13,85 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public final class Variable implements IGeneratableDefineDataElement
+public final class Variable implements IGeneratableDefineDataElement, IVariableAddable
 {
-	private final int level;
+	private int level;
 	private final VariableScope scope;
-	private final String name;
+	private String name;
 	private final VariableType type;
 	private final List<Variable> childVariables = new ArrayList<>();
 	private final List<Redefinition> redefinitions = new ArrayList<>();
 	private Variable parent;
 
-	private String constValue = null;
+	private IGeneratable constValue = null;
+	private IGeneratable initValue = null;
+	private boolean byValue = false;
+	private boolean isOptional;
 
 	public Variable(int level, VariableScope scope, String name, VariableType type)
 	{
 		this.level = level;
 		this.scope = scope;
-		this.name = name;
+		this.name = name.toUpperCase(Locale.ROOT);
 		this.type = type;
 	}
 
-	/// CONST literal value to be generated within DEFINE DATA
+	/// `CONST` value to be generated within DEFINE DATA
 	@Nullable
-	public String constValue()
+	public IGeneratable constValue()
 	{
 		return constValue;
 	}
 
-	/// Sets the value that will be generated in a CONST block in DEFINE DATA
-	public Variable withConstantValue(String value)
+	/// Sets the value that will be generated in a `CONST` block in `DEFINE DATA`
+	public Variable withConstantValue(IGeneratable value)
 	{
 		constValue = value;
 		return this;
+	}
+
+	/// `iNIT` value to be generated within DEFINE DATA
+	@Nullable
+	public IGeneratable initValue()
+	{
+		return initValue;
+	}
+
+	/// Sets the value that will be generated in an `INIT` block in `DEFINE DATA``
+	public Variable withInitialValue(IGeneratable value)
+	{
+		initValue = value;
+		return this;
+	}
+
+	/// Sets the variable as pass `BY VALUE`. Will only be generated when the
+	/// variable is generated as a parameter
+	public Variable asByValue()
+	{
+		byValue = true;
+		return this;
+	}
+
+	/// Marks this variable as `OPTIONAL`. Will only be added to the generated
+	/// source when the variable is generated as parameter
+	public Variable asOptional()
+	{
+		isOptional = true;
+		return this;
+	}
+
+	public boolean isOptional()
+	{
+		return isOptional;
+	}
+
+	public boolean isByValue()
+	{
+		return byValue;
 	}
 
 	/// Creates a new `Redefinition` for this variable.
@@ -55,6 +101,12 @@ public final class Variable implements IGeneratableDefineDataElement
 		var redefinition = new Redefinition(this);
 		redefinitions.add(redefinition);
 		return redefinition;
+	}
+
+	/// Set the unqualified part of the variable name
+	public void setName(String name)
+	{
+		this.name = name;
 	}
 
 	/// Creates a Variable for code generation from a parsed Variable from Natural source.
@@ -116,12 +168,27 @@ public final class Variable implements IGeneratableDefineDataElement
 		return type;
 	}
 
-	public Variable addVariable(String name, VariableType type)
+	public Variable addVariable(Variable variable)
 	{
-		var variable = new Variable(level + 1, scope, name, type);
+		if (variable.parent != null)
+		{
+			variable.parent.childVariables.remove(variable);
+		}
+
+		while (findRootVariable().deepChildren().anyMatch(v -> v.name().equals(variable.name()) && v != variable))
+		{
+			variable.setName("#" + variable.name());
+		}
+
 		variable.parent = this;
+		variable.level = level + 1;
 		childVariables.add(variable);
 		return variable;
+	}
+
+	public Variable addVariable(String name, VariableType type)
+	{
+		return addVariable(new Variable(level + 1, scope, name, type));
 	}
 
 	void setParent(Variable newParent)
@@ -158,9 +225,16 @@ public final class Variable implements IGeneratableDefineDataElement
 			'}';
 	}
 
-	/// Generate a dimension access for this variable, e.g. `#ARR(1)`
+	/// Generate a dimension access for this variable, e.g. `#ARR(1)`.
+	/// If no dimensions are passed, no index access will be present.
 	public IGeneratable arrayAccess(IGeneratable... dimensions)
 	{
+		// No access needed
+		if (dimensions.length == 0)
+		{
+			return NaturalCode.plain(generate());
+		}
+
 		var access = "(%s)".formatted(
 			Arrays.stream(dimensions)
 				// Dimension access can't use fully qualified variable names :-(
@@ -168,5 +242,20 @@ public final class Variable implements IGeneratableDefineDataElement
 				.collect(Collectors.joining(", "))
 		);
 		return NaturalCode.plain(generate() + access);
+	}
+
+	private Stream<Variable> deepChildren()
+	{
+		return Stream.concat(childVariables.stream(), childVariables.stream().flatMap(Variable::deepChildren));
+	}
+
+	private Variable findRootVariable()
+	{
+		if (parent == null)
+		{
+			return this;
+		}
+
+		return parent.findRootVariable();
 	}
 }

@@ -62,7 +62,7 @@ public class FileEdits
 	public static FileEdit addSubroutine(LanguageServerFile file, String name, String source)
 	{
 		var subroutine = NaturalCode.subroutine(name);
-		subroutine.addToBody(NaturalCode.plainStatement(source));
+		subroutine.addStatement(NaturalCode.plainStatement(source));
 
 		var insertion = rangeFinder.findInsertionPositionForStatementAtEnd(file);
 		var codeBuilder = new CodeBuilder();

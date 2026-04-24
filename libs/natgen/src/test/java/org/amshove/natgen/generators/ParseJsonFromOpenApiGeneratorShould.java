@@ -4,6 +4,7 @@ import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.CodeGenerationTest;
+import org.amshove.natgen.Dimension;
 import org.amshove.natgen.VariableType;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;
@@ -51,7 +52,43 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
+	}
+
+	@Test
+	void assignNullableStringsAsEmptyWhenTheyreNull()
+	{
+		var context = generate("Person", """
+openapi: 3.1.0
+info:
+  title: api API
+  version: 1.0.0
+components:
+  schemas:
+    Person:
+      type: object
+      properties:
+        name:
+          type:
+            - string
+            - "null"
+			""");
+
+		assertOn(context)
+			.hasVariable(3, "##PARSED-JSON.#NAME", VariableScope.LOCAL, VariableType.alphanumericDynamic())
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</name/$'
+				      IF ##JSON-PARSING.#VALUE <> 'null'
+				        ##PARSED-JSON.#NAME := ##JSON-PARSING.#VALUE
+				      END-IF
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -136,7 +173,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -163,7 +201,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@ParameterizedTest
@@ -185,7 +224,7 @@ components:
           format: %s
 			""".formatted(format));
 
-		assertOn(context).hasVariable(3, "##PARSED-JSON.#MONEY", VariableScope.LOCAL, VariableType.floating(8));
+		assertOn(context).hasVariable(3, "##PARSED-JSON.#MONEY", VariableScope.LOCAL, VariableType.numeric(12.7));
 	}
 
 	@ParameterizedTest
@@ -248,11 +287,12 @@ components:
 				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
 				    VALUE '</employed/$'
-				      ##PARSED-JSON.#EMPLOYED := ATOB(<##JSON-PARSING.#VALUE>)
+				      ##PARSED-JSON.#EMPLOYED := JSON-BOOL-TO-LOGICAL(<##JSON-PARSING.#VALUE>)
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -280,7 +320,47 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
+	}
+
+	@Test
+	void generateAssignmentsForDateTypeWhenTheDateIsAReferenceWithinAnArray()
+	{
+		var context = generate("Baby", """
+openapi: 3.1.0
+components:
+  schemas:
+    LocalDate:
+      type: string
+      format: date
+      examples:
+      - 2022-03-10
+    Baby:
+      type: object
+      properties:
+        dates:
+          type: array
+          items:
+            $ref: "#/components/schemas/LocalDate"
+			""");
+
+		assertOn(context)
+			.hasVariable(3, "##PARSED-JSON.#DATES", VariableScope.LOCAL, VariableType.date().withDimension(Dimension.upperUnbound()))
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '</dates/(/$'
+				      ADD 1 TO ##JSON-PARSING.#S-#DATES
+				      EXPAND ARRAY ##PARSED-JSON.#DATES TO (1:##JSON-PARSING.#S-#DATES)
+				      MOVE EDITED ##JSON-PARSING.#VALUE TO ##PARSED-JSON.#DATES(#S-#DATES) (EM=YYYY-MM-DD)
+				    VALUE '>'
+				      RESET ##JSON-PARSING.#S-#DATES
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -328,7 +408,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -374,7 +455,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -429,7 +511,8 @@ components:
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -483,15 +566,16 @@ components:
 				    VALUE '</addresses/(/<'
 				      ADD 1 TO ##JSON-PARSING.#S-#ADDRESSES
 				      EXPAND ARRAY ##PARSED-JSON.#ADDRESSES TO (1:##JSON-PARSING.#S-#ADDRESSES)
-				    VALUE '</addresses/(/addresses/</street/$'
+				    VALUE '</addresses/(/</street/$'
 				      ##PARSED-JSON.#STREET(#S-#ADDRESSES) := ##JSON-PARSING.#VALUE
-				    VALUE '</addresses/(/addresses/</city/$'
+				    VALUE '</addresses/(/</city/$'
 				      ##PARSED-JSON.#CITY(#S-#ADDRESSES) := ##JSON-PARSING.#VALUE
 				    VALUE '>'
 				      RESET ##JSON-PARSING.#S-#ADDRESSES
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 }

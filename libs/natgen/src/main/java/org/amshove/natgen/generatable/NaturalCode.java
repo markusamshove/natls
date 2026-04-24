@@ -2,6 +2,7 @@ package org.amshove.natgen.generatable;
 
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.generatable.conditions.IConditional;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natgen.generators.DefineDataGenerator;
 import org.amshove.natgen.VariableType;
@@ -11,16 +12,25 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @NullMarked
 public class NaturalCode implements IGeneratable
 {
 	private final String code;
+	private final @Nullable Supplier<String> lazyCode;
 
 	private NaturalCode(String code)
 	{
 		this.code = code;
+		this.lazyCode = null;
+	}
+
+	private NaturalCode(Supplier<String> lazyCode)
+	{
+		this.code = null;
+		this.lazyCode = lazyCode;
 	}
 
 	public static IGeneratableStatement separatorComment()
@@ -39,9 +49,18 @@ public class NaturalCode implements IGeneratable
 		return new Variable(1, VariableScope.LOCAL, name, type);
 	}
 
+	public static If _if(IConditional conditional)
+	{
+		return new If(conditional);
+	}
+
 	@Override
 	public String generate()
 	{
+		if (lazyCode != null)
+		{
+			return lazyCode.get();
+		}
 		return code;
 	}
 
@@ -60,6 +79,16 @@ public class NaturalCode implements IGeneratable
 		return new NaturalCode("'%s'".formatted(plaintext));
 	}
 
+	public static NaturalCode numberLiteral(String plaintext)
+	{
+		return plain(plaintext);
+	}
+
+	public static NaturalCode numberLiteral(int number)
+	{
+		return plain(Integer.toString(number));
+	}
+
 	public static IGeneratableStatement incrementVariable(IGeneratable variable)
 	{
 		return new GeneratableStatement("ADD 1 TO " + variable.generate());
@@ -68,17 +97,24 @@ public class NaturalCode implements IGeneratable
 	/// Expand a one dimensional array to `1:upperBound`, where `upperBound` can also be a variable
 	public static IGeneratableStatement expandArray(IGeneratable array, IGeneratable toUpperBound)
 	{
-		return new GeneratableStatement("EXPAND ARRAY %s TO (1:%s)".formatted(array.generate(), toUpperBound.generate()));
+		return new GeneratableStatement(
+			"EXPAND ARRAY %s TO (1:%s)".formatted(array.generate(), toUpperBound.generate())
+		);
 	}
 
 	/// Expand a one dimensional array to `lowerBound:upperBound`
 	public static IGeneratableStatement expandArray(IGeneratable array, int lowerBound, int upperBound)
 	{
-		return new GeneratableStatement("EXPAND ARRAY %s TO (%d:%d)".formatted(array.generate(), lowerBound, upperBound));
+		return new GeneratableStatement(
+			"EXPAND ARRAY %s TO (%d:%d)".formatted(array.generate(), lowerBound, upperBound)
+		);
 	}
 
 	/// Expand the nth dimension of a multidimensional array to `1:upperBound`, where `upperBound` can also be a variable
-	public static IGeneratableStatement expandNthArrayDimension(IGeneratable array, int nthDimension, IGeneratable toUpperBound)
+	public static IGeneratableStatement expandNthArrayDimension(
+		IGeneratable array, int nthDimension,
+		IGeneratable toUpperBound
+	)
 	{
 		var dimensionList = "*, ".repeat(Math.max(0, nthDimension - 1));
 		dimensionList += "1:" + toUpperBound.generate();
@@ -86,7 +122,10 @@ public class NaturalCode implements IGeneratable
 	}
 
 	/// Expand the nth dimension of a multidimensional array to `lowerBound:upperBound`
-	public static IGeneratableStatement expandNthArrayDimension(IGeneratable array, int nthDimension, int lowerBound, int upperBound)
+	public static IGeneratableStatement expandNthArrayDimension(
+		IGeneratable array, int nthDimension, int lowerBound,
+		int upperBound
+	)
 	{
 		var dimensionList = "*, ".repeat(Math.max(0, nthDimension - 1));
 		dimensionList += "%d:%d".formatted(lowerBound, upperBound);
@@ -99,9 +138,9 @@ public class NaturalCode implements IGeneratable
 		return new GeneratableStatement("RESET %s".formatted(toReset));
 	}
 
-	public static IGeneratableStatement assignment(IGeneratable lhs, IGeneratable rhs)
+	public static Assignment assignment(IGeneratable lhs, IGeneratable rhs)
 	{
-		return new GeneratableStatement("%s := %s".formatted(lhs.generate(), rhs.generate()));
+		return new Assignment(lhs, rhs);
 	}
 
 	public static NaturalCode definePrototype(
@@ -153,6 +192,23 @@ public class NaturalCode implements IGeneratable
 		return new DecideOn(reference, DecideOnValueCheck.EVERY);
 	}
 
+	/// Create a new EXAMINE statement
+	public static Examine examine(IGeneratable examined)
+	{
+		return new Examine(examined);
+	}
+
+	/// Create a new EXAMINE FULL statement
+	public static Examine examineFull(IGeneratable examined)
+	{
+		return new Examine(examined).asExamineFull();
+	}
+
+	public static IGeneratableStatement emptyLine()
+	{
+		return new GeneratableStatement("");
+	}
+
 	public static NaturalCode functionCall(String functionName, IGeneratable... parameter)
 	{
 		return new NaturalCode(
@@ -163,11 +219,28 @@ public class NaturalCode implements IGeneratable
 		);
 	}
 
+	public static IGeneratableStatement callnat(IGeneratable module, IGeneratable... parameter)
+	{
+		return new GeneratableStatement(
+			"CALLNAT %s %s".formatted(
+				module.generate(),
+				Arrays.stream(parameter).map(IGeneratable::generate).collect(Collectors.joining(" "))
+			)
+		);
+	}
+
+	public static IGeneratableStatement setGlobals(String key, IGeneratable value)
+	{
+		return new GeneratableStatement("SET GLOBALS %s=%s".formatted(key, value.generate()));
+	}
+
 	/// Create a `MOVE EDITED` statement where `attribute` is set on `target` resulting in
 	/// `MOVE EDITED source TO target (EM=editMask)`
 	public static IGeneratableStatement moveEdited(IGeneratable source, IGeneratable target, String editMask)
 	{
-		return new GeneratableStatement("MOVE EDITED %s TO %s (EM=%s)".formatted(source.generate(), target.generate(), editMask));
+		return new GeneratableStatement(
+			"MOVE EDITED %s TO %s (EM=%s)".formatted(source.generate(), target.generate(), editMask)
+		);
 	}
 
 	private record GeneratableStatement(String plainCode) implements IGeneratableStatement
@@ -188,6 +261,31 @@ public class NaturalCode implements IGeneratable
 	public static RequestDocument requestDocument(IGeneratable uri, IGeneratable responseCode)
 	{
 		return new RequestDocument(uri, responseCode);
+	}
+
+	/// Creates an `*OCC` for the given [IGeneratable]
+	public static IGeneratable occ(IGeneratable array)
+	{
+		return new NaturalCode("*OCC(%s)".formatted(array.generate()));
+	}
+
+	/// Creates an `*OCC` for the given [Variable]. If the variable is a group array, the first child will
+	/// be used.
+	public static IGeneratable occ(Variable array)
+	{
+		return new NaturalCode(() ->
+		{
+			var theArray = array.type().isGroup() && !array.children().isEmpty()
+				? array.children().getFirst()
+				: array;
+			return "*OCC(%s)".formatted(theArray.generate());
+		});
+	}
+
+	/// Create a [For] in the form of `FOR iterationVariable := startValue TO upper`
+	public static For _for(IGeneratable iterationVariable, IGeneratable startValue, IGeneratable upper)
+	{
+		return new For(iterationVariable, startValue, upper);
 	}
 
 	/// Creates a [Compress] statement

@@ -38,7 +38,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -55,7 +56,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -72,7 +74,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -85,11 +88,12 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
 				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
 				    VALUE '</nice/$'
-				      ##PARSED-JSON.#NICE := ATOB(<##JSON-PARSING.#VALUE>)
+				      ##PARSED-JSON.#NICE := JSON-BOOL-TO-LOGICAL(<##JSON-PARSING.#VALUE>)
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -115,7 +119,41 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
+	}
+
+	@Test
+	void parseDocumentsThatStartAsArray()
+	{
+		var context = generate("[ 10, 15, 20 ]");
+
+		assertOn(context)
+			.generatesDefineData("""
+				DEFINE DATA
+				LOCAL
+				1 ##JSON-PARSING
+				  2 #PATH (A) DYNAMIC
+				  2 #VALUE (A) DYNAMIC
+				  2 #ERR-CODE (I4)
+				  2 #ERR-SUBCODE (I4)
+				  2 #S-#INLINE (I4)
+				1 ##PARSED-JSON
+				  2 #INLINE (N12,7/1:*)
+				1 #JSON-SOURCE (A) DYNAMIC
+				END-DEFINE""")
+			.generatesStatements("""
+				PARSE JSON #JSON-SOURCE INTO PATH ##JSON-PARSING.#PATH VALUE ##JSON-PARSING.#VALUE GIVING ##JSON-PARSING.#ERR-CODE SUBCODE ##JSON-PARSING.#ERR-SUBCODE
+				  DECIDE ON FIRST VALUE OF ##JSON-PARSING.#PATH
+				    VALUE '/(/$'
+				      ADD 1 TO ##JSON-PARSING.#S-#INLINE
+				      EXPAND ARRAY ##PARSED-JSON.#INLINE TO (1:##JSON-PARSING.#S-#INLINE)
+				      ##PARSED-JSON.#INLINE(#S-#INLINE) := VAL(##JSON-PARSING.#VALUE)
+				    NONE VALUE
+				      IGNORE
+				  END-DECIDE
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -151,7 +189,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -190,7 +229,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -234,7 +274,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -268,7 +309,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -312,7 +354,8 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 
 	@Test
@@ -340,6 +383,7 @@ class ParseJsonFromJsonGeneratorShould extends CodeGenerationTest
 				    NONE VALUE
 				      IGNORE
 				  END-DECIDE
-				END-PARSE""");
+				END-PARSE
+				""");
 	}
 }

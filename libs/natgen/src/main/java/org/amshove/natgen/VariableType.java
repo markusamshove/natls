@@ -137,6 +137,11 @@ public final class VariableType
 		return !dimensions.isEmpty();
 	}
 
+	public boolean isGroup()
+	{
+		return format == DataFormat.NONE;
+	}
+
 	public static VariableType fromDataType(IDataType type)
 	{
 		return switch (type.format())

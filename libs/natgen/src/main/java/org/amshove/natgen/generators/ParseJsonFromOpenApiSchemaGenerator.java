@@ -8,12 +8,15 @@ import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn;
 import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natgen.generatable.IGeneratableStatement;
+import org.amshove.natgen.generatable.NatGenFunctions;
 import org.amshove.natgen.generatable.definedata.Variable;
 
 import java.util.Locale;
 
 import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
+import static org.amshove.natgen.NaturalOpenApi.*;
 import static org.amshove.natgen.generatable.NaturalCode.*;
+import static org.amshove.natgen.generatable.conditions.Conditions.notEqual;
 
 class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 {
@@ -23,37 +26,49 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 	protected ParseJsonFromOpenApiSchemaGenerator(OpenAPI spec, String schemaName, Settings settings)
 	{
+		this(spec, schemaName, spec.getComponents().getSchemas().get(schemaName), settings);
+	}
+
+	protected ParseJsonFromOpenApiSchemaGenerator(OpenAPI spec, String schemaName, Schema<?> schema, Settings settings)
+	{
 		super(settings);
 		this.spec = spec;
 		this.rootSchemaName = schemaName;
-		this.rootSchema = spec.getComponents().getSchemas().get(schemaName);
+		this.rootSchema = schema;
 	}
 
 	@Override
 	protected void generateInternal(CodeGenerationContext context, DecideOn decide)
 	{
-		createDecideOnBranch(decide, parsedJsonRoot, rootSchemaName, rootSchema, "");
+		createDecideOnBranch(decide, parsedJsonRoot, rootSchemaName, rootSchema, "", true);
 	}
 
-	private void createDecideOnBranch(DecideOn decide, Variable parentVariable, String schemaName, Schema<?> schema, String currentPath)
+	private void createDecideOnBranch(
+		DecideOn decide, Variable parentVariable, String schemaName, Schema<?> schema,
+		String currentPath, boolean isAnonymous
+	)
 	{
 		if (schema.get$ref() != null)
 		{
-			var referencedComponent = findSchemaByReference(schema.get$ref());
-			createDecideOnBranch(decide, parentVariable, schemaName, referencedComponent, currentPath);
+			var referencedComponent = findSchemaByReference(schema.get$ref(), spec);
+			createDecideOnBranch(decide, parentVariable, schemaName, referencedComponent, currentPath, isAnonymous);
 			return;
 		}
 
 		var naturalSchemaName = "#" + schemaName.toUpperCase(Locale.ROOT);
-		var theType = extractOpenApiType(schema);
+		var theType = extractOpenApiType(schema, spec);
 
-		var currentSchemaPath = appendPath(currentPath, schemaName);
+		// The path is considered anonymous when we're dealing with an object or array that is not *directly*
+		// assigned to a property.
+		// This is the case for:
+		// - the document root object/array
+		// - an object within an array (`[ {}, {} ]`)
+		var currentSchemaPath = isAnonymous
+			? currentPath
+			: appendPath(currentPath, schemaName);
+
 		if (theType.equals(OBJECT_TYPE))
 		{
-			// The root schema gets embedded, meaning that the object name will not be
-			// included in the JSON path of naturals `PARSE JSON`
-			var objectBasePath = schemaName.equals(rootSchemaName) ? currentPath : currentSchemaPath;
-
 			// If the current parent variable is an array we want to pass it down.
 			// This happens when an object (this) is within an array. The object
 			// definition (natural group) should be the array, not each single property
@@ -61,10 +76,14 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 				? parentVariable
 				: parentVariable.addVariable(naturalSchemaName, VariableType.group());
 
-			var currentObjectPath = appendPath(objectBasePath, START_OBJECT);
+			var currentObjectPath = appendPath(currentSchemaPath, START_OBJECT);
 			for (var property : schema.getProperties().entrySet())
 			{
-				createDecideOnBranch(decide, nextParentVariable, property.getKey(), property.getValue(), currentObjectPath);
+				createDecideOnBranch(
+					decide, nextParentVariable, property.getKey(), property.getValue(),
+					currentObjectPath,
+					false
+				);
 			}
 
 			return;
@@ -72,9 +91,12 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 		if (theType.equals("array"))
 		{
-			var arrayItemSchema = schema.getItems();
-			var openApiTypeOfItems = extractOpenApiType(arrayItemSchema);
-			var arrayVariable = getVariableForProperty(currentSchemaPath, parentVariable, schemaName, inferNaturalType(arrayItemSchema));
+			var arrayItemSchema = resolveSchema(schema.getItems(), spec);
+			var openApiTypeOfItems = extractOpenApiType(arrayItemSchema, spec);
+			var arrayVariable = getVariableForProperty(
+				currentSchemaPath, parentVariable, schemaName,
+				inferNaturalType(arrayItemSchema, spec)
+			);
 			arrayVariable.type().withDimension(Dimension.upperUnbound());
 			var sizeVariable = findSizeVariableForArray(arrayVariable);
 
@@ -86,20 +108,17 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			var numberOfDimensions = getNumberOfDimensions(arrayStartPath);
 			var branch = decide
 				.addBranch(stringLiteral(newArrayValuePath))
-				.addToBody(incrementVariable(sizeVariable))
-				.addToBody(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
+				.addStatement(incrementVariable(sizeVariable))
+				.addStatement(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
 
 			if (openApiTypeOfItems.equals(OBJECT_TYPE))
 			{
-				createDecideOnBranch(decide, arrayVariable, schemaName, arrayItemSchema, arrayStartPath);
+				createDecideOnBranch(decide, arrayVariable, schemaName, arrayItemSchema, arrayStartPath, true);
 			}
 			else
 			{
-				branch.addToBody(
-					assignValueToVariable(
-						arrayVariable, extractOpenApiType(arrayItemSchema),
-						arrayItemSchema.getFormat(), newArrayValuePath
-					)
+				branch.addStatement(
+					assignJsonValue(arrayVariable, arrayItemSchema, newArrayValuePath)
 				);
 			}
 
@@ -116,7 +135,7 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 			return;
 		}
 
-		var naturalType = inferNaturalType(schema);
+		var naturalType = inferNaturalType(schema, spec);
 
 		if (naturalType != null)
 		{
@@ -124,7 +143,9 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 			decide
 				.addBranch(stringLiteral(valueJsonPath))
-				.addToBody(assignValueToVariable(theVariable, theType, schema.getFormat(), currentPath));
+				.addStatement(
+					assignJsonValue(theVariable, schema, currentPath)
+				);
 
 		}
 	}
@@ -148,28 +169,45 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 		decide
 			.addBranch(stringLiteral(valueJsonPath))
-			.addToBody(assignment(parsingBaseVariable, jsonValue))
-			.addToBody(moveEdited(dateParsingPart, targetDate, "YYYY-MM-DD"))
-			.addToBody(moveEdited(timeParsingPart, targetTime, "HH:II:SS"));
+			.addStatement(assignment(parsingBaseVariable, jsonValue))
+			.addStatement(moveEdited(dateParsingPart, targetDate, "YYYY-MM-DD"))
+			.addStatement(moveEdited(timeParsingPart, targetTime, "HH:II:SS"));
 	}
 
-	private IGeneratableStatement assignValueToVariable(Variable variable, String type, String format, String currentPath)
+	/// Assigns the parsed JSON value according to the source and target type.
+	/// Does handle nullable types
+	private IGeneratableStatement assignJsonValue(
+		Variable targetVariable, Schema<?> schema,
+		String jsonPath
+	)
 	{
-		if (currentPath.contains(START_ARRAY))
+		var assignValueStatement = assignValueToVariable(targetVariable, extractOpenApiType(schema, spec), schema.getFormat(), jsonPath);
+
+		if (!isNullable(schema))
 		{
-			var arrayAccessVariables = findAllArrayAccessVariablesForCurrentPathInOrder(currentPath);
-			return assignment(variable.arrayAccess(arrayAccessVariables), primitiveValueAssignment(type));
+			return assignValueStatement;
 		}
+
+		return _if(notEqual(jsonValue, stringLiteral("null")))
+			.addStatement(assignValueStatement);
+	}
+
+	/// Call `assignJsonValue` to also handle `null` values
+	private IGeneratableStatement assignValueToVariable(Variable variable, String type, String format,
+		String currentPath)
+	{
+		var variableAccess = variable.arrayAccess(findAllArrayAccessVariablesForCurrentPathInOrder(currentPath));
 
 		if (STRING_TYPE.equals(type))
 		{
-			return switch(format) {
-				case DATE_FORMAT -> moveEdited(jsonValue, variable, "YYYY-MM-DD");
-				case null, default -> assignment(variable, primitiveValueAssignment(type));
+			return switch (format)
+			{
+				case DATE_FORMAT -> moveEdited(jsonValue, variableAccess, "YYYY-MM-DD");
+				case null, default -> assignment(variableAccess, primitiveValueAssignment(type));
 			};
 		}
 
-		return assignment(variable, primitiveValueAssignment(type));
+		return assignment(variableAccess, primitiveValueAssignment(type));
 	}
 
 	private IGeneratable primitiveValueAssignment(String type)
@@ -186,66 +224,10 @@ class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 
 		if (BOOLEAN_TYPE.equals(type))
 		{
-			return functionCall("ATOB", jsonValue);
+			return NatGenFunctions.jsonBooleanToLogical(jsonValue);
 		}
 
 		throw new UnsupportedOperationException("No value assignment implemented for type <%s>".formatted(type));
 	}
 
-	private VariableType inferNaturalType(Schema<?> schema)
-	{
-		if (schema.get$ref() != null)
-		{
-			return inferNaturalType(findSchemaByReference(schema.get$ref()));
-		}
-
-		var firstType = extractOpenApiType(schema);
-		return switch(firstType) {
-			case STRING_TYPE -> switch (schema.getFormat()) {
-				case DATE_FORMAT -> VariableType.date();
-				case UUID_FORMAT -> VariableType.alphanumeric(36);
-				case BINARY_FORMAT -> VariableType.binaryDynamic();
-				case BYTE_FORMAT -> VariableType.alphanumericDynamic();
-				case null, default -> schema.getMaxLength() != null
-					? VariableType.alphanumeric(schema.getMaxLength())
-					: VariableType.alphanumericDynamic();
-			};
-			case NUMBER_TYPE -> switch (schema.getFormat()) {
-				case DOUBLE_FORMAT, FLOAT_FORMAT -> VariableType.floating(8);
-				case null, default -> VariableType.integer(4);
-			};
-			case INTEGER_TYPE -> switch (schema.getFormat()) {
-				case INTEGER64_FORMAT -> VariableType.numeric(8);
-				case null, default -> VariableType.integer(4);
-			};
-			case BOOLEAN_TYPE -> VariableType.logical();
-			case OBJECT_TYPE -> VariableType.group();
-			default -> null;
-		};
-	}
-
-	private String extractOpenApiType(Schema<?> schema)
-	{
-		if (schema.get$ref() != null)
-		{
-			return extractOpenApiType(findSchemaByReference(schema.get$ref()));
-		}
-
-		return schema.getTypes().stream().findFirst().orElseThrow(() -> new IllegalStateException("Can not extract type from Schema %s".formatted(schema)));
-	}
-
-	private Schema<?> findSchemaByReference(String reference)
-	{
-		// Since we always flatten the spec, we assume we're looking
-		// for a component.
-		var splitReference = reference.split("/");
-		var componentKey = splitReference[splitReference.length - 1];
-		var referencedComponentSchema = spec.getComponents().getSchemas().get(componentKey);
-		if (referencedComponentSchema == null)
-		{
-			throw new IllegalStateException("Can not find referenced component with reference <%s>".formatted(reference));
-		}
-
-		return referencedComponentSchema;
-	}
 }
