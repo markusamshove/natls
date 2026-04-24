@@ -66,7 +66,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("deprecation")
 public class NaturalLanguageService implements LanguageClientAware
 {
 	private static final Logger log = Logger.getAnonymousLogger();
@@ -700,7 +699,10 @@ public class NaturalLanguageService implements LanguageClientAware
 		var renameFileChanges = willRenameFiles(List.of(new FileRename(params.getTextDocument().getUri(), newUri)));
 		for (Map.Entry<String, List<TextEdit>> stringListEntry : renameFileChanges.getChanges().entrySet())
 		{
-			var txtDocEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(stringListEntry.getKey(), 0), stringListEntry.getValue());
+			var txtDocEdit = new TextDocumentEdit(
+				new VersionedTextDocumentIdentifier(stringListEntry.getKey(), 0),
+				LspUtil.toLeftList(stringListEntry.getValue())
+			);
 			changes.add(Either.forLeft(txtDocEdit));
 		}
 
