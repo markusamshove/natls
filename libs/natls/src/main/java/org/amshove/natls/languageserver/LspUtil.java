@@ -255,12 +255,12 @@ public class LspUtil
 	/// Converts [java.util.List] of `L` to `Either<List<L, R>>`
 	public static <L, R> List<Either<L, R>> toLeftList(List<L> list)
 	{
-		return list.stream().map(e -> Either.<L, R> forLeft(e)).toList();
+		return list.stream().map(Either::<L, R>forLeft).toList();
 	}
 
 	/// Converts [java.util.List] of `R` to `Either<List<L, R>>`
 	public static <L, R> List<Either<L, R>> toRightList(List<R> list)
 	{
-		return list.stream().map(e -> Either.<L, R> forRight(e)).toList();
+		return list.stream().map(Either::<L, R>forRight).toList();
 	}
 }
