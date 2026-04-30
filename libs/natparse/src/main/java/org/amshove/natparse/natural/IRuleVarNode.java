@@ -1,4 +1,4 @@
 package org.amshove.natparse.natural;
 
-public interface IRuleVarNode extends IStatementNode
+public interface IRuleVarNode extends IStatementWithBodyNode
 {}
