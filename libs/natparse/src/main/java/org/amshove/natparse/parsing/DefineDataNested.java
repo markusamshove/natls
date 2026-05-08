@@ -20,7 +20,7 @@ import org.amshove.natparse.natural.VariableScope;
 import org.amshove.natparse.natural.ddm.IDdmField;
 import org.jspecify.annotations.Nullable;
 
-class DefineDataNested implements IDefineData
+class DefineDataNested extends BaseSyntaxNode implements IDefineData
 {
 
 	private IDefineData moduleDefine;
