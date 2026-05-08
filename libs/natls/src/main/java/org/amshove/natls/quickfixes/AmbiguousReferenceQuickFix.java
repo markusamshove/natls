@@ -21,7 +21,7 @@ public class AmbiguousReferenceQuickFix extends AbstractQuickFix
 	private List<CodeAction> fixAmbiguousReference(QuickFixContext quickFixContext)
 	{
 		var diagnostic = quickFixContext.diagnostic();
-		var messageParts = diagnostic.getMessage().split(":");
+		var messageParts = diagnostic.getMessage().getLeft().split(":");
 		var suggestionPart = messageParts[1];
 		var suggestions = extractSuggestions(suggestionPart);
 

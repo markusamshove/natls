@@ -90,7 +90,7 @@ class NaturalWorkspaceServiceShould extends EmptyProjectTest
 		// The subprogram is open and should have a diagnostic indicating that #VAR is not resolved
 		assertThat(getContext().client().getPublishedDiagnostics(subprogram))
 			.as("Unresolved Reference diagnostic should be present, because the variable is not declared")
-			.anyMatch(d -> d.getMessage().equals("Unresolved reference: #VAR"));
+			.anyMatch(d -> d.getMessage().getLeft().equals("Unresolved reference: #VAR"));
 
 		createOrSaveFileExternally("LIBONE", "MYLDA.NSL", """
 			DEFINE DATA LOCAL

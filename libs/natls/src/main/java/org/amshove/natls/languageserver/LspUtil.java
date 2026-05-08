@@ -8,11 +8,12 @@ import org.amshove.natparse.lexing.SyntaxToken;
 import org.amshove.natparse.natural.INaturalModule;
 import org.amshove.natparse.natural.ISyntaxNode;
 import org.eclipse.lsp4j.*;
-
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 public class LspUtil
 {
@@ -249,5 +250,17 @@ public class LspUtil
 			new Position(position.line(), position.offsetInLine()),
 			new Position(position.line(), position.offsetInLine())
 		);
+	}
+
+	/// Converts [java.util.List] of `L` to `Either<List<L, R>>`
+	public static <L, R> List<Either<L, R>> toLeftList(List<L> list)
+	{
+		return list.stream().map(Either::<L, R> forLeft).toList();
+	}
+
+	/// Converts [java.util.List] of `R` to `Either<List<L, R>>`
+	public static <L, R> List<Either<L, R>> toRightList(List<R> list)
+	{
+		return list.stream().map(Either::<L, R> forRight).toList();
 	}
 }

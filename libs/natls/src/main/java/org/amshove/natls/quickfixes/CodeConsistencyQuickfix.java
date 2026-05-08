@@ -18,7 +18,7 @@ public class CodeConsistencyQuickfix extends AbstractQuickFix
 	private CodeAction replaceTokenFix(QuickFixContext quickFixContext)
 	{
 		var oldToken = quickFixContext.tokenUnderCursor();
-		var newTokenKindName = quickFixContext.diagnostic().getMessage().split(" ")[1];
+		var newTokenKindName = quickFixContext.diagnostic().getMessage().getLeft().split(" ")[1];
 		var newTokenSource = newTokenKindName;
 
 		return new CodeActionBuilder("Replace %s with %s".formatted(oldToken.source(), newTokenSource), CodeActionKind.QuickFix)

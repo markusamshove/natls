@@ -47,7 +47,7 @@ public class BooleanOperatorQuickfix extends AbstractQuickFix
 
 		for (var diagnostic : diagnostics)
 		{
-			var message = diagnostic.getMessage();
+			var message = diagnostic.getMessage().getLeft();
 			var discouragedOperator = message.split(" ")[1];
 
 			var preferredOperator = OPERATOR_TRANSLATION.get(discouragedOperator);
@@ -75,7 +75,7 @@ public class BooleanOperatorQuickfix extends AbstractQuickFix
 	{
 		var diagnostic = quickFixContext.diagnostic();
 
-		var message = diagnostic.getMessage();
+		var message = diagnostic.getMessage().getLeft();
 		var discouragedOperator = message.split(" ")[1];
 
 		var preferredOperator = OPERATOR_TRANSLATION.get(discouragedOperator);
