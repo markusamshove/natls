@@ -194,6 +194,18 @@ public interface IDataType
 		return Math.max(1, (int) (Math.round((calculateNumericSize() + 1) / 2.0)));
 	}
 
+	/// Returns the precision (decimal part) of a numeric type.
+	/// Example: Calling this for `N12.7` will return 7.
+	default int numericPrecision()
+	{
+		if (isFloating())
+		{
+			return calculateDigitsAfterDecimalPoint();
+		}
+
+		return 0;
+	}
+
 	private int calculateDigitsAfterDecimalPoint()
 	{
 		return Integer.parseInt((Double.toString(length()).split("\\.")[1]));
