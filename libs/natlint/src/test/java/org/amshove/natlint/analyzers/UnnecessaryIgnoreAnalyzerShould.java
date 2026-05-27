@@ -1,6 +1,7 @@
 package org.amshove.natlint.analyzers;
 
 import org.amshove.natlint.linter.AbstractAnalyzerTest;
+import org.amshove.natparse.parsing.ParserError;
 import org.junit.jupiter.api.Test;
 
 class UnnecessaryIgnoreAnalyzerShould extends AbstractAnalyzerTest
@@ -58,7 +59,7 @@ class UnnecessaryIgnoreAnalyzerShould extends AbstractAnalyzerTest
 	}
 
 	@Test
-	void reportNoDiagnosticIfIgnoreIsNeccessaryInDecideBlcosk()
+	void reportNoDiagnosticIfIgnoreIsNeccessaryInDecideBlock()
 	{
 		testDiagnostics(
 			"""
@@ -77,6 +78,78 @@ class UnnecessaryIgnoreAnalyzerShould extends AbstractAnalyzerTest
 				END-DECIDE
 				END
 				""",
+			expectNoDiagnosticOfType(UnnecessaryIgnoreAnalyzer.UNNECESSARY_IGNORE)
+		);
+	}
+
+	@Test
+	void reportNoDiagnsticIfIgnoreIsNeccessaryToSeparateFromCallnat()
+	{
+		allowParserError(ParserError.UNRESOLVED_MODULE);
+		testDiagnostics(
+			"""
+				DEFINE DATA LOCAL
+				1 #VAR (N1)
+				END-DEFINE
+				CALLNAT 'SUB2'
+				IGNORE
+				FUNC(<>)
+				END
+			""",
+			expectNoDiagnosticOfType(UnnecessaryIgnoreAnalyzer.UNNECESSARY_IGNORE)
+		);
+	}
+
+	@Test
+	void reportNoDiagnsticIfIgnoreIsNeccessaryToSeparateFromPerformInternal()
+	{
+		allowParserError(ParserError.UNRESOLVED_MODULE);
+		testDiagnostics(
+			"""
+				DEFINE DATA LOCAL
+				1 #VAR (N1)
+				END-DEFINE
+				PERFORM INTERNAL-SUB
+				IGNORE
+				FUNC(<>)
+				END
+			""",
+			expectNoDiagnosticOfType(UnnecessaryIgnoreAnalyzer.UNNECESSARY_IGNORE)
+		);
+	}
+
+	@Test
+	void reportNoDiagnsticIfIgnoreIsNeccessaryToSeparateFromPerformExternal()
+	{
+		allowParserError(ParserError.UNRESOLVED_MODULE);
+		testDiagnostics(
+			"""
+				DEFINE DATA LOCAL
+				1 #VAR (N1)
+				END-DEFINE
+				PERFORM INTERNAL-SUB #VAR
+				IGNORE
+				FUNC(<>)
+				END
+			""",
+			expectNoDiagnosticOfType(UnnecessaryIgnoreAnalyzer.UNNECESSARY_IGNORE)
+		);
+	}
+
+	@Test
+	void reportNoDiagnsticIfIgnoreIsNeccessaryToSeparateFromReset()
+	{
+		allowParserError(ParserError.UNRESOLVED_MODULE);
+		testDiagnostics(
+			"""
+				DEFINE DATA LOCAL
+				1 #VAR (N1)
+				END-DEFINE
+				RESET #VAR
+				IGNORE
+				FUNC(<>)
+				END
+			""",
 			expectNoDiagnosticOfType(UnnecessaryIgnoreAnalyzer.UNNECESSARY_IGNORE)
 		);
 	}
