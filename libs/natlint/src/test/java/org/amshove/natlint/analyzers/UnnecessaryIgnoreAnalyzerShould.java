@@ -3,6 +3,8 @@ package org.amshove.natlint.analyzers;
 import org.amshove.natlint.linter.AbstractAnalyzerTest;
 import org.amshove.natparse.parsing.ParserError;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class UnnecessaryIgnoreAnalyzerShould extends AbstractAnalyzerTest
 {
@@ -82,74 +84,32 @@ class UnnecessaryIgnoreAnalyzerShould extends AbstractAnalyzerTest
 		);
 	}
 
-	@Test
-	void reportNoDiagnsticIfIgnoreIsNeccessaryToSeparateFromCallnat()
+	@ParameterizedTest
+	@ValueSource(strings =
 	{
-		allowParserError(ParserError.UNRESOLVED_MODULE);
-		testDiagnostics(
-			"""
-				DEFINE DATA LOCAL
-				1 #VAR (N1)
-				END-DEFINE
-				CALLNAT 'SUB2'
-				IGNORE
-				FUNC(<>)
-				END
-			""",
-			expectNoDiagnosticOfType(UnnecessaryIgnoreAnalyzer.UNNECESSARY_IGNORE)
-		);
-	}
+		"CALLNAT 'SUB2'",
+		"CALLNAT 'SUB2' #VAR",
+		"PERFORM INTERNAL-SUB",
+		"PERFORM EXTERNAL-SUB #VAR",
+		"RESET #VAR",
+		"RESET INITIAL #VAR"
+	})
+	void reportNoDiagnsticIfIgnoreIsNeccessaryToSeparatePossibleOperandListsFromFunctionCalls(String previousStatement)
+	{
+		// The developer does not intend to have the function call as argument to the operand list.
+		// To separate those two, an IGNORE statement is neccessary.
 
-	@Test
-	void reportNoDiagnsticIfIgnoreIsNeccessaryToSeparateFromPerformInternal()
-	{
 		allowParserError(ParserError.UNRESOLVED_MODULE);
 		testDiagnostics(
 			"""
 				DEFINE DATA LOCAL
 				1 #VAR (N1)
 				END-DEFINE
-				PERFORM INTERNAL-SUB
+				%s
 				IGNORE
 				FUNC(<>)
 				END
-			""",
-			expectNoDiagnosticOfType(UnnecessaryIgnoreAnalyzer.UNNECESSARY_IGNORE)
-		);
-	}
-
-	@Test
-	void reportNoDiagnsticIfIgnoreIsNeccessaryToSeparateFromPerformExternal()
-	{
-		allowParserError(ParserError.UNRESOLVED_MODULE);
-		testDiagnostics(
-			"""
-				DEFINE DATA LOCAL
-				1 #VAR (N1)
-				END-DEFINE
-				PERFORM INTERNAL-SUB #VAR
-				IGNORE
-				FUNC(<>)
-				END
-			""",
-			expectNoDiagnosticOfType(UnnecessaryIgnoreAnalyzer.UNNECESSARY_IGNORE)
-		);
-	}
-
-	@Test
-	void reportNoDiagnsticIfIgnoreIsNeccessaryToSeparateFromReset()
-	{
-		allowParserError(ParserError.UNRESOLVED_MODULE);
-		testDiagnostics(
-			"""
-				DEFINE DATA LOCAL
-				1 #VAR (N1)
-				END-DEFINE
-				RESET #VAR
-				IGNORE
-				FUNC(<>)
-				END
-			""",
+			""".formatted(previousStatement),
 			expectNoDiagnosticOfType(UnnecessaryIgnoreAnalyzer.UNNECESSARY_IGNORE)
 		);
 	}
