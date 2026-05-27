@@ -48,7 +48,7 @@ public class UnnecessaryIgnoreAnalyzer extends AbstractAnalyzer
 		var statementList = parent.statements();
 		var ignoreStatementIndex = parent.statements().indexOf(ignore);
 
-		// The IGNORE might be neccessary as a spearator between e.g. a CALLNAT and a function call,
+		// The IGNORE might be neccessary as a separator between e.g. a CALLNAT and a function call,
 		// so that the function call is not interpreted as an argument to the callnat. The Natural
 		// compiler also does not catch this case and needs an IGNORE in between.
 		if (ignoreSeparatesOperandListFromOperand(statementList, ignoreStatementIndex))
