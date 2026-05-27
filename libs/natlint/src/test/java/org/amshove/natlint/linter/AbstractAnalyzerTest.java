@@ -1,5 +1,17 @@
 package org.amshove.natlint.linter;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.amshove.natlint.api.AbstractAnalyzer;
 import org.amshove.natlint.api.DiagnosticDescription;
 import org.amshove.natlint.api.LinterDiagnostic;
@@ -12,6 +24,7 @@ import org.amshove.natparse.natural.INaturalModule;
 import org.amshove.natparse.natural.project.NaturalFile;
 import org.amshove.natparse.natural.project.NaturalFileType;
 import org.amshove.natparse.parsing.NaturalParser;
+import org.amshove.natparse.parsing.ParserError;
 import org.amshove.testhelpers.IntegrationTest;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -19,19 +32,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.io.TempDir;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @IntegrationTest
 public abstract class AbstractAnalyzerTest
@@ -173,6 +173,11 @@ public abstract class AbstractAnalyzerTest
 	protected void allowParserError(String id)
 	{
 		allowedParserErrors.add(id);
+	}
+
+	protected void allowParserError(ParserError error)
+	{
+		allowParserError(error.id());
 	}
 
 	protected DiagnosticAssertion expectDiagnostic(int line, DiagnosticDescription description)
