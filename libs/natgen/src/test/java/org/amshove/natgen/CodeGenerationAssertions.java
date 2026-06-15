@@ -1,14 +1,14 @@
 package org.amshove.natgen;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
+import java.util.stream.Stream;
 import org.amshove.natgen.generatable.definedata.IGeneratableDefineDataElement;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natgen.generators.DefineDataGenerator;
 import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.NonNull;
-
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class CodeGenerationAssertions
 {
@@ -75,8 +75,10 @@ public class CodeGenerationAssertions
 	public CodeGenerationAssertions generatedStatementSourceContains(String expectedSource)
 	{
 		var builder = generateStatementsIntoBuilder();
-		assertThat(builder.toString())
-			.contains(expectedSource);
+		var normalizedExpectation = expectedSource.replaceAll("\\r?\\n", "\n");
+		var normalizedCode = builder.toString().replaceAll("\\r?\\n", "\n");
+		assertThat(normalizedCode)
+			.contains(normalizedExpectation);
 		return this;
 	}
 
