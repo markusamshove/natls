@@ -29,7 +29,7 @@ public class Conditions
 		return new PlainConditional("NOT %s".formatted(conditional.generate()));
 	}
 
-	public static IConditional equal(IGeneratable lhs, IGeneratable rhs)
+	public static IConditional _equal(IGeneratable lhs, IGeneratable rhs)
 	{
 		return new PlainConditional("%s = %s".formatted(lhs.generate(), rhs.generate()));
 	}

@@ -1,24 +1,23 @@
 package org.amshove.natgen.generatable;
 
+import java.util.Arrays;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.DecideOn.DecideOnValueCheck;
 import org.amshove.natgen.generatable.conditions.IConditional;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natgen.generators.DefineDataGenerator;
-import org.amshove.natgen.VariableType;
-import org.amshove.natgen.generatable.DecideOn.DecideOnValueCheck;
 import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
 @NullMarked
 public class NaturalCode implements IGeneratable
 {
-	private final String code;
+	private final @Nullable String code;
 	private final @Nullable Supplier<String> lazyCode;
 
 	private NaturalCode(String code)

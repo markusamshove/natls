@@ -1,21 +1,28 @@
 package org.amshove.natgen.generators;
 
+import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
+import static org.amshove.natgen.NaturalOpenApi.*;
+import static org.amshove.natgen.generatable.NaturalCode.*;
+
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
-import org.amshove.natgen.*;
-import org.amshove.natgen.generatable.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.IStatementAddable;
+import org.amshove.natgen.IVariableAddable;
+import org.amshove.natgen.NaturalOpenApi;
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.Compress;
+import org.amshove.natgen.generatable.IGeneratable;
+import org.amshove.natgen.generatable.IGeneratableStatement;
+import org.amshove.natgen.generatable.NatGenFunctions;
+import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.conditions.Conditions;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
-import static org.amshove.natgen.NaturalOpenApi.*;
-import static org.amshove.natgen.generatable.NaturalCode.*;
 
 public class CompressJsonFromOpenApiGenerator
 {
@@ -184,7 +191,7 @@ public class CompressJsonFromOpenApiGenerator
 
 				if (isNullable(schema))
 				{
-					var ifStatement = _if(Conditions.equal(sourceAccess, stringLiteral(" ")));
+					var ifStatement = _if(Conditions._equal(sourceAccess, stringLiteral(" ")));
 					ifStatement.addStatement(newCompressOutsideContext().withOperand(stringLiteral("null")))
 						._else()
 						.addStatement(stringCompress);

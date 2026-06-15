@@ -1,13 +1,13 @@
 package org.amshove.natgen.generatable;
 
+import static org.amshove.natgen.generatable.NaturalCode.*;
+import static org.amshove.natgen.generatable.conditions.Conditions.*;
+
 import org.amshove.natgen.CodeGenerationTest;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;
-
-import static org.amshove.natgen.generatable.NaturalCode.*;
-import static org.amshove.natgen.generatable.conditions.Conditions.*;
 
 class IfGenerationShould extends CodeGenerationTest
 {
@@ -85,7 +85,7 @@ class IfGenerationShould extends CodeGenerationTest
 	{
 		var lhs = new Variable(1, VariableScope.LOCAL, "#VAR1", VariableType.alphanumericDynamic());
 		var rhs = new Variable(1, VariableScope.LOCAL, "#VAR2", VariableType.alphanumericDynamic());
-		assertGenerated(_if(equal(lhs, rhs)), """
+		assertGenerated(_if(_equal(lhs, rhs)), """
 			IF #VAR1 = #VAR2
 			  IGNORE
 			END-IF""");
