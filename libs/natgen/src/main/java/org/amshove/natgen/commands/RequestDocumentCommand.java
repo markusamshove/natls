@@ -1,25 +1,29 @@
 package org.amshove.natgen.commands;
 
 import io.swagger.parser.OpenAPIParser;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.PathItem.HttpMethod;
 import io.swagger.v3.parser.core.models.ParseOptions;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.concurrent.Callable;
 import org.amshove.natgen.CliOutput;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.NatGen;
+import org.amshove.natgen.NaturalGenerationException;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generators.ModuleGenerator;
 import org.amshove.natgen.generators.RequestDocumentForOpenApiGenerator;
 import org.amshove.natparse.natural.VariableScope;
 import org.amshove.natparse.natural.project.NaturalFileType;
 import picocli.CommandLine;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Objects;
-import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "request-document")
 public class RequestDocumentCommand implements Callable<Integer>
@@ -37,6 +41,8 @@ public class RequestDocumentCommand implements Callable<Integer>
 
 	@CommandLine.Option(names = "--output-dir", description = "Path to the directory where generated modules are saved")
 	Path outputDirectory;
+
+	private int currentModuleNumber = 1;
 
 	@Override
 	public Integer call() throws Exception
@@ -62,62 +68,71 @@ public class RequestDocumentCommand implements Callable<Integer>
 			}
 		}
 
-		var moduleNumberCharacterAmount = 8 - moduleBaseName.length() - 1; // 1 = suffix
+		var moduleNumberCharacterAmount = 8 - moduleBaseName.length() - 1; // 1 = suffix I, O, ..
 		var moduleNameFormat = moduleBaseName + "%0" + moduleNumberCharacterAmount + "d";
-		var currentModuleNumber = 1;
 
 		for (var path : openApi.getPaths().entrySet())
 		{
 			for (var httpMethodOperation : path.getValue().readOperationsMap().entrySet())
 			{
-				var theMethod = httpMethodOperation.getKey().toString();
-				var theOperation = httpMethodOperation.getValue();
-				// TODO: Validate possible number of modules according to paths/operations
-				var moduleName = String.format(moduleNameFormat, currentModuleNumber++);
-
-				var inputPdaContext = new CodeGenerationContext();
-				var inputPdaName = moduleName + "I";
-				var inputPdaGroup = inputPdaContext.addVariable(VariableScope.LOCAL, inputPdaName, VariableType.group());
-
-				var outputPdaContext = new CodeGenerationContext();
-				var outputPdaName = moduleName + "O";
-				var outputPdaGroup = outputPdaContext.addVariable(VariableScope.LOCAL, outputPdaName, VariableType.group());
-
-				var settings = new RequestDocumentForOpenApiGenerator.Settings();
-				settings.setRequestBodyRootGroup(inputPdaGroup);
-				settings.setResponseBodyRootGroup(outputPdaGroup);
-				var subprogramContext = new RequestDocumentForOpenApiGenerator(openApi, settings)
-					.generate(theMethod, path.getKey(), theOperation);
-
-				var moduleGenerator = new ModuleGenerator();
-
-				addOpenApiDocumentation(moduleGenerator, theOperation, theMethod, path.getKey());
-				addGeneratorComment(moduleGenerator);
-
-				// TODO: Add a test that checks that input pda was generated
-				if (!inputPdaGroup.children().isEmpty())
+				try
 				{
-					var pdaPath = outputDirectory.resolve(inputPdaName + ".NSA");
-					generatePda(subprogramContext, inputPdaName, pdaPath, moduleGenerator, inputPdaContext);
-					output.info("%s %s => %s", theMethod, path.getKey(), pdaPath);
+					generateHttpMethod(openApi, moduleNameFormat, path, httpMethodOperation);
 				}
-
-				if (!outputPdaGroup.children().isEmpty())
+				catch (NaturalGenerationException e)
 				{
-					var pdaPath = outputDirectory.resolve(outputPdaName + ".NSA");
-					generatePda(subprogramContext, outputPdaName, pdaPath, moduleGenerator, outputPdaContext);
-					output.info("%s %s => %s", theMethod, path.getKey(), pdaPath);
+					output.error("ERROR on %s %s (skipping): %s", httpMethodOperation.getKey(), path.getKey(), e.getMessage());
 				}
-
-				var generatedModule = moduleGenerator.generate(subprogramContext, NaturalFileType.SUBPROGRAM);
-				var subprogramPath = outputDirectory.resolve(moduleName + "N.NSN");
-				output.info("%s %s => %s", theMethod, path.getKey(), subprogramPath);
-
-				Files.writeString(subprogramPath, generatedModule, StandardCharsets.UTF_8);
 			}
 		}
 
 		return 0;
+	}
+
+	private void generateHttpMethod(OpenAPI openApi, String moduleNameFormat, Entry<String, PathItem> path, Entry<HttpMethod, Operation> httpMethodOperation) throws IOException
+	{
+		var theMethod = httpMethodOperation.getKey().toString();
+		var theOperation = httpMethodOperation.getValue();
+		var moduleName = String.format(moduleNameFormat, currentModuleNumber++);
+
+		var inputPdaContext = new CodeGenerationContext();
+		var inputPdaName = moduleName + "I";
+		var inputPdaGroup = inputPdaContext.addVariable(VariableScope.LOCAL, inputPdaName, VariableType.group());
+
+		var outputPdaContext = new CodeGenerationContext();
+		var outputPdaName = moduleName + "O";
+		var outputPdaGroup = outputPdaContext.addVariable(VariableScope.LOCAL, outputPdaName, VariableType.group());
+
+		var settings = new RequestDocumentForOpenApiGenerator.Settings();
+		settings.setRequestBodyRootGroup(inputPdaGroup);
+		settings.setResponseBodyRootGroup(outputPdaGroup);
+		var subprogramContext = new RequestDocumentForOpenApiGenerator(openApi, settings)
+			.generate(theMethod, path.getKey(), theOperation);
+
+		var moduleGenerator = new ModuleGenerator();
+
+		addOpenApiDocumentation(moduleGenerator, theOperation, theMethod, path.getKey());
+		addGeneratorComment(moduleGenerator);
+
+		if (!inputPdaGroup.children().isEmpty())
+		{
+			var pdaPath = outputDirectory.resolve(inputPdaName + ".NSA");
+			generatePda(subprogramContext, inputPdaName, pdaPath, moduleGenerator, inputPdaContext);
+			output.info("%s %s => %s", theMethod, path.getKey(), pdaPath);
+		}
+
+		if (!outputPdaGroup.children().isEmpty())
+		{
+			var pdaPath = outputDirectory.resolve(outputPdaName + ".NSA");
+			generatePda(subprogramContext, outputPdaName, pdaPath, moduleGenerator, outputPdaContext);
+			output.info("%s %s => %s", theMethod, path.getKey(), pdaPath);
+		}
+
+		var generatedModule = moduleGenerator.generate(subprogramContext, NaturalFileType.SUBPROGRAM);
+		var subprogramPath = outputDirectory.resolve(moduleName + "N.NSN");
+		output.info("%s %s => %s", theMethod, path.getKey(), subprogramPath);
+
+		Files.writeString(subprogramPath, generatedModule, StandardCharsets.UTF_8);
 	}
 
 	private void generatePda(

@@ -1,9 +1,12 @@
 package org.amshove.natgen.generators;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import org.amshove.natgen.CodeGenerationTest;
+import org.amshove.natgen.NaturalGenerationException;
 import org.amshove.natgen.VariableType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -169,7 +172,7 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 				COMPRESS ##JSON-BODY H'22' #P-BODY.#DESCRIPTION H'22' INTO ##JSON-BODY LEAVING NO SPACE
 				COMPRESS ##JSON-BODY '}' INTO ##JSON-BODY LEAVING NO SPACE
 				SET GLOBALS DC=##PREVIOUS-DC
-				
+
 				REQUEST DOCUMENT FROM ##REQUEST.#URL
 				  WITH
 				    HEADER
@@ -180,6 +183,71 @@ class RequestDocumentForOpenApiGeneratorShould extends CodeGenerationTest
 				    PAGE ##RESPONSE.#BODY
 				    RESPONSE ##RESPONSE.#CODE
 				""");
+	}
+
+	@Test
+	void shouldThrowAnExceptionOnUnsupportedRequestBodyContentTypes()
+	{
+		var openApiSpec = """
+openapi: 3.1.0
+paths:
+  /weather:
+    post:
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              type: number
+        required: true
+info:
+  title: api API
+  version: 1.0.0
+			""";
+
+		var options = new ParseOptions();
+		options.setFlatten(true);
+		var parser = new OpenAPIParser();
+		var parseResult = parser.readContents(openApiSpec, null, options);
+		var thisOpenApi = parseResult.getOpenAPI();
+
+		var path = thisOpenApi.getPaths().get("/weather");
+		var operation = path.getPost();
+		assertThatThrownBy(() -> sut.generate("POST", "/weather", operation))
+			.isInstanceOf(NaturalGenerationException.class)
+			.hasMessage("Content-Type application/xml for request body not supported (POST /weather)");
+	}
+
+	@Test
+	void shouldThrowAnExceptionOnUnsupportedResponseBodyContentTypes()
+	{
+		var openApiSpec = """
+openapi: 3.1.0
+paths:
+  /weather:
+    get:
+      responses:
+        "200":
+          description: OK
+          content:
+            application/xml:
+              schema:
+                type: number
+info:
+  title: api API
+  version: 1.0.0
+			""";
+
+		var options = new ParseOptions();
+		options.setFlatten(true);
+		var parser = new OpenAPIParser();
+		var parseResult = parser.readContents(openApiSpec, null, options);
+		var thisOpenApi = parseResult.getOpenAPI();
+
+		var path = thisOpenApi.getPaths().get("/weather");
+		var operation = path.getGet();
+		assertThatThrownBy(() -> sut.generate("GET", "/weather", operation))
+			.isInstanceOf(NaturalGenerationException.class)
+			.hasMessage("Content-Type application/xml for response body not supported (GET /weather)");
 	}
 
 	@BeforeAll

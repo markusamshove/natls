@@ -1,22 +1,26 @@
 package org.amshove.natgen.generators;
 
+import static org.amshove.natgen.NaturalOpenApi.*;
+import static org.amshove.natgen.generatable.NaturalCode.*;
+import static org.amshove.natgen.generatable.conditions.Conditions.specified;
+
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import java.util.Objects;
 import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.NaturalGenerationException;
 import org.amshove.natgen.VariableType;
-import org.amshove.natgen.generatable.*;
+import org.amshove.natgen.generatable.IGeneratable;
+import org.amshove.natgen.generatable.NatGenFunctions;
+import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natgen.generatable.RequestDocument;
+import org.amshove.natgen.generatable.Subroutine;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.DataFormat;
 import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.Nullable;
-
-import java.util.Objects;
-
-import static org.amshove.natgen.NaturalOpenApi.*;
-import static org.amshove.natgen.generatable.NaturalCode.*;
-import static org.amshove.natgen.generatable.conditions.Conditions.specified;
 
 public class RequestDocumentForOpenApiGenerator
 {
@@ -81,9 +85,7 @@ public class RequestDocumentForOpenApiGenerator
 			.withMethod(stringLiteral(method));
 
 		addRequestParameter(context, requestDocument, builtRequestUrl, operation);
-		addRequestBody(context, requestDocument, operation.getRequestBody());
-
-		//		addRequestContentType(requestDocument, operation);
+		addRequestBody(context, method, path, requestDocument, operation.getRequestBody());
 
 		requestDocument.withResponseBody(responseBody);
 
@@ -93,13 +95,10 @@ public class RequestDocumentForOpenApiGenerator
 		context.addStatement(emptyLine());
 
 		var decideOnResponse = decideOnFirst(responseCode);
-		//		decideOnResponse
-		//			.onNoneValue()
-		//			.addToBody();
 		context.addStatement(decideOnResponse).addStatement(emptyLine());
 		for (var response : operation.getResponses().entrySet())
 		{
-			var subroutine = createResponseSubroutine(response.getKey(), response.getValue(), context, responseBody);
+			var subroutine = createResponseSubroutine(response.getKey(), response.getValue(), method, path, context, responseBody);
 			context.addStatement(subroutine);
 			decideOnResponse
 				.addBranch(numberLiteral(response.getKey()))
@@ -173,7 +172,7 @@ public class RequestDocumentForOpenApiGenerator
 		}
 	}
 
-	private void addRequestBody(CodeGenerationContext context, RequestDocument requestDocument, RequestBody requestBody)
+	private void addRequestBody(CodeGenerationContext context, String method, String path, RequestDocument requestDocument, RequestBody requestBody)
 	{
 		if (requestBody == null)
 		{
@@ -184,8 +183,7 @@ public class RequestDocumentForOpenApiGenerator
 		var contentType = contentEntry.getKey();
 		if (!contentType.equals("application/json"))
 		{
-			// TODO: Diagnostic on unsupported content types?
-			return;
+			throw new NaturalGenerationException("Content-Type %s for request body not supported (%s %s)".formatted(contentType, method, path));
 		}
 
 		var content = contentEntry.getValue();
@@ -233,6 +231,7 @@ public class RequestDocumentForOpenApiGenerator
 
 	private Subroutine createResponseSubroutine(
 		String responseCode, ApiResponse response,
+		String method, String path,
 		CodeGenerationContext context,
 		Variable responseBody
 	)
@@ -245,45 +244,44 @@ public class RequestDocumentForOpenApiGenerator
 		}
 
 		var responseContent = response.getContent().firstEntry();
-		var mediaType = responseContent.getKey();
-		if (mediaType.equals("application/json"))
-		{
-			var schema = resolveSchema(responseContent.getValue().getSchema(), openApi);
-			var schemaName = resolveSchemaName(responseContent.getValue().getSchema(), "Inlineresponse");
-			var settings = new ParseJsonGenerator.Settings();
-			settings.setParsingGroupName("##PARSE-" + responseCode);
-			settings.setJsonSourceVariable(responseBody);
-			if (this.settings.responseBodyRootGroup != null)
-			{
-				settings.setParsedJsonRoot(
-					this.settings.responseBodyRootGroup.addVariable("#RESPONSE-" + responseCode, VariableType.group())
-				);
-			}
-			else
-			{
-				settings.setParsedJsonGroupName("#RESPONSE-" + responseCode);
-			}
-			var generator = ParseJsonGenerator.forOpenAPISchema(
-				openApi,
-				schemaName,
-				schema,
-				settings
-			);
-			var parseJsonContext = generator.generate();
+		var contentType = responseContent.getKey();
 
-			context.consumeExceptStatements(parseJsonContext);
-			subroutine.addStatements(parseJsonContext.statements());
+		switch (contentType)
+		{
+			case "application/json" ->
+			{
+				var schema = resolveSchema(responseContent.getValue().getSchema(), openApi);
+				var schemaName = resolveSchemaName(responseContent.getValue().getSchema(), "Inlineresponse");
+				var settings = new ParseJsonGenerator.Settings();
+				settings.setParsingGroupName("##PARSE-" + responseCode);
+				settings.setJsonSourceVariable(responseBody);
+				if (this.settings.responseBodyRootGroup != null)
+				{
+					settings.setParsedJsonRoot(
+						this.settings.responseBodyRootGroup.addVariable("#RESPONSE-" + responseCode, VariableType.group())
+					);
+				}
+				else
+				{
+					settings.setParsedJsonGroupName("#RESPONSE-" + responseCode);
+				}
+				var generator = ParseJsonGenerator.forOpenAPISchema(
+					openApi,
+					schemaName,
+					schema,
+					settings
+				);
+				var parseJsonContext = generator.generate();
+
+				context.consumeExceptStatements(parseJsonContext);
+				subroutine.addStatements(parseJsonContext.statements());
+			}
+			default ->
+			{
+				throw new NaturalGenerationException("Content-Type %s for response body not supported (%s %s)".formatted(contentType, method, path));
+			}
 		}
 
 		return subroutine;
-	}
-
-	private void addRequestContentType(RequestDocument requestDocument, Operation operation)
-	{
-		if (operation.getResponses().isEmpty())
-		{
-			return;
-		}
-
 	}
 }

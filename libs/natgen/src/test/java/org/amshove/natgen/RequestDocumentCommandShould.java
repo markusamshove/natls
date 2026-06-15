@@ -54,7 +54,7 @@ class RequestDocumentCommandShould extends NatGenTest
 			      - Weatherforecast
 			      - GET request
 			info:
-			
+
 			""");
 
 		assertRunsSuccessful("request-document", yamlPath.toString(), "--base-name", "FORE", "--output-dir", workingDirectory.toString());
