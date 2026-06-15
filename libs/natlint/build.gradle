@@ -69,6 +69,7 @@ mavenPublishing {
 }
 
 signing {
+    required { !gradle.startParameter.taskNames.contains('publishToMavenLocal') }
     def signingKey = findProperty("signingKey")
     def signingPassword = findProperty("signingPassword")
     useInMemoryPgpKeys(signingKey, signingPassword)

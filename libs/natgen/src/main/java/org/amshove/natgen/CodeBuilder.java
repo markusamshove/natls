@@ -111,6 +111,22 @@ public final class CodeBuilder
 		return this;
 	}
 
+	/// Append a whitespace or break the line if max line length has been exceeded.
+	/// Returns `true` if a linebreak and indentation did happen.
+	public boolean spaceOrBreakAndIndent()
+	{
+
+		if (currentLineLength + 1 >= MAX_LINE_LENGTH)
+		{
+			lineBreak();
+			indent();
+			return true;
+		}
+
+		code.append(" ");
+		return false;
+	}
+
 	/// Increases the indentation level by one
 	public CodeBuilder indent()
 	{

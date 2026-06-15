@@ -36,7 +36,7 @@ class DecideOnGenerationShould extends CodeGenerationTest
 
 		var branch = decideOn
 			.addBranch(NaturalCode.plain("'A'"), NaturalCode.plain("'B'"));
-		branch.addToBody(NaturalCode.plainStatement("WRITE 'Matched A or B'"));
+		branch.addStatement(NaturalCode.plainStatement("WRITE 'Matched A or B'"));
 
 		assertGenerated(decideOn, """
                 DECIDE ON EVERY VALUE OF #VAR
@@ -54,11 +54,11 @@ class DecideOnGenerationShould extends CodeGenerationTest
 
 		var branchA = decideOn
 			.addBranch(NaturalCode.plain("'A'"));
-		branchA.addToBody(NaturalCode.plainStatement("WRITE 'Matched A'"));
+		branchA.addStatement(NaturalCode.plainStatement("WRITE 'Matched A'"));
 
 		var branchB = decideOn
 			.addBranch(NaturalCode.plain("'B'"));
-		branchB.addToBody(NaturalCode.plainStatement("WRITE 'Matched B'"));
+		branchB.addStatement(NaturalCode.plainStatement("WRITE 'Matched B'"));
 
 		assertGenerated(decideOn, """
                 DECIDE ON FIRST VALUE OF #VAR
@@ -77,7 +77,7 @@ class DecideOnGenerationShould extends CodeGenerationTest
 		var decide = NaturalCode.decideOnFirst(NaturalCode.plain("#VAR"));
 
 		decide.onNoneValue()
-			.addToBody(NaturalCode.plainStatement("WRITE 'No match'"));
+			.addStatement(NaturalCode.plainStatement("WRITE 'No match'"));
 
 		assertGenerated(decide, """
                 DECIDE ON FIRST VALUE OF #VAR
@@ -92,9 +92,9 @@ class DecideOnGenerationShould extends CodeGenerationTest
 		var decide = NaturalCode.decideOnFirst(NaturalCode.plain("#VAR"));
 
 		decide.onAnyValue()
-			.addToBody(NaturalCode.plainStatement("WRITE 'Got something in ANY'"));
+			.addStatement(NaturalCode.plainStatement("WRITE 'Got something in ANY'"));
 		decide.onAllValues()
-			.addToBody(NaturalCode.plainStatement("WRITE 'Got something in ALL'"));
+			.addStatement(NaturalCode.plainStatement("WRITE 'Got something in ALL'"));
 
 		assertGenerated(decide, """
                 DECIDE ON FIRST VALUE OF #VAR

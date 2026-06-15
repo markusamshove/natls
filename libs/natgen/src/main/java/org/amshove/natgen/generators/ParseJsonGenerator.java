@@ -1,17 +1,16 @@
 package org.amshove.natgen.generators;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.Schema;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn;
 import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
+import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.amshove.natgen.generatable.NaturalCode.*;
@@ -23,8 +22,12 @@ public abstract class ParseJsonGenerator
 		public static final String DEFAULT_PARSED_JSON_GROUP_NAME = "##PARSED-JSON";
 		private String parsedJsonGroupName = DEFAULT_PARSED_JSON_GROUP_NAME;
 		private VariableScope jsonSourceScope = VariableScope.LOCAL;
+		private @Nullable Variable parsedJsonRoot;
+		private @Nullable Variable jsonSourceVariable;
+		private String parsingGroupName = "##JSON-PARSING";
 
 		/// Overwrite the group name for the parsed JSON. Default is `##PARSED-JSON`.
+		/// Has no effect when [#setParsedJsonRoot(Variable)] was set.
 		public void setParsedJsonGroupName(String name)
 		{
 			parsedJsonGroupName = name;
@@ -44,6 +47,26 @@ public abstract class ParseJsonGenerator
 		public VariableScope jsonSourceScope()
 		{
 			return jsonSourceScope;
+		}
+
+		/// Sets the variable which is used to add new variables for parsed data to.
+		/// Can live outside the created context.
+		public void setParsedJsonRoot(@Nullable Variable root)
+		{
+			this.parsedJsonRoot = root;
+		}
+
+		/// Set the name for the group variable which contains all the parsing relevant
+		/// variables. Might be useful if a context will contain multiple `PARSE JSON` statements
+		public void setParsingGroupName(String name)
+		{
+			this.parsingGroupName = name;
+		}
+
+		/// Set the variable that contains the JSON source (the literal JSON document string)
+		public void setJsonSourceVariable(@Nullable Variable jsonSourceVariable)
+		{
+			this.jsonSourceVariable = jsonSourceVariable;
 		}
 	}
 
@@ -72,24 +95,35 @@ public abstract class ParseJsonGenerator
 		return new ParseJsonFromJsonGenerator(rawJson, settings);
 	}
 
-	/// Create a `PARSE JSON` generator which uses an OpenAPI spec as basis.
+	/// Create a `PARSE JSON` generator which uses an OpenAPI spec as basis searching for the given `schemaName`.
 	public static ParseJsonGenerator forOpenAPISchema(OpenAPI spec, String schemaName, Settings settings)
 	{
 		return new ParseJsonFromOpenApiSchemaGenerator(spec, schemaName, settings);
+	}
+
+	/// Create a `PARSE JSON` generator which uses an OpenAPI spec as basis for a given schema.
+	public static ParseJsonGenerator forOpenAPISchema(OpenAPI spec, String schemaName, Schema<?> schema, Settings settings)
+	{
+		return new ParseJsonFromOpenApiSchemaGenerator(spec, schemaName, schema, settings);
 	}
 
 	/// Creates a [CodeGenerationContext] which contains all variables and a single `PARSE JSON`
 	public CodeGenerationContext generate()
 	{
 		var context = new CodeGenerationContext();
-		jsonParsingGroup = context.addVariable(new Variable(1, VariableScope.LOCAL, "##JSON-PARSING", VariableType.group()));
+		jsonParsingGroup = context.addVariable(new Variable(1, VariableScope.LOCAL, settings.parsingGroupName, VariableType.group()));
 		var jsonPath = jsonParsingGroup.addVariable("#PATH", VariableType.alphanumericDynamic());
 		jsonValue = jsonParsingGroup.addVariable("#VALUE", VariableType.alphanumericDynamic());
 		var jsonErrCode = jsonParsingGroup.addVariable("#ERR-CODE", VariableType.integer(4));
 		var jsonErrSubcode = jsonParsingGroup.addVariable("#ERR-SUBCODE", VariableType.integer(4));
-		parsedJsonRoot = context.addVariable(VariableScope.LOCAL, settings.parsedJsonGroupName(), VariableType.group());
+		parsedJsonRoot = settings.parsedJsonRoot != null
+			? settings.parsedJsonRoot
+			: context.addVariable(VariableScope.LOCAL, settings.parsedJsonGroupName(), VariableType.group());
 
-		var jsonSourceVariable = context.addVariable(settings.jsonSourceScope(), "#JSON-SOURCE", VariableType.alphanumericDynamic());
+		var jsonSourceVariable = Objects.requireNonNullElseGet(
+			settings.jsonSourceVariable,
+			() -> context.addVariable(settings.jsonSourceScope(), "#JSON-SOURCE", VariableType.alphanumericDynamic())
+		);
 
 		var decideOnJsonPath = decideOnFirst(jsonPath);
 		generateInternal(context, decideOnJsonPath);
@@ -101,7 +135,7 @@ public abstract class ParseJsonGenerator
 			.intoValue(jsonValue)
 			.givingErrorCode(jsonErrCode)
 			.givingErrorSubcode(jsonErrSubcode)
-			.addToBody(decideOnJsonPath);
+			.addStatement(decideOnJsonPath);
 
 		context.addStatement(parseJsonStatement);
 
@@ -114,7 +148,12 @@ public abstract class ParseJsonGenerator
 	{
 		if (currentPath.isEmpty())
 		{
-			return newPathElement;
+			// When the `currentPath` is empty and the start of an array (not object) is appended
+			// it means the root JSON element is an array.
+			// Naturals PARSE JSON PATH starts with a JSON_SEPARATOR in this case (not documented).
+			return newPathElement.equals(START_ARRAY)
+				? JSON_SEPARATOR + newPathElement
+				: newPathElement;
 		}
 
 		return "%s%s%s".formatted(currentPath, JSON_SEPARATOR, newPathElement);
@@ -144,6 +183,13 @@ public abstract class ParseJsonGenerator
 
 	protected Variable findSizeVariableByPath(String arrayPath)
 	{
+		// When the arrayPath is just START_ARRAY it means the rootSchema is an inlined array
+		// Its size variable was created with empty path
+		if (arrayPath.equals(START_ARRAY))
+		{
+			return findSizeVariableForArray(variablesByJsonPath.get(""));
+		}
+
 		var variablePath = arrayPath.substring(0, arrayPath.lastIndexOf(START_ARRAY) - 1);
 		return findSizeVariableForArray(variablesByJsonPath.get(variablePath));
 	}
@@ -161,13 +207,19 @@ public abstract class ParseJsonGenerator
 				continue;
 			}
 
+			// Array does not need RESET, because it is an inline array response
+			if (!path.contains(JSON_SEPARATOR))
+			{
+				continue;
+			}
+
 			var sizeVariable = findSizeVariableForArray(array);
 			// go from `</obj/(/</arrayInObj`
 			// to `</obj/(/>` to get the path of closing the enclosing object
 			var closeObjectPath = path.substring(0, path.lastIndexOf(START_OBJECT)) + END_OBJECT;
 			decideOnJsonPath
 				.addBranch(NaturalCode.stringLiteral(closeObjectPath))
-				.addToBody(reset(sizeVariable));
+				.addStatement(reset(sizeVariable));
 		}
 	}
 

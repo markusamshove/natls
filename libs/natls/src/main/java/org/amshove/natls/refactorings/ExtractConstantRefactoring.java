@@ -1,6 +1,7 @@
 package org.amshove.natls.refactorings;
 
 import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.NaturalCode;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natls.WorkspaceEditBuilder;
 import org.amshove.natls.codeactions.ICodeActionProvider;
@@ -10,7 +11,9 @@ import org.amshove.natls.quickfixes.CodeActionBuilder;
 import org.amshove.natparse.NodeUtil;
 import org.amshove.natparse.lexing.SyntaxKind;
 import org.amshove.natparse.lexing.SyntaxToken;
-import org.amshove.natparse.natural.*;
+import org.amshove.natparse.natural.IDefineData;
+import org.amshove.natparse.natural.ISyntaxNode;
+import org.amshove.natparse.natural.VariableScope;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
@@ -52,7 +55,7 @@ public class ExtractConstantRefactoring implements ICodeActionProvider
 		}
 
 		var theConstant = new Variable(1, VariableScope.LOCAL, constantName, getLiteralType(literalToken))
-			.withConstantValue(literalToken.source());
+			.withConstantValue(NaturalCode.plain(literalToken.source()));
 
 		var workspaceEdits = new WorkspaceEditBuilder()
 			.changesText(context.fileUri(), LspUtil.toRange(literalToken), constantName)

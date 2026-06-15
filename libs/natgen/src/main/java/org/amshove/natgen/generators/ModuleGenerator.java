@@ -9,8 +9,19 @@ import org.amshove.natparse.natural.VariableScope;
 import org.amshove.natparse.natural.project.NaturalFileType;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ModuleGenerator
 {
+	private final List<String> documentationLines = new ArrayList<>();
+
+	/// Add a line to the module documentation.
+	public void addDocumentationLine(String documentation)
+	{
+		this.documentationLines.add(documentation);
+	}
+
 	/// Generate the [CodeGenerationContext] into a module of the given [NaturalFileType].
 	/// Natural Source Header will be included.
 	public String generate(CodeGenerationContext context, NaturalFileType type)
@@ -43,7 +54,7 @@ public class ModuleGenerator
 
 		for (var statement : context.statements())
 		{
-			outerSubroutine.addToBody(statement);
+			outerSubroutine.addStatement(statement);
 		}
 
 		outerSubroutine.generateInto(codeBuilder);
@@ -99,6 +110,7 @@ public class ModuleGenerator
 		var codeBuilder = new CodeBuilder();
 		var defineDataGenerator = new DefineDataGenerator();
 		appendSourceHeader(codeBuilder);
+		appendDocumentation(codeBuilder);
 		codeBuilder
 			.append(defineDataGenerator.generate(context))
 			.lineBreak();
@@ -116,6 +128,7 @@ public class ModuleGenerator
 	{
 		var defineDataGenerator = new DefineDataGenerator();
 		var codeBuilder = new CodeBuilder();
+		appendDocumentation(codeBuilder);
 		codeBuilder
 			.append("DEFINE DATA ").appendLine(scope.name());
 		appendSourceHeader(codeBuilder);
@@ -154,5 +167,20 @@ public class ModuleGenerator
 
 			statement.generateInto(codeBuilder);
 		}
+	}
+
+	private void appendDocumentation(CodeBuilder builder)
+	{
+		if (documentationLines.isEmpty())
+		{
+			return;
+		}
+
+		builder.appendLine("/***********************************************************************");
+		for (var line : documentationLines)
+		{
+			builder.appendLine("/** %s".formatted(line).trim());
+		}
+		builder.appendLine("/***********************************************************************");
 	}
 }

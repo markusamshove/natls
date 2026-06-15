@@ -103,8 +103,7 @@ class CompressGenerationShould extends CodeGenerationTest
 		assertGenerated(compress, """
 			COMPRESS 'Lets' 'compress' 'some' 'strings' 'together' 'shall we?' 'Then lets do this now'
 			  'so that the operands may break' 'the line because it gets' 'very long' 'very fast'
-			  INTO #TARGET
-			  LEAVING NO SPACE""");
+			  INTO #TARGET LEAVING NO SPACE""");
 	}
 
 	@Test

@@ -8,6 +8,7 @@ import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn;
 import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natgen.generatable.IGeneratableStatement;
+import org.amshove.natgen.generatable.NatGenFunctions;
 import org.amshove.natgen.generatable.definedata.Variable;
 
 import java.util.Locale;
@@ -38,7 +39,6 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 		String currentPath
 	)
 	{
-
 		if (currentElement.isJsonPrimitive() || currentElement.isJsonNull())
 		{
 			var valueJsonPath = appendPath(currentPath, PARSED_DATA);
@@ -47,12 +47,18 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 
 			decideStatement
 				.addBranch(stringLiteral(valueJsonPath))
-				.addToBody(assignValueToVariable(variableForPrimitive, currentElement, valueJsonPath));
+				.addStatement(assignValueToVariable(variableForPrimitive, currentElement, valueJsonPath));
 			return;
 		}
 
 		if (currentElement.isJsonArray())
 		{
+			if (elementName.isEmpty())
+			{
+				// The root element of the document is an array, and we don't have a better name for it
+				elementName = "inline";
+			}
+
 			// This is the primitive path
 			var arrayVariable = getVariableForProperty(currentPath, parentVariable, elementName, inferJsonType(currentElement));
 			var sizeVariable = findSizeVariableForArray(arrayVariable);
@@ -66,12 +72,12 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 			var numberOfDimensions = getNumberOfDimensions(arrayStartPath);
 			var branch = decideStatement
 				.addBranch(stringLiteral(newArrayValuePath))
-				.addToBody(incrementVariable(sizeVariable))
-				.addToBody(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
+				.addStatement(incrementVariable(sizeVariable))
+				.addStatement(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
 
 			if (firstElementInArray.isJsonPrimitive())
 			{
-				branch.addToBody(
+				branch.addStatement(
 					assignValueToVariable(arrayVariable, firstElementInArray.getAsJsonPrimitive(), newArrayValuePath)
 				);
 			}
@@ -136,7 +142,7 @@ public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 
 		if (primitive.isBoolean())
 		{
-			return functionCall("ATOB", jsonValue);
+			return NatGenFunctions.jsonBooleanToLogical(jsonValue);
 		}
 
 		throw new UnsupportedOperationException("Unknown json primitive: %s".formatted(primitive));

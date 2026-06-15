@@ -24,7 +24,7 @@ class SubroutineGenerationShould extends CodeGenerationTest
 	void notGenerateTheIgnoreWhenAStatementHasBeenAdded()
 	{
 		var subroutine = new Subroutine("simple");
-		subroutine.addToBody(NaturalCode.assignment(NaturalCode.plain("#VAR"), NaturalCode.plain("#VAR")));
+		subroutine.addStatement(NaturalCode.assignment(NaturalCode.plain("#VAR"), NaturalCode.plain("#VAR")));
 
 		assertGenerated(subroutine, """
 			/***********************************************************************
@@ -41,8 +41,8 @@ class SubroutineGenerationShould extends CodeGenerationTest
 	void generateASubroutineWithMultipleStatements()
 	{
 		var subroutine = new Subroutine("MULT")
-			.addToBody(NaturalCode.ignore())
-			.addToBody(NaturalCode.assignment(NaturalCode.plain("#VAR"), NaturalCode.plain("#VAR")));
+			.addStatement(NaturalCode.ignore())
+			.addStatement(NaturalCode.assignment(NaturalCode.plain("#VAR"), NaturalCode.plain("#VAR")));
 
 		assertGenerated(subroutine, """
 			/***********************************************************************

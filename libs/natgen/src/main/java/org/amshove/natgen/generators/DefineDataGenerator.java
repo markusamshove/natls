@@ -153,6 +153,21 @@ public class DefineDataGenerator
 			code.append(" CONST<").append(variable.constValue()).append(">");
 		}
 
+		if (variable.initValue() != null)
+		{
+			code.append(" INIT<").append(variable.initValue()).append(">");
+		}
+
+		if (variable.isByValue() && variable.scope() == VariableScope.PARAMETER)
+		{
+			code.append(" BY VALUE");
+		}
+
+		if (variable.isOptional() && variable.scope() == VariableScope.PARAMETER)
+		{
+			code.append(" OPTIONAL");
+		}
+
 		for (var redefinition : variable.redefinitions())
 		{
 			code.lineBreak();
