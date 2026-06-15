@@ -9,6 +9,7 @@ import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("java:S117")
 class IfGenerationShould extends CodeGenerationTest
 {
 	@Test

@@ -1,22 +1,17 @@
 package org.amshove.natgen;
 
+import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
+
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
 
-import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
-import static io.swagger.v3.parser.util.SchemaTypeUtil.BINARY_FORMAT;
-import static io.swagger.v3.parser.util.SchemaTypeUtil.BOOLEAN_TYPE;
-import static io.swagger.v3.parser.util.SchemaTypeUtil.BYTE_FORMAT;
-import static io.swagger.v3.parser.util.SchemaTypeUtil.DOUBLE_FORMAT;
-import static io.swagger.v3.parser.util.SchemaTypeUtil.FLOAT_FORMAT;
-import static io.swagger.v3.parser.util.SchemaTypeUtil.INTEGER64_FORMAT;
-import static io.swagger.v3.parser.util.SchemaTypeUtil.INTEGER_TYPE;
-import static io.swagger.v3.parser.util.SchemaTypeUtil.NUMBER_TYPE;
-import static io.swagger.v3.parser.util.SchemaTypeUtil.OBJECT_TYPE;
-
 /// Common extension methods for OpenAPI schemas in the context of Natural
+@SuppressWarnings("java:S1452")
 public class NaturalOpenApi
 {
+	private NaturalOpenApi()
+	{}
+
 	public static Schema<?> findSchemaByReference(String reference, OpenAPI spec)
 	{
 		// Since we always flatten the spec, we assume we're looking

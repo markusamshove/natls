@@ -143,18 +143,18 @@ public class RequestDocumentForOpenApiGenerator
 			{
 				var inferredType = inferNaturalType(parameter.getSchema(), openApi);
 				var moduleParameter = context.addParameter("#P-" + parameter.getName(), inferredType).asByValue();
-				var queryDelimiterVariable = getQueryDelimiterVariable();
+				var queryDelimiterReference = getQueryDelimiterVariable();
 
 				var compress = compress()
 					.withOperand(requestUrl)
-					.withOperand(queryDelimiterVariable)
+					.withOperand(queryDelimiterReference)
 					.withOperand(stringLiteral(parameter.getName() + "="))
 					.withOperand(variableRhsValue(moduleParameter))
 					.into(requestUrl)
 					.leavingNoSpace();
-				var delimiterAssignment = assignment(queryDelimiterVariable, stringLiteral("&"));
+				var delimiterAssignment = assignment(queryDelimiterReference, stringLiteral("&"));
 
-				if (parameter.getRequired())
+				if (Boolean.TRUE.equals(parameter.getRequired()))
 				{
 					context
 						.addStatement(compress)
@@ -252,34 +252,31 @@ public class RequestDocumentForOpenApiGenerator
 			{
 				var schema = resolveSchema(responseContent.getValue().getSchema(), openApi);
 				var schemaName = resolveSchemaName(responseContent.getValue().getSchema(), "Inlineresponse");
-				var settings = new ParseJsonGenerator.Settings();
-				settings.setParsingGroupName("##PARSE-" + responseCode);
-				settings.setJsonSourceVariable(responseBody);
+				var parseJsonSettings = new ParseJsonGenerator.Settings();
+				parseJsonSettings.setParsingGroupName("##PARSE-" + responseCode);
+				parseJsonSettings.setJsonSourceVariable(responseBody);
 				if (this.settings.responseBodyRootGroup != null)
 				{
-					settings.setParsedJsonRoot(
+					parseJsonSettings.setParsedJsonRoot(
 						this.settings.responseBodyRootGroup.addVariable("#RESPONSE-" + responseCode, VariableType.group())
 					);
 				}
 				else
 				{
-					settings.setParsedJsonGroupName("#RESPONSE-" + responseCode);
+					parseJsonSettings.setParsedJsonGroupName("#RESPONSE-" + responseCode);
 				}
 				var generator = ParseJsonGenerator.forOpenAPISchema(
 					openApi,
 					schemaName,
 					schema,
-					settings
+					parseJsonSettings
 				);
 				var parseJsonContext = generator.generate();
 
 				context.consumeExceptStatements(parseJsonContext);
 				subroutine.addStatements(parseJsonContext.statements());
 			}
-			default ->
-			{
-				throw new NaturalGenerationException("Content-Type %s for response body not supported (%s %s)".formatted(contentType, method, path));
-			}
+			default -> throw new NaturalGenerationException("Content-Type %s for response body not supported (%s %s)".formatted(contentType, method, path));
 		}
 
 		return subroutine;

@@ -1,11 +1,11 @@
 package org.amshove.natgen.generatable;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.generatable.conditions.IConditional;
 
-import java.util.ArrayList;
-import java.util.List;
-
+@SuppressWarnings("java:S100")
 public class If extends GeneratableWithBody<If> implements IGeneratableStatement
 {
 	private final List<IConditional> conditions = new ArrayList<>();

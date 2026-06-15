@@ -256,7 +256,7 @@ public class CompressJsonFromOpenApiGenerator
 			.leavingNoSpace();
 	}
 
-	private Compress newCompress(IStatementAddable statementScope)
+	private Compress newCompress(IStatementAddable<?> statementScope)
 	{
 		var compress = newCompressOutsideContext();
 		statementScope.addStatement(compress);

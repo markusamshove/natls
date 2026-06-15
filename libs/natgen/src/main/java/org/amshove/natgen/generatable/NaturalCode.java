@@ -15,6 +15,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
+@SuppressWarnings("java:S100")
 public class NaturalCode implements IGeneratable
 {
 	private final @Nullable String code;

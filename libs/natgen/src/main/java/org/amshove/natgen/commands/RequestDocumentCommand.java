@@ -29,6 +29,7 @@ import picocli.CommandLine;
 public class RequestDocumentCommand implements Callable<Integer>
 {
 	private static final CliOutput output = new CliOutput();
+	private static final String OUTPUT_RESULT_FORMAT = "%s %s => %s";
 
 	@CommandLine.Parameters(arity = "1")
 	File openApiSchemaFile;
@@ -118,19 +119,19 @@ public class RequestDocumentCommand implements Callable<Integer>
 		{
 			var pdaPath = outputDirectory.resolve(inputPdaName + ".NSA");
 			generatePda(subprogramContext, inputPdaName, pdaPath, moduleGenerator, inputPdaContext);
-			output.info("%s %s => %s", theMethod, path.getKey(), pdaPath);
+			output.info(OUTPUT_RESULT_FORMAT, theMethod, path.getKey(), pdaPath);
 		}
 
 		if (!outputPdaGroup.children().isEmpty())
 		{
 			var pdaPath = outputDirectory.resolve(outputPdaName + ".NSA");
 			generatePda(subprogramContext, outputPdaName, pdaPath, moduleGenerator, outputPdaContext);
-			output.info("%s %s => %s", theMethod, path.getKey(), pdaPath);
+			output.info(OUTPUT_RESULT_FORMAT, theMethod, path.getKey(), pdaPath);
 		}
 
 		var generatedModule = moduleGenerator.generate(subprogramContext, NaturalFileType.SUBPROGRAM);
 		var subprogramPath = outputDirectory.resolve(moduleName + "N.NSN");
-		output.info("%s %s => %s", theMethod, path.getKey(), subprogramPath);
+		output.info(OUTPUT_RESULT_FORMAT, theMethod, path.getKey(), subprogramPath);
 
 		Files.writeString(subprogramPath, generatedModule, StandardCharsets.UTF_8);
 	}

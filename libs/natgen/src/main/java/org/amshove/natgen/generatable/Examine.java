@@ -1,10 +1,10 @@
 package org.amshove.natgen.generatable;
 
-import org.amshove.natgen.CodeBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.amshove.natgen.CodeBuilder;
 
+@SuppressWarnings("java:S100")
 public final class Examine implements IGeneratableStatement
 {
 	private final IGeneratable examined;
@@ -23,7 +23,7 @@ public final class Examine implements IGeneratableStatement
 	private IGeneratable givingNumber;
 	private IGeneratable givingPosition;
 	private IGeneratable givingLength;
-	private List<IGeneratable> givingIndex = new ArrayList<IGeneratable>();
+	private List<IGeneratable> givingIndex = new ArrayList<>();
 
 	public Examine(IGeneratable examined)
 	{

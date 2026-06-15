@@ -2,6 +2,7 @@ package org.amshove.natgen.generatable.conditions;
 
 import org.amshove.natgen.generatable.IGeneratable;
 
+@SuppressWarnings("java:S100")
 public class Conditions
 {
 	public static IConditional _true()
