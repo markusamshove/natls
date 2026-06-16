@@ -4531,6 +4531,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		var opening = consumeMandatory(work, SyntaxKind.READ);
 		consumeMandatory(work, SyntaxKind.WORK);
 		consumeOptionally(work, SyntaxKind.FILE);
+		// TODO: This operand can also accept a constant variable
 		var number = consumeNonConcatLiteralNode(work, SyntaxKind.NUMBER_LITERAL);
 		checkNumericRange(number, 1, 32);
 		work.setWorkFileNumber(number);
@@ -4618,6 +4619,18 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	{
 		var node = new RuleVarNode();
 		consumeMandatory(node, SyntaxKind.RULEVAR);
+		node.setName(consumeMandatoryIdentifier(node));
+
+		if (peekKind(SyntaxKind.INCDIR))
+		{
+			node.setIncDir(incdir());
+		}
+		else
+			if (peekKind(SyntaxKind.INCDIC))
+			{
+				node.setIncDic(incdic());
+			}
+
 		while (!isAtEnd() && !isStatementStart())
 		{
 			consume(node);
@@ -4630,9 +4643,39 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	{
 		var node = new IncDirNode();
 		consumeMandatory(node, SyntaxKind.INCDIR);
-		while (!isAtEnd() && !isStatementStart())
+		SyntaxToken ddmName = consumeMandatory(node, SyntaxKind.IDENTIFIER);
+		node.setDdmName(ddmName);
+		SyntaxToken fieldName = consumeMandatory(node, SyntaxKind.IDENTIFIER);
+		node.setFieldName(fieldName);
+		consumeMandatory(node, SyntaxKind.SEMICOLON);
+
+		return node;
+	}
+
+	private IncDicNode incdic() throws ParseError
+	{
+		var node = new IncDicNode();
+		consumeMandatory(node, SyntaxKind.INCDIC);
+
+		SyntaxToken ruleName = null;
+		if (peekKind(SyntaxKind.IDENTIFIER))
 		{
-			consume(node);
+			ruleName = consumeMandatoryIdentifier(node);
+			node.setRuleName(ruleName);
+		}
+		consumeMandatory(node, SyntaxKind.SEMICOLON);
+
+		if (ruleName == null)
+		{
+			// Inline rule
+			if (peekKind(SyntaxKind.DEFINE))
+			{
+				// with a define block
+				var defineDataParser = new DefineDataParser(this.moduleProvider);
+				var defineBlock = defineDataParser.parse((tokens));
+				node.setDefine(defineBlock.result());
+			}
+			node.setBody(statementList(Set.of(SyntaxKind.RULEVAR, SyntaxKind.END)));
 		}
 
 		return node;

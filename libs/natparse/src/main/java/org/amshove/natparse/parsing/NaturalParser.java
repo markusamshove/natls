@@ -298,6 +298,8 @@ public class NaturalParser
 		var unresolvedAdabasArrayAccess = new ArrayList<ISymbolReferenceNode>();
 		for (var unresolvedReference : statementParser.unresolvedSymbols())
 		{
+			defineData = moduleBuilder.getDefineData(unresolvedReference);
+
 			if (unresolvedReference.parent() instanceof IAdabasIndexAccess)
 			{
 				unresolvedAdabasArrayAccess.add(unresolvedReference); // needs to be re-evaluated after, because it's parents need to be resolved
@@ -408,7 +410,7 @@ public class NaturalParser
 
 	private boolean tryFindAndReference(String symbolName, ISymbolReferenceNode referenceNode, IDefineData defineData, NaturalModuleBuilder moduleBuilder)
 	{
-		var foundVariables = ((DefineDataNode) defineData).findVariablesWithName(symbolName);
+		var foundVariables = defineData.findVariablesWithName(symbolName);
 
 		if (foundVariables.size() > 1)
 		{

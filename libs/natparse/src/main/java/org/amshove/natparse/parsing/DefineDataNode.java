@@ -199,7 +199,8 @@ class DefineDataNode extends BaseSyntaxNode implements IDefineData
 		}
 	}
 
-	List<IVariableNode> findVariablesWithName(String symbolName)
+	@Override
+	public List<IVariableNode> findVariablesWithName(String symbolName)
 	{
 		var foundVariables = new ArrayList<IVariableNode>();
 		for (var variable : variables)
