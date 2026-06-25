@@ -2,16 +2,16 @@ package org.amshove.natparse.parsing.operandcheck;
 
 import org.amshove.natparse.natural.DataFormat;
 
-/**
- * This enum corresponds to the "Operand Definition Table" from the Natural documentation. These are used for
- * typechecking operands in statements.
- */
+/// This enum corresponds to the "Operand Definition Table" from the Natural documentation. These are used for
+/// typechecking operands in statements.
+/// If a member is not from the "Operand Definition Table" then it is marked with a comment.
 public enum OperandDefinition
 {
 	STRUCTURE_CONSTANT('C'),
 	STRUCTURE_SCALAR('S'),
 	STRUCTURE_ARRAY('A'),
 	STRUCTURE_GROUP('G'),
+	STRUCTURE_VIEW(' '), // not in the Operand Definition Table. Check if operand references a view.
 	STRUCTURE_SYSTEM_VARIABLE('N'),
 	STRUCTURE_MODIFIABLE_SYSTEM_VARIABLE_ONLY('M'),
 	STRUCTURE_ARITHMETIC_EXPRESSION('E'),

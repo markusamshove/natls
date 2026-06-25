@@ -1,10 +1,34 @@
 package org.amshove.natparse.parsing;
 
+import static org.amshove.natparse.parsing.operandcheck.OperandDefinition.*;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Pattern;
 import org.amshove.natparse.ReadOnlyList;
 import org.amshove.natparse.lexing.Lexer;
 import org.amshove.natparse.lexing.SyntaxKind;
 import org.amshove.natparse.lexing.SyntaxToken;
-import org.amshove.natparse.natural.*;
+import org.amshove.natparse.natural.IFunctionCallNode;
+import org.amshove.natparse.natural.ILiteralNode;
+import org.amshove.natparse.natural.IMaskOperandNode;
+import org.amshove.natparse.natural.IOperandNode;
+import org.amshove.natparse.natural.IReferencableNode;
+import org.amshove.natparse.natural.IStatementListNode;
+import org.amshove.natparse.natural.IStatementWithBodyNode;
+import org.amshove.natparse.natural.ISymbolReferenceNode;
+import org.amshove.natparse.natural.IVariableReferenceNode;
+import org.amshove.natparse.natural.ReadSequence;
+import org.amshove.natparse.natural.SortDirection;
+import org.amshove.natparse.natural.SortedOperand;
 import org.amshove.natparse.natural.conditionals.ChainedCriteriaOperator;
 import org.amshove.natparse.natural.conditionals.ComparisonOperator;
 import org.amshove.natparse.natural.conditionals.IHasComparisonOperator;
@@ -16,14 +40,6 @@ import org.amshove.natparse.parsing.operandcheck.OperandCheck;
 import org.amshove.natparse.parsing.operandcheck.OperandCheck.BinaryCheck;
 import org.amshove.natparse.parsing.operandcheck.OperandCheck.DefinitionCheck;
 import org.amshove.natparse.parsing.operandcheck.OperandDefinition;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.util.*;
-import java.util.regex.Pattern;
-
-import static org.amshove.natparse.parsing.operandcheck.OperandDefinition.*;
 
 public class StatementListParser extends AbstractParser<IStatementListNode>
 {
@@ -4440,6 +4456,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		var hasNoBody = consumeOptionally(find, SyntaxKind.FIRST) || consumeOptionally(find, SyntaxKind.KW_NUMBER) || consumeOptionally(find, SyntaxKind.UNIQUE);
 		consumeDbmsStart(find);
 		find.setView(consumeVariableReferenceNode(find));
+		enqueueOperandCheck(find.view(), EnumSet.of(OperandDefinition.STRUCTURE_VIEW));
 		consumePasswordAndCipher(find);
 
 		// WITH is not required, however the descriptor and logical criteria is

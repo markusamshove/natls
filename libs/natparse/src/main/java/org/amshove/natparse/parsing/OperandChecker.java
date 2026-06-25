@@ -9,8 +9,8 @@ import org.amshove.natparse.parsing.operandcheck.OperandCheck.DefinitionCheck;
 import org.amshove.natparse.parsing.operandcheck.OperandDefinition;
 
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.List;
+import java.util.Set;
 
 class OperandChecker
 {
@@ -22,7 +22,10 @@ class OperandChecker
 		{
 			var inferredType = TypeInference.inferType(queuedCheck.lhs());
 			inferredType
-				.ifPresent(type -> check(queuedCheck, type));
+				.ifPresentOrElse(
+					type -> check(queuedCheck, type),
+					() -> checkWithoutType(queuedCheck)
+				);
 		}
 		return ReadOnlyList.from(diagnostics);
 	}
@@ -42,14 +45,14 @@ class OperandChecker
 
 	private void checkBinary(BinaryCheck binaryCheck, IDataType lhsType)
 	{
-		var inferedRhsType = inferType(binaryCheck.rhs());
+		var inferredRhsType = inferType(binaryCheck.rhs());
 
-		if (inferedRhsType.format() != DataFormat.NONE && !inferedRhsType.hasCompatibleFormat(lhsType))
+		if (inferredRhsType.format() != DataFormat.NONE && !inferredRhsType.hasCompatibleFormat(lhsType))
 		{
 			diagnostics.add(
 				ParserErrors.typeMismatch(
 					"Type mismatch between left and right operand. Left is %s, right is %s"
-						.formatted(lhsType, inferedRhsType),
+						.formatted(lhsType, inferredRhsType),
 					binaryCheck.rhs()
 				)
 			);
@@ -110,6 +113,33 @@ class OperandChecker
 					operand
 				)
 			);
+		}
+	}
+
+	private void checkWithoutType(OperandCheck check)
+	{
+		if (check instanceof DefinitionCheck definitionCheck)
+		{
+			checkWithoutType(definitionCheck);
+		}
+	}
+
+	private void checkWithoutType(DefinitionCheck definitionCheck)
+	{
+		var operand = definitionCheck.lhs();
+
+		if (operand instanceof IVariableReferenceNode varRef)
+		{
+			var definitionTable = definitionCheck.definitionTable();
+			if (definitionTable.contains(OperandDefinition.STRUCTURE_VIEW) && !(varRef.reference() instanceof IViewNode))
+			{
+				diagnostics.add(
+					ParserErrors.typeMismatch(
+						"Reference must be a VIEW",
+						operand
+					)
+				);
+			}
 		}
 	}
 
