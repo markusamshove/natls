@@ -4377,6 +4377,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		var opening = consumeMandatory(histogram, SyntaxKind.HISTOGRAM);
 		consumeDbmsStart(histogram);
 		histogram.setView(consumeVariableReferenceNode(histogram));
+		enqueueOperandCheck(histogram.view(), EnumSet.of(OperandDefinition.STRUCTURE_VIEW));
 		consumePasswordAndCipher(histogram);
 
 		if (consumeAnyOptionally(histogram, List.of(SyntaxKind.IN, SyntaxKind.ASC, SyntaxKind.ASCENDING, SyntaxKind.DESC, SyntaxKind.DESCENDING, SyntaxKind.VARIABLE, SyntaxKind.DYNAMIC)))
@@ -4668,6 +4669,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		var opening = consumeAnyMandatory(read, List.of(SyntaxKind.READ, SyntaxKind.BROWSE));
 		consumeDbmsStart(read);
 		read.setView(consumeVariableReferenceNode(read));
+		enqueueOperandCheck(read.view(), EnumSet.of(OperandDefinition.STRUCTURE_VIEW));
 		consumePasswordAndCipher(read);
 
 		// WITH can be part of search specification, therefore:
