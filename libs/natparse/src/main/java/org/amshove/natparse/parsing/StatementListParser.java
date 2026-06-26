@@ -4905,6 +4905,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeOptionally(get, SyntaxKind.FILE);
 
 		get.setView(consumeVariableReferenceNode(get));
+		enqueueOperandCheck(get.view(), EnumSet.of(OperandDefinition.STRUCTURE_VIEW));
 		consumePasswordAndCipher(get);
 		consumeAnyOptionally(get, List.of(SyntaxKind.RECORDS, SyntaxKind.RECORD));
 		consumeOperandNode(get);
