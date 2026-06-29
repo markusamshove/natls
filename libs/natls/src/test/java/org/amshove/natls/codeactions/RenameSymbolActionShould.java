@@ -1,12 +1,17 @@
 package org.amshove.natls.codeactions;
 
-import org.amshove.natls.testlifecycle.*;
+import static org.assertj.core.api.AssertionsForClassTypes.*;
+
+import org.amshove.natls.testlifecycle.LanguageServerTest;
+import org.amshove.natls.testlifecycle.LspProjectName;
+import org.amshove.natls.testlifecycle.LspTestContext;
+import org.amshove.natls.testlifecycle.SourceWithCursor;
+import org.amshove.natls.testlifecycle.WorkspaceEditAssertion;
 import org.eclipse.lsp4j.PrepareRenameParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.*;
 
 class RenameSymbolActionShould extends LanguageServerTest
 {
@@ -226,6 +231,39 @@ class RenameSymbolActionShould extends LanguageServerTest
 		assertRename(new RenameParams(file, source.toSinglePosition(), "#NEWVAR"))
 			.changesText(2, "1 #VAR2 (A10)", "1 #NEWVAR (A10)", file)
 			.changesText(5, "VALUE #VAR2", "VALUE #NEWVAR", file);
+	}
+
+	@Test
+	void renameAVariableInCopyCodesWhenRenamedThroughADataArea()
+	{
+		// https://github.com/markusamshove/natls/issues/145
+
+		var dataAreaSource = SourceWithCursor.fromSourceWithCursor("""
+		DEFINE DATA LOCAL
+		1 #NA${}$ME (A10)
+		END-DEFINE
+		""");
+
+		var dataArea = createOrSaveFile("LIBONE", "MALDA.NSL", dataAreaSource);
+
+		var copyCode = createOrSaveFile("LIBONE", "MACC.NSC", """
+		#NAME := 'Copycode'
+		""");
+
+		var subprogram = createOrSaveFile("LIBONE", "MASUB.NSN", """
+		DEFINE DATA
+		LOCAL USING MALDA
+		END-DEFINE
+
+		INCLUDE MACC
+
+		WRITE #NAME
+		""");
+
+		assertRename(new RenameParams(dataArea, dataAreaSource.toSinglePosition(), "#CITY"))
+			.changesText(1, "1 #NAME (A10)", "1 #CITY (A10)", dataArea)
+			.changesText(0, "#NAME := 'Copycode'", "#CITY := 'Copycode'", copyCode)
+			.changesText(6, "WRITE #NAME", "WRITE #CITY", subprogram);
 	}
 
 	private WorkspaceEditAssertion assertRename(RenameParams params)
