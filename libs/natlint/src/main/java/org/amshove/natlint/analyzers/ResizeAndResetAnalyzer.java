@@ -8,7 +8,11 @@ import org.amshove.natparse.AdditionalDiagnosticInfo;
 import org.amshove.natparse.DiagnosticSeverity;
 import org.amshove.natparse.NodeUtil;
 import org.amshove.natparse.ReadOnlyList;
-import org.amshove.natparse.natural.*;
+import org.amshove.natparse.natural.IRangedArrayAccessNode;
+import org.amshove.natparse.natural.IResetStatementNode;
+import org.amshove.natparse.natural.IResizeArrayNode;
+import org.amshove.natparse.natural.ISyntaxNode;
+import org.amshove.natparse.natural.IVariableReferenceNode;
 
 public class ResizeAndResetAnalyzer extends AbstractAnalyzer
 {
@@ -43,7 +47,7 @@ public class ResizeAndResetAnalyzer extends AbstractAnalyzer
 		}
 
 		var arrayReferencesInResize = reset.operands().stream()
-			.filter(o -> o instanceof IVariableReferenceNode)
+			.filter(IVariableReferenceNode.class::isInstance)
 			.map(o -> (IVariableReferenceNode) o)
 			.filter(vr -> vr.reference() == resize.arrayToResize().reference())
 			.toList();
