@@ -1,0 +1,19 @@
+name: RESIZE and RESET can be merged
+priority: MINOR
+tags: clumsy
+type: CODE_SMELL
+description:
+The statments `RESIZE` and `RESET` on arrays can be merged into one statement.
+
+## Before
+
+```natural
+RESIZE #ARR TO (1:25)
+RESET #ARR(*)
+```
+
+## After
+
+```natural
+RESIZE AND RESET #ARR TO (1:25)
+```

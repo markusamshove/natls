@@ -27,6 +27,24 @@ class RangedArrayAccessNode extends BaseSyntaxNode implements IRangedArrayAccess
 		return isUnbound(lowerBound) || isUnbound(upperBound);
 	}
 
+	@Override
+	public boolean isLowerUnbound()
+	{
+		return isUnbound(lowerBound);
+	}
+
+	@Override
+	public boolean isUpperUnbound()
+	{
+		return isUnbound(upperBound);
+	}
+
+	@Override
+	public boolean isUnbound()
+	{
+		return isLowerUnbound() && isUpperUnbound();
+	}
+
 	private boolean isUnbound(IOperandNode operand)
 	{
 		return operand instanceof LiteralNode literal && literal.token().kind() == SyntaxKind.ASTERISK;
