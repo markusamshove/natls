@@ -20,6 +20,13 @@ import org.amshove.natparse.natural.VariableScope;
 import org.amshove.natparse.natural.ddm.IDdmField;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * A DEFINE DATA that is part of a RuleNode
+ *
+ * Inline rules can access everything in the upper scope of the map program
+ * as well as locally defined variables.
+ *
+ */
 class DefineDataNested extends BaseSyntaxNode implements IDefineData
 {
 
@@ -57,70 +64,59 @@ class DefineDataNested extends BaseSyntaxNode implements IDefineData
 	public ReadOnlyList<IUsingNode> localUsings()
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
 	public ReadOnlyList<IUsingNode> parameterUsings()
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
-	@Override
 	public ReadOnlyList<IUsingNode> globalUsings()
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
 	public ReadOnlyList<IParameterDefinitionNode> declaredParameterInOrder()
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
 	public ReadOnlyList<IVariableNode> variables()
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
 	public @Nullable IVariableNode findVariable(String symbolName)
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
 	public @Nullable IScopeNode findFirstScopeNode(VariableScope scope)
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
 	public @Nullable ISyntaxNode findLastScopeNode(VariableScope scope)
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
 	public ReadOnlyList<IUsingNode> usings()
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
 	public ReadOnlyList<ITypedVariableNode> effectiveParameterInOrder()
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	// ISyntaxNode
@@ -129,42 +125,36 @@ class DefineDataNested extends BaseSyntaxNode implements IDefineData
 	public ISyntaxNode parent()
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
 	public IPosition diagnosticPosition()
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
 	public boolean isInFile(Path path)
 	{
 		throw new RuntimeException("Not implemented");
-		// return false;
 	}
 
 	@Override
 	public IPosition position()
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
 	public Iterator<ISyntaxNode> iterator()
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
 	public ReadOnlyList<? extends ISyntaxNode> descendants()
 	{
 		throw new RuntimeException("Not implemented");
-		// return null;
 	}
 
 	@Override
