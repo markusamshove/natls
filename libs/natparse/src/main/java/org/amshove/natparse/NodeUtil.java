@@ -364,4 +364,23 @@ public class NodeUtil
 
 		return null;
 	}
+
+	/// Returns the statement that follows the given statement.
+	/// Returns `null` if no statement is found, e.g. `statement` is the last in its scope.
+	@Nullable
+	public static IStatementNode findFirstStatementAfter(IStatementNode statement)
+	{
+		var parent = statement.parent();
+		if (!(parent instanceof IStatementListNode statementList))
+		{
+			return null;
+		}
+
+		var statements = statementList.statements();
+		var indexOfStatement = statements.indexOf(statement);
+
+		return statements.size() > indexOfStatement + 1
+			? statements.get(indexOfStatement + 1)
+			: null;
+	}
 }
