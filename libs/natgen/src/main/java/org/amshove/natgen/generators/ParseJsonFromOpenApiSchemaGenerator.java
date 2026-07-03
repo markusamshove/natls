@@ -1,22 +1,21 @@
 package org.amshove.natgen.generators;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.media.Schema;
-import org.amshove.natgen.CodeGenerationContext;
-import org.amshove.natgen.Dimension;
-import org.amshove.natgen.VariableType;
-import org.amshove.natgen.generatable.DecideOn;
-import org.amshove.natgen.generatable.IGeneratable;
-import org.amshove.natgen.generatable.IGeneratableStatement;
-import org.amshove.natgen.generatable.NatGenFunctions;
-import org.amshove.natgen.generatable.definedata.Variable;
-
-import java.util.Locale;
-
 import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
 import static org.amshove.natgen.NaturalOpenApi.*;
 import static org.amshove.natgen.generatable.NaturalCode.*;
 import static org.amshove.natgen.generatable.conditions.Conditions.notEqual;
+
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.Schema;
+import java.util.Locale;
+import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.DecideOn;
+import org.amshove.natgen.generatable.Dimension;
+import org.amshove.natgen.generatable.IGeneratable;
+import org.amshove.natgen.generatable.IGeneratableStatement;
+import org.amshove.natgen.generatable.NatGenFunctions;
+import org.amshove.natgen.generatable.definedata.Variable;
 
 class ParseJsonFromOpenApiSchemaGenerator extends ParseJsonGenerator
 {

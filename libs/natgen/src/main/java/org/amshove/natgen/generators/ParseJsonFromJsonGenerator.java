@@ -1,19 +1,18 @@
 package org.amshove.natgen.generators;
 
+import static org.amshove.natgen.generatable.NaturalCode.*;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import java.util.Locale;
 import org.amshove.natgen.CodeGenerationContext;
-import org.amshove.natgen.Dimension;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.DecideOn;
+import org.amshove.natgen.generatable.Dimension;
 import org.amshove.natgen.generatable.IGeneratable;
 import org.amshove.natgen.generatable.IGeneratableStatement;
 import org.amshove.natgen.generatable.NatGenFunctions;
 import org.amshove.natgen.generatable.definedata.Variable;
-
-import java.util.Locale;
-
-import static org.amshove.natgen.generatable.NaturalCode.*;
 
 public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
 {

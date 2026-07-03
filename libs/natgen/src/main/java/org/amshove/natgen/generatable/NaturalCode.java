@@ -138,6 +138,11 @@ public class NaturalCode implements IGeneratable
 		return new GeneratableStatement("RESET %s".formatted(toReset));
 	}
 
+	public static IGeneratableStatement resizeArray(IGeneratable array, Dimension... dimensions)
+	{
+		return new ResizeArray(array, dimensions);
+	}
+
 	public static Assignment assignment(IGeneratable lhs, IGeneratable rhs)
 	{
 		return new Assignment(lhs, rhs);

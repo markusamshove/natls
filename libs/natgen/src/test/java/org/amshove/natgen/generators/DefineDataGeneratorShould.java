@@ -2,7 +2,7 @@ package org.amshove.natgen.generators;
 
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.CodeGenerationTest;
-import org.amshove.natgen.Dimension;
+import org.amshove.natgen.generatable.Dimension;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;
@@ -334,7 +334,7 @@ class DefineDataGeneratorShould extends CodeGenerationTest
 	@Test
 	void beAbleToGenerateMultiDimensionArrays()
 	{
-		var arr = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.logical().withDimension(new Dimension(1, 10)).withDimension(new Dimension(15, 20)));
+		var arr = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.logical().withDimension(Dimension.staticRange(1, 10)).withDimension(Dimension.staticRange(15, 20)));
 		context.addVariable(arr);
 		assertOn(context)
 			.generatesDefineData("""

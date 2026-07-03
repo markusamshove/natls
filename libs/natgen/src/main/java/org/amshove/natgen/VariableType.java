@@ -1,11 +1,11 @@
 package org.amshove.natgen;
 
-import org.amshove.natparse.natural.DataFormat;
-import org.amshove.natparse.natural.IDataType;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.amshove.natgen.generatable.Dimension;
+import org.amshove.natparse.natural.DataFormat;
+import org.amshove.natparse.natural.IDataType;
 
 public final class VariableType
 {
@@ -142,6 +142,11 @@ public final class VariableType
 		return format == DataFormat.NONE;
 	}
 
+	public int numberOfDimensions()
+	{
+		return dimensions.size();
+	}
+
 	public static VariableType fromDataType(IDataType type)
 	{
 		return switch (type.format())
@@ -171,7 +176,7 @@ public final class VariableType
 	@Override
 	public String toString()
 	{
-		var formattedDimensionList = dimensions.stream().map(Dimension::toDeclaration).collect(Collectors.joining(", "));
+		var formattedDimensionList = dimensions.stream().map(Dimension::generate).collect(Collectors.joining(", "));
 		// Group
 		if (format == DataFormat.NONE)
 		{

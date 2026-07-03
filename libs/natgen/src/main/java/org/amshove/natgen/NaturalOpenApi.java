@@ -4,6 +4,7 @@ import static io.swagger.v3.parser.util.SchemaTypeUtil.*;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
+import org.amshove.natgen.generatable.Dimension;
 
 /// Common extension methods for OpenAPI schemas in the context of Natural
 @SuppressWarnings("java:S1452")
