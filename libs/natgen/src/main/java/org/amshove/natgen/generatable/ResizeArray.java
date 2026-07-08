@@ -14,6 +14,11 @@ public class ResizeArray implements IGeneratableStatement
 
 	public ResizeArray(IGeneratable array, Dimension... newDimensions)
 	{
+		if (newDimensions.length == 0)
+		{
+			throw new IllegalArgumentException("Dimensions need to be specified for RESIZE ARRAY");
+		}
+
 		if (array instanceof Variable v && v.type().numberOfDimensions() != newDimensions.length)
 		{
 			throw new IllegalArgumentException("Can not resize array with %d dimension(s) with %d dimension(s)".formatted(v.type().numberOfDimensions(), newDimensions.length));
