@@ -1,10 +1,10 @@
 package org.amshove.natgen.generatable;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-
 import org.amshove.natgen.CodeGenerationTest;
 import org.amshove.natgen.VariableType;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 class ResizeArrayGenerationShould extends CodeGenerationTest
 {
@@ -28,7 +28,7 @@ class ResizeArrayGenerationShould extends CodeGenerationTest
 		);
 
 		assertGenerated(
-			new ResizeArray(array, Dimension.staticRange(1, 10), Dimension.staticRange(5, 8)),
+			NaturalCode.resizeArray(array, Dimension.staticRange(1, 10), Dimension.staticRange(5, 8)),
 			"RESIZE ARRAY #ARR TO (1:10,5:8)"
 		);
 	}
@@ -59,5 +59,21 @@ class ResizeArrayGenerationShould extends CodeGenerationTest
 		)
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("Can not resize array with 2 dimension(s) with 1 dimension(s)");
+	}
+
+	@Test
+	void throwAnExceptionWhenTryingToGenerateAResizeWithoutDimensions()
+	{
+		var array = NaturalCode.newLocalVariable(
+			"#ARR", VariableType.alphanumeric(10)
+				.withDimension(Dimension.upperUnbound())
+				.withDimension(Dimension.upperUnbound())
+		);
+
+		assertThatThrownBy(
+			() -> new ResizeArray(array)
+		)
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("Dimensions need to be specified for RESIZE ARRAY");
 	}
 }
