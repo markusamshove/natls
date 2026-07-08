@@ -4,7 +4,7 @@ import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.CodeGenerationTest;
-import org.amshove.natgen.Dimension;
+import org.amshove.natgen.generatable.Dimension;
 import org.amshove.natgen.VariableType;
 import org.amshove.natparse.natural.VariableScope;
 import org.junit.jupiter.api.Test;

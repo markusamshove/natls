@@ -1,8 +1,5 @@
 package org.amshove.natgen.generatable;
 
-import java.util.Arrays;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import org.amshove.natgen.CodeBuilder;
 import org.amshove.natgen.CodeGenerationContext;
 import org.amshove.natgen.VariableType;
@@ -13,6 +10,10 @@ import org.amshove.natgen.generators.DefineDataGenerator;
 import org.amshove.natparse.natural.VariableScope;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @NullMarked
 @SuppressWarnings("java:S100")
@@ -136,6 +137,11 @@ public class NaturalCode implements IGeneratable
 	{
 		var toReset = Arrays.stream(resettable).map(IGeneratable::generate).collect(Collectors.joining(" "));
 		return new GeneratableStatement("RESET %s".formatted(toReset));
+	}
+
+	public static ResizeArray resizeArray(IGeneratable array, Dimension... dimensions)
+	{
+		return new ResizeArray(array, dimensions);
 	}
 
 	public static Assignment assignment(IGeneratable lhs, IGeneratable rhs)

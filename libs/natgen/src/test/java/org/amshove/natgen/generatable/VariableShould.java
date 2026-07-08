@@ -1,6 +1,5 @@
 package org.amshove.natgen.generatable;
 
-import org.amshove.natgen.Dimension;
 import org.amshove.natgen.VariableType;
 import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natparse.natural.VariableScope;

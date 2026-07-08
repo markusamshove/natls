@@ -1,5 +1,6 @@
 package org.amshove.natgen;
 
+import org.amshove.natgen.generatable.Dimension;
 import org.amshove.natparse.natural.DataFormat;
 import org.amshove.natparse.natural.DataType;
 import org.junit.jupiter.api.DynamicTest;
