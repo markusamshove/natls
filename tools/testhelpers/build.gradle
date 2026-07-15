@@ -1,5 +1,5 @@
 dependencies {
     implementation project(':natparse')
-    implementation(platform(libraries.junit_jupiter))
+    implementation(platform(libs.testing.junit.jupiter))
     implementation('org.junit.jupiter:junit-jupiter')
 }

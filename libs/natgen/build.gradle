@@ -4,10 +4,10 @@ plugins {
 
 dependencies {
     implementation project(':natparse')
-    implementation libraries.picocli
-    implementation libraries.gson
+    implementation libs.picocli
+    implementation libs.gson
     implementation 'io.swagger.parser.v3:swagger-parser:2.1.37'
-    implementation libraries.slf4j_nop
+    implementation libs.slf4j.nop
 
     testImplementation project(':testhelpers')
 }

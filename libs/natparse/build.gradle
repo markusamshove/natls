@@ -3,11 +3,11 @@ plugins {
 }
 
 dependencies {
-    implementation libraries.dom4j
+    implementation libs.dom4j
 
-    testImplementation libraries.mockito
-    testImplementation libraries.archUnit
-    testImplementation libraries.slf4j_nop
+    testImplementation libs.testing.mockito
+    testImplementation libs.testing.archunit
+    testImplementation libs.slf4j.nop
     testImplementation project(':testhelpers')
 }
 

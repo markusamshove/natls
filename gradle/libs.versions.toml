@@ -1,0 +1,31 @@
+[versions]
+slf4j = "2.0.17"
+sonar-api-version = "10.1.0.809"
+sonar-version = "9.9.1.69595"
+
+[libraries]
+guava = "com.google.guava:guava:33.4.8-jre"
+gson = "com.google.code.gson:gson:2.13.2"
+lsp4j = "org.eclipse.lsp4j:org.eclipse.lsp4j:1.0.0"
+dom4j = "org.dom4j:dom4j:2.2.0"
+reflections = "org.reflections:reflections:0.10.2"
+picocli = "info.picocli:picocli:4.7.7"
+
+# Sonar
+sonar-plugin-api = { module = "org.sonarsource.api.plugin:sonar-plugin-api", version.ref = "sonar-api-version" }
+sonar-test-fixtures = {  module = "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures", version.ref = "sonar-api-version"  }
+sonar-test-api = { module = "org.sonarsource.sonarqube:sonar-plugin-api-impl", version.ref = "sonar-version"  }
+
+testing-junit-jupiter = "org.junit:junit-bom:5.8.2"
+testing-assertj = "org.assertj:assertj-core:3.27.4"
+testing-mockito = "org.mockito:mockito-core:5.18.0"
+testing-archunit = "com.tngtech.archunit:archunit:1.4.1"
+testing-awaitility = "org.awaitility:awaitility:4.3.0"
+
+# Logging
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4j" }
+slf4j-utillogging = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4j" }
+
+
