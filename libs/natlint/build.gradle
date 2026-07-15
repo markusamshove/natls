@@ -4,9 +4,9 @@ plugins {
 
 dependencies {
     implementation project(':natparse')
-    implementation libraries.reflections
-    implementation libraries.slf4j_nop
-    implementation libraries.picocli
+    implementation libs.reflections
+    implementation libs.slf4j.nop
+    implementation libs.picocli
 
     testImplementation project(':testhelpers')
 }

@@ -1,10 +1,10 @@
 dependencies {
-    compileOnly libraries.sonarqube_api
-    compileOnly libraries.slf4j_api
+    compileOnly libs.sonar.plugin.api
+    compileOnly libs.slf4j.api
 
-    testImplementation libraries.slf4j_nop
-    testImplementation libraries.sonarqube_test_api
-    testImplementation libraries.sonarqube_test_fixtures
+    testImplementation libs.slf4j.nop
+    testImplementation libs.sonar.test.api
+    testImplementation libs.sonar.test.fixtures
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -35,7 +35,7 @@ jar {
                 'Plugin-SourcesUrl': 'https://github.com/MarkusAmshove/NatLS',
                 'Plugin-Version': archiveVersion,
                 'Plugin-RequiredForLanguages': 'natural',
-                'Sonar-Version': "${SONAR_VERSION}",
+                'Sonar-Version': "${libs.versions.sonar.version.get()}",
                 'SonarLint-Supported': 'false',
                 'Version': "${archiveVersion}",
         )
@@ -66,7 +66,7 @@ tasks.register('fatJar', Jar) {
                 'Plugin-SourcesUrl': 'https://github.com/MarkusAmshove/NatLS',
                 'Plugin-Version': archiveVersion,
                 'Plugin-RequiredForLanguages': 'natural',
-                'Sonar-Version': "${SONAR_VERSION}",
+                'Sonar-Version': "${libs.versions.sonar.version.get()}",
                 'SonarLint-Supported': 'false',
                 'Version': "${archiveVersion}",
         )
