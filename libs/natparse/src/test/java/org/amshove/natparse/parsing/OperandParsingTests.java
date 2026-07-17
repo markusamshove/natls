@@ -701,4 +701,19 @@ class OperandParsingTests extends AbstractOperandParsingTest
 		var operand = parseOperand("H'AA'");
 		assertLiteral(operand, SyntaxKind.HEX_LITERAL);
 	}
+
+	@Test
+	void parseUnicodeLiterals()
+	{
+		var operand = parseOperand("U'Äpfel'");
+		assertLiteral(operand, SyntaxKind.UNICODE_LITERAL);
+	}
+
+	@Test
+	void parseUnicodeHexLiterals()
+	{
+		var operand = parseOperand("UH'00C4007000660065006C'");
+		assertLiteral(operand, SyntaxKind.UNICODE_HEX_LITERAL);
+	}
+
 }

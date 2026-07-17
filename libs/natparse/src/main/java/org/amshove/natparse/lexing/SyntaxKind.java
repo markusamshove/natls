@@ -1,7 +1,6 @@
 package org.amshove.natparse.lexing;
 
-public enum SyntaxKind
-{
+public enum SyntaxKind {
 	EOF(false, false, false), // end of file
 	LBRACKET(false, false, false),
 	RBRACKET(false, false, false),
@@ -34,6 +33,8 @@ public enum SyntaxKind
 	NUMBER_LITERAL(false, false, false),
 	LESSER_GREATER(false, false, false),
 	STRING_LITERAL(false, false, false),
+	UNICODE_LITERAL(false, false, false),
+	UNICODE_HEX_LITERAL(false, false, false),
 	HEX_LITERAL(false, false, false),
 	DATE_LITERAL(false, false, false),
 	TIME_LITERAL(false, false, false),
@@ -48,7 +49,7 @@ public enum SyntaxKind
 	COLOR_ATTRIBUTE(false, false, false),
 
 	// System variables and functions
-	//   Application
+	// Application
 	SV_APPLIC_ID(false, true, false),
 	SV_APPLIC_NAME(false, true, false),
 	SV_COM(false, true, false),
@@ -86,8 +87,8 @@ public enum SyntaxKind
 	SV_TYPE(false, true, false),
 	SV_UBOUND(false, false, true),
 
-	//    Date and Time
-	//      Date
+	// Date and Time
+	// Date
 	SV_DATD(false, true, false),
 	SV_DAT4D(false, true, false),
 	SV_DATE(false, true, false),
@@ -103,7 +104,7 @@ public enum SyntaxKind
 	SV_DATV(false, true, false),
 	SV_DATVS(false, true, false),
 	SV_DATX(false, true, false),
-	//      Time
+	// Time
 	SV_TIMD(false, false, true),
 	SV_TIME(false, true, false),
 	SV_TIME_OUT(false, true, false),
@@ -112,7 +113,7 @@ public enum SyntaxKind
 	SV_TIMN(false, true, false),
 	SV_TIMX(false, true, false),
 
-	//   Input/Output
+	// Input/Output
 	SV_CURS_COL(false, true, false),
 	SV_CURS_FIELD(false, true, false),
 	SV_CURS_LINE(false, true, false),
@@ -129,12 +130,12 @@ public enum SyntaxKind
 	SV_WINDOW_POS(false, true, false),
 	SV_WINDOW_PS(false, true, false),
 
-	//    JSON
+	// JSON
 	SV_PARSE_LEVEL(false, false, true),
 	SV_PARSE_INDEX(false, false, true),
 	SV_PARSE_TYPE(false, false, true),
 
-	//    Natural Environment
+	// Natural Environment
 	SV_BROWSER_IO(false, true, false),
 	SV_DEVICE(false, true, false),
 	SV_GROUP(false, true, false),
@@ -153,7 +154,7 @@ public enum SyntaxKind
 	SV_USER_NAME(false, true, false),
 	SV_UUID(false, true, false),
 
-	//    System Environment
+	// System Environment
 	SV_CODEPAGE(false, true, false),
 	SV_HARDWARE(false, true, false),
 	SV_HOSTNAME(false, true, false),
@@ -170,14 +171,14 @@ public enum SyntaxKind
 	SV_WINMGR(false, true, false),
 	SV_WINMGRVERS(false, true, false),
 
-	//    XML
+	// XML
 	SV_PARSE_COL(false, false, true),
 	SV_PARSE_NAMESPACE_URI(false, false, true),
 	SV_PARSE_ROW(false, false, true),
 
 	// System Functions
 
-	//   Loops
+	// Loops
 	AVER(false, false, false),
 	COUNT(false, false, false),
 	MAX(false, false, false),
@@ -189,7 +190,7 @@ public enum SyntaxKind
 	SUM(false, false, false),
 	TOTAL(false, false, false),
 
-	//   Math
+	// Math
 	ABS(false, false, false),
 	ATN(false, false, false),
 	COS(false, false, false),
@@ -203,7 +204,7 @@ public enum SyntaxKind
 	TAN(false, false, false),
 	VAL(false, false, false),
 
-	//   Misc
+	// Misc
 	MAXVAL(false, false, true),
 	MINVAL(false, false, true),
 	TRANSLATE(true, false, true),
@@ -301,7 +302,8 @@ public enum SyntaxKind
 	INSERT(false, false, false),
 	INVESTIGATE(false, false, false),
 	JSON(false, false, false),
-	LIMIT(true, false, false), // can safely be an identifier, because the parser recognizes the LIMIT statement
+	LIMIT(true, false, false), // can safely be an identifier, because the parser recognizes the LIMIT
+								// statement
 	LOOP(false, false, false),
 	MAP(true, false, false),
 	MOVE(false, false, false),
@@ -812,102 +814,95 @@ public enum SyntaxKind
 	private final boolean isSystemVariable;
 	private final boolean isSystemFunction;
 
-	SyntaxKind(boolean canBeIdentifier, boolean isSystemVariable, boolean isSystemFunction)
-	{
+	SyntaxKind(boolean canBeIdentifier, boolean isSystemVariable, boolean isSystemFunction) {
 		this.canBeIdentifier = canBeIdentifier;
 		this.isSystemVariable = isSystemVariable;
 		this.isSystemFunction = isSystemFunction;
 	}
 
-	public boolean isIdentifier()
-	{
+	public boolean isIdentifier() {
 		return this == IDENTIFIER;
 	}
 
-	public boolean isSystemVariable()
-	{
+	public boolean isSystemVariable() {
 		return this.isSystemVariable;
 	}
 
-	public boolean isSystemFunction()
-	{
+	public boolean isSystemFunction() {
 		return this.isSystemFunction;
 	}
 
-	public boolean isBoolean()
-	{
+	public boolean isBoolean() {
 		return this == TRUE || this == FALSE;
 	}
 
-	public boolean isLiteralOrConst()
-	{
-		return isBoolean() || this == NUMBER_LITERAL || this == STRING_LITERAL || this == DATE_LITERAL || this == HEX_LITERAL || this == TIME_LITERAL || this == EXTENDED_TIME_LITERAL;
+	public boolean isLiteralOrConst() {
+		return isBoolean() || this == NUMBER_LITERAL || this == STRING_LITERAL || this == DATE_LITERAL
+				|| this == HEX_LITERAL || this == TIME_LITERAL || this == EXTENDED_TIME_LITERAL;
 	}
 
-	public boolean canBeIdentifier()
-	{
+	public boolean canBeIdentifier() {
 		return canBeIdentifier;
 	}
 
-	public boolean isAttribute()
-	{
+	public boolean isAttribute() {
 		return this == AD ||
-			this == AL ||
-			this == CC ||
-			this == CD ||
-			this == CV ||
-			this == DF ||
-			this == DL ||
-			this == DY ||
-			this == EM ||
-			this == EMU ||
-			this == ES ||
-			this == FC ||
-			this == FL ||
-			this == GC ||
-			this == HC ||
-			this == HE ||
-			this == HW ||
-			this == IC ||
-			this == ICU ||
-			this == IP ||
-			this == IS ||
-			this == KD ||
-			this == LC ||
-			this == LCU ||
-			this == LS ||
-			this == MC ||
-			this == MP ||
-			this == MS ||
-			this == NL ||
-			this == PC ||
-			this == PM ||
-			this == PS ||
-			this == SB ||
-			this == SF ||
-			this == SG ||
-			this == TC ||
-			this == TCU ||
-			this == UC ||
-			this == ZP ||
-			this == IN_ATTRIBUTE ||
-			this == OUT_ATTRIBUTE ||
-			this == OUTIN_ATTRIBUTE;
+				this == AL ||
+				this == CC ||
+				this == CD ||
+				this == CV ||
+				this == DF ||
+				this == DL ||
+				this == DY ||
+				this == EM ||
+				this == EMU ||
+				this == ES ||
+				this == FC ||
+				this == FL ||
+				this == GC ||
+				this == HC ||
+				this == HE ||
+				this == HW ||
+				this == IC ||
+				this == ICU ||
+				this == IP ||
+				this == IS ||
+				this == KD ||
+				this == LC ||
+				this == LCU ||
+				this == LS ||
+				this == MC ||
+				this == MP ||
+				this == MS ||
+				this == NL ||
+				this == PC ||
+				this == PM ||
+				this == PS ||
+				this == SB ||
+				this == SF ||
+				this == SG ||
+				this == TC ||
+				this == TCU ||
+				this == UC ||
+				this == ZP ||
+				this == IN_ATTRIBUTE ||
+				this == OUT_ATTRIBUTE ||
+				this == OUTIN_ATTRIBUTE;
 	}
 
-	public boolean closesStatement()
-	{
-		return this == END_IF || this == END_FOR || this == END_DECIDE || this == END_DEFINE || this == END_BREAK || this == END_ERROR || this == END_FIND || this == END_READ || this == END_SUBROUTINE || this == END_REPEAT || this == END_WORK;
+	public boolean closesStatement() {
+		return this == END_IF || this == END_FOR || this == END_DECIDE || this == END_DEFINE || this == END_BREAK
+				|| this == END_ERROR || this == END_FIND || this == END_READ || this == END_SUBROUTINE
+				|| this == END_REPEAT || this == END_WORK;
 	}
 
-	public boolean opensStatementWithCloseKeyword()
-	{
-		return this == IF || this == DEFINE || this == DECIDE || this == REPEAT || this == READ || this == FIND || this == FOR;
+	public boolean opensStatementWithCloseKeyword() {
+		return this == IF || this == DEFINE || this == DECIDE || this == REPEAT || this == READ || this == FIND
+				|| this == FOR;
 	}
 
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return name().replace("SV_", isSystemVariable ? "*" : "").replace("KW_", "").replace("_", "-");
 	}
 }
