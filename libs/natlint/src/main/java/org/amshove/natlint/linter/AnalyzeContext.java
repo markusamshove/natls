@@ -4,6 +4,7 @@ import org.amshove.natlint.api.IAnalyzeContext;
 import org.amshove.natlint.api.IDiagnosticReporter;
 import org.amshove.natlint.editorconfig.EditorConfig;
 import org.amshove.natparse.DiagnosticSeverity;
+import org.amshove.natparse.IDiagnostic;
 import org.amshove.natparse.natural.INaturalModule;
 import org.amshove.natparse.natural.project.NaturalFile;
 
@@ -38,7 +39,7 @@ class AnalyzeContext implements IAnalyzeContext
 	}
 
 	@Override
-	public void report(LinterDiagnostic diagnostic)
+	public void report(IDiagnostic diagnostic)
 	{
 		if (editorConfig == null)
 		{
@@ -70,6 +71,6 @@ class AnalyzeContext implements IAnalyzeContext
 		}
 
 		var newSeverity = DiagnosticSeverity.fromString(newSeverityName);
-		diagnosticReporter.report(diagnostic.withSeverity(newSeverity));
+		diagnosticReporter.report(newSeverity.wrapped(diagnostic));
 	}
 }

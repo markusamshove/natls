@@ -12,7 +12,6 @@ public class LinterDiagnostic implements IDiagnostic
 	private final IPosition position;
 	private final DiagnosticSeverity severity;
 	private final String message;
-	private final IPosition originalPosition;
 	private final List<AdditionalDiagnosticInfo> additionalInfos;
 
 	public LinterDiagnostic(String id, IPosition position, DiagnosticSeverity severity, String message)
@@ -22,20 +21,19 @@ public class LinterDiagnostic implements IDiagnostic
 
 	public LinterDiagnostic(String id, IPosition position, IPosition originalPosition, DiagnosticSeverity severity, String message)
 	{
-		this(id, position, originalPosition, severity, message, new ArrayList<>());
+		this(id, position, severity, message, new ArrayList<>());
 		if (originalPosition != null && !originalPosition.isSamePositionAs(position))
 		{
 			additionalInfos.add(new AdditionalDiagnosticInfo("Occurred here", originalPosition));
 		}
 	}
 
-	public LinterDiagnostic(String id, IPosition position, IPosition originalPosition, DiagnosticSeverity severity, String message, List<AdditionalDiagnosticInfo> additionalInfos)
+	private LinterDiagnostic(String id, IPosition position, DiagnosticSeverity severity, String message, List<AdditionalDiagnosticInfo> additionalInfos)
 	{
 		this.id = id;
 		this.position = position;
 		this.severity = severity;
 		this.message = message;
-		this.originalPosition = originalPosition;
 		this.additionalInfos = additionalInfos;
 	}
 
@@ -102,18 +100,6 @@ public class LinterDiagnostic implements IDiagnostic
 			", message='" + message + '\'' +
 			", position=" + position +
 			'}';
-	}
-
-	public LinterDiagnostic withSeverity(DiagnosticSeverity newSeverity)
-	{
-		return new LinterDiagnostic(
-			id,
-			position,
-			originalPosition,
-			newSeverity,
-			message,
-			additionalInfos
-		);
 	}
 
 	public void addAdditionalInfo(AdditionalDiagnosticInfo info)

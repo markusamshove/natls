@@ -3,7 +3,6 @@ package org.amshove.natlint.cli;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.amshove.natlint.api.LinterDiagnostic;
 import org.amshove.natlint.cli.sinks.FileStatusSink;
 import org.amshove.natlint.cli.sinks.FileStatusSink.MessageType;
 import org.amshove.natlint.cli.sinks.IDiagnosticSink;
@@ -119,7 +118,7 @@ public class CliAnalyzer extends ProjectAnalyzer
 		return diagnostics.stream().filter(predicates::shouldPrintDiagnostic).toList();
 	}
 
-	private ReadOnlyList<LinterDiagnostic> lint(NaturalFile file, INaturalModule module, ArrayList<IDiagnostic> allDiagnosticsInFile)
+	private ReadOnlyList<IDiagnostic> lint(NaturalFile file, INaturalModule module, ArrayList<IDiagnostic> allDiagnosticsInFile)
 	{
 		try
 		{
