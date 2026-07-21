@@ -2,7 +2,6 @@ package org.amshove.natlint.linter;
 
 import org.amshove.natlint.api.IAnalyzeContext;
 import org.amshove.natlint.api.IDiagnosticReporter;
-import org.amshove.natlint.api.LinterDiagnostic;
 import org.amshove.natlint.editorconfig.EditorConfig;
 import org.amshove.natparse.DiagnosticSeverity;
 import org.amshove.natparse.natural.INaturalModule;
