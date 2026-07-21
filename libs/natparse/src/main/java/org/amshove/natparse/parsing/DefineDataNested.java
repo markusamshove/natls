@@ -23,8 +23,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * A DEFINE DATA that is part of a RuleNode
  *
- * Inline rules can access everything in the upper scope of the map program
- * as well as locally defined variables.
+ * Inline rules can access everything in the upper scope of the map program as well as locally defined variables.
  *
  */
 class DefineDataNested extends BaseSyntaxNode implements IDefineData
