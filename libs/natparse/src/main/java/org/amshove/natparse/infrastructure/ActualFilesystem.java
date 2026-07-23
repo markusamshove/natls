@@ -2,6 +2,8 @@ package org.amshove.natparse.infrastructure;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +13,25 @@ import java.util.stream.Stream;
 
 public class ActualFilesystem implements IFilesystem
 {
+
+	Charset charset;
+
+	public ActualFilesystem()
+	{
+		this("UTF-8");
+	}
+
+	public ActualFilesystem(String charset)
+	{
+		this.charset = Charset.forName(charset, StandardCharsets.UTF_8);
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ActualFilesystem[encoding=%s]".formatted(charset);
+	}
+
 	private static final String[] PROJECT_FILE_NAMES = new String[]
 	{
 		".natural", "_naturalBuild"
@@ -20,7 +41,7 @@ public class ActualFilesystem implements IFilesystem
 	{
 		try
 		{
-			return Files.readString(path);
+			return Files.readString(path, charset);
 		}
 		catch (IOException e)
 		{
@@ -79,7 +100,7 @@ public class ActualFilesystem implements IFilesystem
 	{
 		try
 		{
-			return Files.lines(path);
+			return Files.lines(path, charset);
 		}
 		catch (IOException e)
 		{

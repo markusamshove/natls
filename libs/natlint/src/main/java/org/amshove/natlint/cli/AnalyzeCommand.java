@@ -34,6 +34,12 @@ public class AnalyzeCommand implements Callable<Integer>
 
 	@CommandLine.Option(names =
 	{
+		"--encoding"
+	}, description = "Encoding of the source code files", defaultValue = "UTF-8")
+	String encoding;
+
+	@CommandLine.Option(names =
+	{
 		"-r", "--relative"
 	}, description = "Only analyze modules matching any of the relative paths. Path should be relative to project root.")
 	List<String> relativePaths;
@@ -213,7 +219,8 @@ public class AnalyzeCommand implements Callable<Integer>
 			fileStatusMode ? FileStatusSink.create() : FileStatusSink.dummy(),
 			predicates,
 			disableLinting,
-			outputFlags
+			outputFlags,
+			encoding
 		);
 	}
 

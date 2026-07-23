@@ -39,11 +39,11 @@ public class CliAnalyzer
 	private final AnalyzerOutputFlags outputFlags;
 	private Map<String, AtomicInteger> totalDiagnosticsById = new HashMap<>();
 
-	public CliAnalyzer(Path workingDirectory, IDiagnosticSink sink, FileStatusSink fileStatusSink, AnalyzerPredicates predicates, boolean disableLinting, AnalyzerOutputFlags outputFlags)
+	public CliAnalyzer(Path workingDirectory, IDiagnosticSink sink, FileStatusSink fileStatusSink, AnalyzerPredicates predicates, boolean disableLinting, AnalyzerOutputFlags outputFlags, String sourceEncoding)
 	{
 		this.workingDirectory = workingDirectory;
 		this.predicates = predicates;
-		filesystem = new ActualFilesystem();
+		filesystem = new ActualFilesystem(sourceEncoding);
 		diagnosticSink = sink;
 		this.fileStatusSink = fileStatusSink;
 		this.disableLinting = disableLinting;
@@ -52,8 +52,6 @@ public class CliAnalyzer
 
 	public int run()
 	{
-		var filesystem = new ActualFilesystem();
-
 		while (!workingDirectory.getRoot().equals(workingDirectory) && filesystem.findNaturalProjectFile(workingDirectory).isEmpty())
 		{
 			workingDirectory = workingDirectory.getParent();
