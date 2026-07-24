@@ -73,7 +73,8 @@ class CoverageAnalyzerShould extends AbstractAnalyzerTest
 	@Test
 	void coverStartOfForLoop()
 	{
-		testDiagnostics("""
+		testDiagnostics(
+			"""
 			FOR #I = 1 TO 3
 				IGNORE
 			END-FOR

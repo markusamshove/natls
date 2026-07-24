@@ -17,44 +17,55 @@ import com.google.common.io.Files;
 /**
  * This sink emits only LcovDiagnostic items as lcov format.
  */
-public class LcovDiagnosticSink implements IDiagnosticSink {
+public class LcovDiagnosticSink implements IDiagnosticSink
+{
 
 	Path filePath;
 	CharSink outSink;
 
-	public LcovDiagnosticSink(Path filePath) {
+	public LcovDiagnosticSink(Path filePath)
+	{
 		this.filePath = filePath;
-		try {
-			if (filePath.toFile().exists()) {
+		try
+		{
+			if (filePath.toFile().exists())
+			{
 				java.nio.file.Files.delete(filePath);
 			}
 
 			this.outSink = Files.asCharSink(filePath.toFile(), StandardCharsets.UTF_8, FileWriteMode.APPEND);
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			throw new RuntimeException(e);
 		}
 	}
 
-	private String sfRecord(IPosition diagnostic) {
+	private String sfRecord(IPosition diagnostic)
+	{
 		return String.format("SF:%s\n", filePath.getParent().relativize(diagnostic.filePath()));
 	}
 
-	private String daRecord(Integer line) {
+	private String daRecord(Integer line)
+	{
 		return String.format("DA:%s,0%n", line + 1);
 	}
 
 	private static final String END_RECORD = "end_of_record\n";
 
 	@Override
-	public synchronized void printDiagnostics(int currentFileCount, Path filePath, List<IDiagnostic> diagnostics) {
+	public synchronized void printDiagnostics(int currentFileCount, Path filePath, List<IDiagnostic> diagnostics)
+	{
 
 		var diagnosticIterator = diagnostics.iterator();
 
-		if (!diagnosticIterator.hasNext()) {
+		if (!diagnosticIterator.hasNext())
+		{
 			return;
 		}
 
-		try (var out = outSink.openBufferedStream()) {
+		try (var out = outSink.openBufferedStream())
+		{
 			// peel off first diagnostic
 			IPosition currentPosition = diagnosticIterator.next();
 			out.write(sfRecord(currentPosition));
@@ -64,10 +75,13 @@ public class LcovDiagnosticSink implements IDiagnosticSink {
 
 			diagnosticLines.add(currentPosition.line());
 
-			while (diagnosticIterator.hasNext()) {
+			while (diagnosticIterator.hasNext())
+			{
 				var nextPosition = diagnosticIterator.next();
-				if (!currentPosition.isSameFileAs(nextPosition)) {
-					for (var line : diagnosticLines) {
+				if (!currentPosition.isSameFileAs(nextPosition))
+				{
+					for (var line : diagnosticLines)
+					{
 						out.write(daRecord(line));
 					}
 					out.write(END_RECORD);
@@ -78,11 +92,14 @@ public class LcovDiagnosticSink implements IDiagnosticSink {
 				diagnosticLines.add(nextPosition.line());
 			}
 
-			for (var line : diagnosticLines) {
+			for (var line : diagnosticLines)
+			{
 				out.write(daRecord(line));
 			}
 			out.write(END_RECORD);
-		} catch (IOException ioex) {
+		}
+		catch (IOException ioex)
+		{
 			throw new RuntimeException("Error writing LCOV", ioex);
 		}
 	}

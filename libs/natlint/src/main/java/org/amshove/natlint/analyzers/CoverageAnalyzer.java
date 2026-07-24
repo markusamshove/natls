@@ -40,11 +40,13 @@ public class CoverageAnalyzer extends AbstractAnalyzer
 	private static boolean enabled = false;
 
 	@Override
-	public boolean isEnabled() {
+	public boolean isEnabled()
+	{
 		return enabled;
 	}
 
-	public static void setEnabled(boolean enabled) {
+	public static void setEnabled(boolean enabled)
+	{
 		CoverageAnalyzer.enabled = enabled;
 	}
 
@@ -69,10 +71,14 @@ public class CoverageAnalyzer extends AbstractAnalyzer
 			this.context = context;
 		}
 
-		private void cover(IStatementNode node) {
-			try {
+		private void cover(IStatementNode node)
+		{
+			try
+			{
 				context.report(new CoverageDiagnostic(node.position()));
-			} catch (IndexOutOfBoundsException inout) {
+			}
+			catch (IndexOutOfBoundsException inout)
+			{
 				// This happens for statement list nodes that are empty
 				// TODO: Work out why this happens
 			}
