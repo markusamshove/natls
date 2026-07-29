@@ -21,6 +21,11 @@ public interface IDataType
 		return format() == NUMERIC || format() == PACKED || format() == FLOAT || format() == INTEGER;
 	}
 
+	default boolean isCharacterFamily()
+	{
+		return format() == ALPHANUMERIC || format() == UNICODE;
+	}
+
 	default boolean isAlphaNumericFamily()
 	{
 		return format() == ALPHANUMERIC || format() == UNICODE || format() == BINARY;
@@ -29,9 +34,18 @@ public interface IDataType
 	/**
 	 * Determines if this type fits into the given type. Implicit conversion is taken into account.<br/>
 	 * <strong>This does not compare by byte size</strong>
+	 *
+	 * ALPHA <-> UNICODE cares about _codepoint_ size, not bytes
+	 *   casts are done to/from the runtime codepage by default
+	 * (ALPHA|UNICODE) -> BINARY cares about bytes
 	 */
 	default boolean fitsInto(IDataType target)
 	{
+
+		if (this.isCharacterFamily() && target.isCharacterFamily()) {
+			return target.length() >= this.length();
+		}
+
 		var ourByteSize = this.hasDynamicLength() ? ONE_GIGABYTE : byteSize();
 		var theirByteSize = target.hasDynamicLength() ? ONE_GIGABYTE : target.byteSize();
 		var byteSizeFits = ourByteSize <= theirByteSize;
