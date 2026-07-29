@@ -105,30 +105,31 @@ public class SyntaxToken implements IPosition
 		return stringLiteral.toString();
 	}
 
+	private String unwrappedString(int offset)
+	{
+		var quoteChar = source.substring(offset, offset + 1);
+		var escapedQuote = quoteChar + quoteChar;
+		return source.substring(offset + 1, source.length() - 1).replace(escapedQuote, quoteChar);
+	}
+
 	public String stringValue()
 	{
 		return switch (kind)
 		{
 			case HEX_LITERAL, UNICODE_HEX_LITERAL ->
 			{
-				var split = source.split("'");
-				if (split.length < 2)
-				{
-					// Empty literal H''
+				var quoteChar = source.substring(source.length() - 1);
+				var parts = source.split(quoteChar);
+				if (parts.length < 2) {
 					yield "";
 				}
-				var hexLiteral = split[1];
+				var hexLiteral = parts[1];
 				int size = kind == SyntaxKind.HEX_LITERAL ? 2 : 4;
 				yield fromHexBytes(hexLiteral, size);
 			}
 			case DATE_LITERAL, TIME_LITERAL, EXTENDED_TIME_LITERAL -> source.substring(2, source.length() - 1);
-			default ->
-			{
-				var quoteChar = source.substring(0, 1);
-				var escapedQuote = quoteChar + quoteChar;
-
-				yield source.substring(1, source.length() - 1).replace(escapedQuote, quoteChar);
-			}
+			case UNICODE_LITERAL -> unwrappedString(1);
+			default -> unwrappedString(0);
 		};
 	}
 
