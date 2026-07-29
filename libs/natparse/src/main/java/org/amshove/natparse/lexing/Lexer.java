@@ -284,13 +284,16 @@ public class Lexer
 					{
 						consumeUnicodeLiteral();
 					}
-					else if (scanner.peek(1) == 'H' && scanner.peek(2) == '\'')
-					{
-						consumeUnicodeHexLiteral();
-					}
 					else
 					{
-						consumeIdentifierOrKeyword();
+						if (scanner.peek(1) == 'H' && scanner.peek(2) == '\'')
+						{
+							consumeUnicodeHexLiteral();
+						}
+						else
+						{
+							consumeIdentifierOrKeyword();
+						}
 					}
 					continue;
 				case 'v':
@@ -1957,7 +1960,6 @@ public class Lexer
 
 		createAndAdd(SyntaxKind.UNICODE_LITERAL);
 	}
-
 
 	private void consumeHexLiteral()
 	{

@@ -83,22 +83,27 @@ public class SyntaxToken implements IPosition
 		return Integer.parseInt(source());
 	}
 
-	private String fromHexBytes(String hexLiteral, int codepointSize) {
+	private String fromHexBytes(String hexLiteral, int codepointSize)
+	{
 
 		var stringLiteral = new StringBuilder(hexLiteral.length() / codepointSize);
 		int ii = 0;
 
 		int codePoint = 0;
-		while (ii < hexLiteral.length()) {
+		while (ii < hexLiteral.length())
+		{
 			var hexByte = ii + 2 > hexLiteral.length()
 				? hexLiteral.charAt(ii) + "0"
 				: hexLiteral.substring(ii, ii + 2);
 			ii += 2;
 			codePoint += Integer.parseInt(hexByte, 16);
-			if (ii % codepointSize == 0) {
+			if (ii % codepointSize == 0)
+			{
 				stringLiteral.appendCodePoint(codePoint);
 				codePoint = 0;
-			} else {
+			}
+			else
+			{
 				codePoint <<= 8;
 			}
 		}
@@ -120,7 +125,8 @@ public class SyntaxToken implements IPosition
 			{
 				var quoteChar = source.substring(source.length() - 1);
 				var parts = source.split(quoteChar);
-				if (parts.length < 2) {
+				if (parts.length < 2)
+				{
 					yield "";
 				}
 				var hexLiteral = parts[1];

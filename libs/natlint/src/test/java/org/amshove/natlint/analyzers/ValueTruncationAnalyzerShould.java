@@ -72,7 +72,8 @@ class ValueTruncationAnalyzerShould extends AbstractAnalyzerTest
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {
+	@ValueSource(strings =
+	{
 		"'AB'",
 		"H'4142'",
 		"U'AB'",
@@ -90,7 +91,8 @@ class ValueTruncationAnalyzerShould extends AbstractAnalyzerTest
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {
+	@ValueSource(strings =
+	{
 		"'AB'",
 		"H'4142'",
 		"U'AB'",
@@ -108,7 +110,8 @@ class ValueTruncationAnalyzerShould extends AbstractAnalyzerTest
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {
+	@ValueSource(strings =
+	{
 		"'AB'",
 		"H'4142'",
 		"U'A'",

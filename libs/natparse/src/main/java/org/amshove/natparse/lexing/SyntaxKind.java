@@ -1,6 +1,7 @@
 package org.amshove.natparse.lexing;
 
-public enum SyntaxKind {
+public enum SyntaxKind
+{
 	EOF(false, false, false), // end of file
 	LBRACKET(false, false, false),
 	RBRACKET(false, false, false),
@@ -303,7 +304,7 @@ public enum SyntaxKind {
 	INVESTIGATE(false, false, false),
 	JSON(false, false, false),
 	LIMIT(true, false, false), // can safely be an identifier, because the parser recognizes the LIMIT
-								// statement
+	// statement
 	LOOP(false, false, false),
 	MAP(true, false, false),
 	MOVE(false, false, false),
@@ -814,95 +815,109 @@ public enum SyntaxKind {
 	private final boolean isSystemVariable;
 	private final boolean isSystemFunction;
 
-	SyntaxKind(boolean canBeIdentifier, boolean isSystemVariable, boolean isSystemFunction) {
+	SyntaxKind(boolean canBeIdentifier, boolean isSystemVariable, boolean isSystemFunction)
+	{
 		this.canBeIdentifier = canBeIdentifier;
 		this.isSystemVariable = isSystemVariable;
 		this.isSystemFunction = isSystemFunction;
 	}
 
-	public boolean isIdentifier() {
+	public boolean isIdentifier()
+	{
 		return this == IDENTIFIER;
 	}
 
-	public boolean isSystemVariable() {
+	public boolean isSystemVariable()
+	{
 		return this.isSystemVariable;
 	}
 
-	public boolean isSystemFunction() {
+	public boolean isSystemFunction()
+	{
 		return this.isSystemFunction;
 	}
 
-	public boolean isBoolean() {
+	public boolean isBoolean()
+	{
 		return this == TRUE || this == FALSE;
 	}
 
-	public boolean isLiteralOrConst() {
-		return isBoolean() || this == NUMBER_LITERAL || this == STRING_LITERAL || this == DATE_LITERAL
-				|| this == HEX_LITERAL || this == TIME_LITERAL || this == EXTENDED_TIME_LITERAL;
+	public boolean isLiteralOrConst()
+	{
+		return isBoolean()
+			|| this == NUMBER_LITERAL
+			|| this == STRING_LITERAL || this == HEX_LITERAL
+			|| this == UNICODE_LITERAL || this == UNICODE_HEX_LITERAL
+			|| this == DATE_LITERAL || this == TIME_LITERAL || this == EXTENDED_TIME_LITERAL;
 	}
 
-	public boolean canBeIdentifier() {
+	public boolean canBeIdentifier()
+	{
 		return canBeIdentifier;
 	}
 
-	public boolean isAttribute() {
+	public boolean isAttribute()
+	{
 		return this == AD ||
-				this == AL ||
-				this == CC ||
-				this == CD ||
-				this == CV ||
-				this == DF ||
-				this == DL ||
-				this == DY ||
-				this == EM ||
-				this == EMU ||
-				this == ES ||
-				this == FC ||
-				this == FL ||
-				this == GC ||
-				this == HC ||
-				this == HE ||
-				this == HW ||
-				this == IC ||
-				this == ICU ||
-				this == IP ||
-				this == IS ||
-				this == KD ||
-				this == LC ||
-				this == LCU ||
-				this == LS ||
-				this == MC ||
-				this == MP ||
-				this == MS ||
-				this == NL ||
-				this == PC ||
-				this == PM ||
-				this == PS ||
-				this == SB ||
-				this == SF ||
-				this == SG ||
-				this == TC ||
-				this == TCU ||
-				this == UC ||
-				this == ZP ||
-				this == IN_ATTRIBUTE ||
-				this == OUT_ATTRIBUTE ||
-				this == OUTIN_ATTRIBUTE;
+			this == AL ||
+			this == CC ||
+			this == CD ||
+			this == CV ||
+			this == DF ||
+			this == DL ||
+			this == DY ||
+			this == EM ||
+			this == EMU ||
+			this == ES ||
+			this == FC ||
+			this == FL ||
+			this == GC ||
+			this == HC ||
+			this == HE ||
+			this == HW ||
+			this == IC ||
+			this == ICU ||
+			this == IP ||
+			this == IS ||
+			this == KD ||
+			this == LC ||
+			this == LCU ||
+			this == LS ||
+			this == MC ||
+			this == MP ||
+			this == MS ||
+			this == NL ||
+			this == PC ||
+			this == PM ||
+			this == PS ||
+			this == SB ||
+			this == SF ||
+			this == SG ||
+			this == TC ||
+			this == TCU ||
+			this == UC ||
+			this == ZP ||
+			this == IN_ATTRIBUTE ||
+			this == OUT_ATTRIBUTE ||
+			this == OUTIN_ATTRIBUTE;
 	}
 
-	public boolean closesStatement() {
+	public boolean closesStatement()
+	{
 		return this == END_IF || this == END_FOR || this == END_DECIDE || this == END_DEFINE || this == END_BREAK
-				|| this == END_ERROR || this == END_FIND || this == END_READ || this == END_SUBROUTINE
-				|| this == END_REPEAT || this == END_WORK;
+			|| this == END_ERROR || this == END_FIND || this == END_READ || this == END_SUBROUTINE
+			|| this == END_REPEAT || this == END_WORK;
 	}
 
-	public boolean opensStatementWithCloseKeyword() {
+	public boolean opensStatementWithCloseKeyword()
+	{
 		return this == IF || this == DEFINE || this == DECIDE || this == REPEAT || this == READ || this == FIND
-				|| this == FOR;
+			|| this == FOR;
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return name().replace("SV_", isSystemVariable ? "*" : "").replace("KW_", "").replace("_", "-");
 	}
 }
