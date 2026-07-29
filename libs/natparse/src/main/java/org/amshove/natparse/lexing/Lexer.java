@@ -1981,6 +1981,20 @@ public class Lexer
 	private void consumeUnicodeHexLiteral()
 	{
 		scanner.start();
+		scanner.advance(3); // U, H, '
+
+		if (!consumeStringToEnd(SyntaxKind.UNICODE_HEX_LITERAL))
+		{
+			return;
+		}
+
+		createAndAdd(SyntaxKind.UNICODE_HEX_LITERAL);
+		checkStringLiteralLength(previousUnsafe());
+		var hexLiteralChars = previousUnsafe().source().length() - 4; // - H''
+		if (hexLiteralChars % 4 != 0)
+		{
+			addDiagnostic("Invalid UNICODE HEX literal. Number of characters must be divisible by 4, but was %d.".formatted(hexLiteralChars), "Literal defined here", LexerError.UNKNOWN_CHARACTER);
+		}
 	}
 
 	private boolean consumeStringToEnd(SyntaxKind kindToCreate)

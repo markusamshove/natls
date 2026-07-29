@@ -74,6 +74,22 @@ class LexerForStringsShould extends AbstractLexerTest
 	}
 
 	@Test
+	void lexUnicodeHexStrings()
+	{
+		// U+00A5 = ¥
+		assertTokens("UH'00A5'", token(SyntaxKind.UNICODE_HEX_LITERAL, "UH'00A5'"));
+	}
+
+	@Test
+	void reportDiagnosticForWrongLengthUnicodeHexStrings()
+	{
+		assertDiagnostic(
+			"UH'00A'",
+			assertedDiagnostic(-1, 7, 0, 8, LexerError.UNKNOWN_CHARACTER)
+		);
+	}
+
+	@Test
 	void correctlyParseTimeFormats()
 	{
 		assertTokens(

@@ -18,12 +18,14 @@ class LiteralNode extends TokenNode implements ILiteralNode
 		inferredType = switch (token.kind())
 		{
 			case STRING_LITERAL -> new LiteralType(DataFormat.ALPHANUMERIC, token.stringValue().trim().length());
+			case UNICODE_LITERAL -> new LiteralType(DataFormat.UNICODE, token.stringValue().trim().length());
 			case NUMBER_LITERAL -> inferNumeric(token);
 			case DATE_LITERAL -> new LiteralType(DataFormat.DATE, 4);
 			case TIME_LITERAL, EXTENDED_TIME_LITERAL -> new LiteralType(DataFormat.TIME, 7);
 
 			// docs(User-Defined constants): When a hexadecimal constant is transferred to another field, it will be treated as an alphanumeric value (format A).
 			case HEX_LITERAL -> new LiteralType(DataFormat.ALPHANUMERIC, token.stringValue().length());
+			case UNICODE_HEX_LITERAL -> new LiteralType(DataFormat.UNICODE, token.stringValue().length());
 
 			case TRUE, FALSE -> new LiteralType(DataFormat.LOGIC, 1);
 			case ASTERISK -> new LiteralType(DataFormat.NONE, 0);
