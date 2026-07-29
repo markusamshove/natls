@@ -83,31 +83,43 @@ public class SyntaxToken implements IPosition
 		return Integer.parseInt(source());
 	}
 
+	private String fromHexBytes(String hexLiteral, int codepointSize) {
+
+		var stringLiteral = new StringBuilder(hexLiteral.length() / codepointSize);
+		int ii = 0;
+
+		int codePoint = 0;
+		while (ii < hexLiteral.length()) {
+			var hexByte = ii + 2 > hexLiteral.length()
+				? hexLiteral.charAt(ii) + "0"
+				: hexLiteral.substring(ii, ii + 2);
+			ii += 2;
+			codePoint += Integer.parseInt(hexByte, 16);
+			if (ii % codepointSize == 0) {
+				stringLiteral.appendCodePoint(codePoint);
+				codePoint = 0;
+			} else {
+				codePoint <<= 8;
+			}
+		}
+		return stringLiteral.toString();
+	}
+
 	public String stringValue()
 	{
 		return switch (kind)
 		{
-			case HEX_LITERAL ->
+			case HEX_LITERAL, UNICODE_HEX_LITERAL ->
 			{
 				var split = source.split("'");
-
 				if (split.length < 2)
 				{
 					// Empty literal H''
 					yield "";
 				}
-
 				var hexLiteral = split[1];
-				var stringLiteral = new StringBuilder(hexLiteral.length() / 2);
-				for (var i = 0; i < hexLiteral.length(); i += 2)
-				{
-					var hexPart = i + 2 > hexLiteral.length()
-						? hexLiteral.charAt(i) + "0" // just to prevent an Exception. The lexer raises a diagnostic for this
-						: hexLiteral.substring(i, i + 2);
-					stringLiteral.append((char) Integer.parseInt(hexPart, 16));
-				}
-
-				yield stringLiteral.toString();
+				int size = kind == SyntaxKind.HEX_LITERAL ? 2 : 4;
+				yield fromHexBytes(hexLiteral, size);
 			}
 			case DATE_LITERAL, TIME_LITERAL, EXTENDED_TIME_LITERAL -> source.substring(2, source.length() - 1);
 			default ->

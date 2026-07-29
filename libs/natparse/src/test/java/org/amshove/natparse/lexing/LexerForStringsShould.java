@@ -158,6 +158,13 @@ class LexerForStringsShould extends AbstractLexerTest
 	}
 
 	@Test
+	void containTheMultiCharUnicodeHexLiteralAsString()
+	{
+		var token = lexSingle("UH'00C4007000660065006C'");
+		assertThat(token.stringValue()).isEqualTo("Äpfel");
+	}
+
+	@Test
 	void containTheHexLiteralAsStringForMultipleCharactersIfOneCharacterIsMissing()
 	{
 		var token = lexSingle("H'31323'");
