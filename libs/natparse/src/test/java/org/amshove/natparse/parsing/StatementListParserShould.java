@@ -1912,6 +1912,13 @@ class StatementListParserShould extends StatementParseTest
 	}
 
 	@Test
+	void parseFormatWithIdentifier()
+	{
+		var statementList = assertParsesWithoutDiagnostics("FORMAT (REPORT) LS=5 ZP=ON");
+		assertThat(statementList.statements().size()).isEqualTo(1);
+	}
+
+	@Test
 	void parseFormatIfNextLineStartsWithStatement()
 	{
 		// If a format thingy is empty, the next line should still properly be identified as the next statement

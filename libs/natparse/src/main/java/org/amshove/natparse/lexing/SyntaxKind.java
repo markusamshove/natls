@@ -181,7 +181,7 @@ public enum SyntaxKind
 
 	// Loops
 	AVER(false, false, false),
-	COUNT(false, false, false),
+	COUNT(true, false, false),
 	MAX(false, false, false),
 	MIN(false, false, false),
 	NAVER(false, false, false),
@@ -189,7 +189,7 @@ public enum SyntaxKind
 	NMIN(false, false, false),
 	OLD(false, false, false),
 	SUM(false, false, false),
-	TOTAL(false, false, false),
+	TOTAL(true, false, false),
 
 	// Math
 	ABS(false, false, false),
@@ -217,7 +217,7 @@ public enum SyntaxKind
 	// Kcheck reserved keywords
 	ACCEPT(false, false, false),
 	ADD(false, false, false),
-	ALL(false, false, false),
+	ALL(true, false, false),
 	ANY(false, false, false),
 	ASSIGN(false, false, false),
 	AT(false, false, false),
@@ -854,6 +854,22 @@ public enum SyntaxKind
 	public boolean canBeIdentifier()
 	{
 		return canBeIdentifier;
+	}
+
+	public boolean canBe(SyntaxKind other)
+	{
+
+		if (other == this)
+		{
+			return true;
+		}
+
+		if (other.isIdentifier()) {
+			return this.canBeIdentifier();
+		} else {
+			return false;
+		}
+
 	}
 
 	public boolean isAttribute()
