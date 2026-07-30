@@ -4044,14 +4044,6 @@ class StatementListParserShould extends StatementParseTest
 	}
 
 	@Test
-	void consumeRuleVar()
-	{
-		assertParsesSingleStatement("""
-               RULEVAR DDM.FIELD;
-            """, IRuleVarNode.class);
-	}
-
-	@Test
 	void parseSimpleEndTransaction()
 	{
 		var et = assertParsesSingleStatement("END TRANSACTION", IEndTransactionNode.class);

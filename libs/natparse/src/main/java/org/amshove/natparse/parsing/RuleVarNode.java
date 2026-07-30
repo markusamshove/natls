@@ -6,6 +6,8 @@ import org.amshove.natparse.natural.IRuleVarNode;
 class RuleVarNode extends StatementWithBodyNode implements IRuleVarNode
 {
 
+	private Type type;
+
 	private SyntaxToken nameToken;
 
 	private IncDirNode incDirNode;
@@ -25,6 +27,14 @@ class RuleVarNode extends StatementWithBodyNode implements IRuleVarNode
 	void setIncDic(IncDicNode incDicNode)
 	{
 		this.incDicNode = incDicNode;
+	}
+
+	void setType(Type type) {
+		this.type = type;
+	}
+
+	public Type type() {
+		return this.type;
 	}
 
 }
