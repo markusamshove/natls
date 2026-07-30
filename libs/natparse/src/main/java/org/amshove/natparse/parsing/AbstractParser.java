@@ -264,7 +264,7 @@ abstract class AbstractParser<T>
 		}
 
 		// negative numeric literals like `-1`
-		if (peekKind(SyntaxKind.MINUS) && peekKind(1, SyntaxKind.NUMBER_LITERAL))
+		if ((peekKind(SyntaxKind.MINUS) || peekKind(SyntaxKind.PLUS)) && peekKind(1, SyntaxKind.NUMBER_LITERAL))
 		{
 			var combinedLiteral = peek().combine(peek(1), SyntaxKind.NUMBER_LITERAL);
 			var literal = new LiteralNode(combinedLiteral);
