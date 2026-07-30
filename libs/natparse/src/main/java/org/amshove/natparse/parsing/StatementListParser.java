@@ -243,6 +243,9 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 					case INPUT:
 						statementList.addStatement(inputStatement());
 						break;
+					case REINPUT:
+						statementList.addStatement(reinputStatement());
+						break;
 					case OPTIONS:
 						statementList.addStatement(options());
 						break;
@@ -2471,6 +2474,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 			}
 		}
 
+		// TODO: review, is this block required or covered by the one above?
 		if (consumeOptionally(input, SyntaxKind.LPAREN))
 		{
 			// statement attributes?
@@ -2558,6 +2562,86 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		}
 
 		return input;
+	}
+
+	private StatementNode reinputStatement() throws ParseError
+	{
+		var reinput = new ReinputStatementNode();
+
+		consumeMandatory(reinput, SyntaxKind.REINPUT);
+
+		consumeOptionally(reinput, SyntaxKind.FULL);
+
+		if (isAttributeList()) {
+			reinput.setStatementAttributes(consumeAttributeList(reinput));
+			for (var statementAttribute : reinput.statementAttributes()) {
+				if (!isInputStatementAttribute(statementAttribute.kind())) {
+					report(ParserErrors.invalidInputStatementAttribute(statementAttribute));
+				}
+			}
+		}
+
+		if (peekKind(SyntaxKind.USING)) {
+			consumeMandatory(reinput, SyntaxKind.USING);
+			consumeMandatory(reinput, SyntaxKind.HELP);
+			reinput.setUsingHelp(true);
+		} else {
+			// Unlike INPUT, both of these are optional
+			consumeOptionally(reinput, SyntaxKind.WITH);
+			consumeOptionally(reinput, SyntaxKind.TEXT);
+
+			consumeOptionally(reinput, SyntaxKind.ASTERISK);
+			consumeOperandNode(reinput);
+
+			if (isAttributeList()) {
+				reinput.setOutputAttributes(consumeAttributeList(reinput));
+			}
+
+			int formatOperandCount = 0;
+			while (consumeOptionally(reinput, SyntaxKind.COMMA)) {
+				var operand = consumeOperandNode(reinput);
+				formatOperandCount ++;
+				if (formatOperandCount > 7) {
+					report(ParserErrors.invalidOperand(
+						operand, "up to 7, not %d".formatted(formatOperandCount)
+					));
+				}
+			}
+		}
+
+		if (consumeOptionally(reinput, SyntaxKind.MARK)) {
+			if (consumeOptionally(reinput, SyntaxKind.POSITION)) {
+				consumeOperandNode(reinput);
+				consumeOptionally(reinput, SyntaxKind.IN);
+			}
+			consumeOptionally(reinput, SyntaxKind.FIELD);
+
+			consumeOptionally(reinput, SyntaxKind.ASTERISK);
+			consumeOperandNode(reinput);
+			if (isAttributeList()) {
+				consumeAttributeList(reinput);
+			}
+
+			while (
+					!(peekKind(SyntaxKind.ALARM) || peekKind(SyntaxKind.AND) || peekKind(SyntaxKind.SOUND))
+					&&
+					(peekKind(SyntaxKind.ASTERISK) || isOperand() )
+				  ) {
+				consumeOptionally(reinput, SyntaxKind.ASTERISK);
+				consumeOperandNode(reinput);
+				if (isAttributeList()) {
+					consumeAttributeList(reinput);
+				}
+			}
+		}
+
+		if (peekKind(SyntaxKind.AND) || peekKind(SyntaxKind.SOUND) || peekKind(SyntaxKind.ALARM)) {
+			consumeOptionally(reinput, SyntaxKind.AND);
+			consumeOptionally(reinput, SyntaxKind.SOUND);
+			consumeMandatory(reinput, SyntaxKind.ALARM);
+		}
+
+		return reinput;
 	}
 
 	private void checkOutputElementAttributes(IOutputElementNode operand)
