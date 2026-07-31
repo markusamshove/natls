@@ -12,25 +12,29 @@ class ReinputStatementNode extends StatementNode implements IReinputStatementNod
 	private IAttributeListNode outputAttributes;
 
 	@Override
-	public boolean isUsingHelp() {
+	public boolean isUsingHelp()
+	{
 		return usingHelp;
 	}
 
-	public void setUsingHelp(boolean usingHelp) {
+	public void setUsingHelp(boolean usingHelp)
+	{
 		this.usingHelp = usingHelp;
 	}
 
 	@Override
-	public ReadOnlyList<IAttributeNode> statementAttributes() {
-		return statementAttributes == null ?
-			ReadOnlyList.empty() : statementAttributes.attributes();
+	public ReadOnlyList<IAttributeNode> statementAttributes()
+	{
+		return statementAttributes == null ? ReadOnlyList.empty() : statementAttributes.attributes();
 	}
 
-	public void setStatementAttributes(IAttributeListNode statementAttributes) {
+	public void setStatementAttributes(IAttributeListNode statementAttributes)
+	{
 		this.statementAttributes = statementAttributes;
 	}
 
-	public void setOutputAttributes(IAttributeListNode outputAttributes) {
+	public void setOutputAttributes(IAttributeListNode outputAttributes)
+	{
 		this.outputAttributes = outputAttributes;
 	}
 

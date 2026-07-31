@@ -36,33 +36,39 @@ class ReinputStatementParsingShould extends StatementParseTest
 	}
 
 	@Test
-	void parseWithText() {
+	void parseWithText()
+	{
 		assertParsesSingleStatement("REINPUT WITH TEXT 'try again'", IReinputStatementNode.class);
 	}
 
 	@Test
-	void parseWithTextWithoutWithText() {
+	void parseWithTextWithoutWithText()
+	{
 		assertParsesSingleStatement("REINPUT 'try again'", IReinputStatementNode.class);
 	}
 
 	@Test
-	void parseOutputAttributes() {
+	void parseOutputAttributes()
+	{
 		assertParsesSingleStatement("REINPUT 'try again' (CD=GR)", IReinputStatementNode.class);
 	}
 
 	@Test
-	void parseFormatOperands() {
+	void parseFormatOperands()
+	{
 		assertParsesSingleStatement("REINPUT 'try again for the :1:th time', 5", IReinputStatementNode.class);
 		assertParsesSingleStatement("REINPUT 'try :1:x harder for the :2: reasons', 5, 'best'", IReinputStatementNode.class);
 	}
 
 	@Test
-	void parseMark() {
+	void parseMark()
+	{
 		assertParsesSingleStatement("REINPUT USING HELP MARK POSITION 4 IN FIELD *BADGER", IReinputStatementNode.class);
 	}
 
 	@Test
-	void parseMarkExtraFieldsWithAttributes() {
+	void parseMarkExtraFieldsWithAttributes()
+	{
 		assertParsesSingleStatement("""
 			REINPUT USING HELP MARK
 				*BADGER (CV=GR)
@@ -71,7 +77,8 @@ class ReinputStatementParsingShould extends StatementParseTest
 	}
 
 	@Test
-	void parseAlarm() {
+	void parseAlarm()
+	{
 		assertParsesSingleStatement("REINPUT USING HELP AND SOUND ALARM", IReinputStatementNode.class);
 		assertParsesSingleStatement("REINPUT USING HELP AND ALARM", IReinputStatementNode.class);
 		assertParsesSingleStatement("REINPUT USING HELP SOUND ALARM", IReinputStatementNode.class);

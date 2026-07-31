@@ -2572,20 +2572,26 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 		consumeOptionally(reinput, SyntaxKind.FULL);
 
-		if (isAttributeList()) {
+		if (isAttributeList())
+		{
 			reinput.setStatementAttributes(consumeAttributeList(reinput));
-			for (var statementAttribute : reinput.statementAttributes()) {
-				if (!isInputStatementAttribute(statementAttribute.kind())) {
+			for (var statementAttribute : reinput.statementAttributes())
+			{
+				if (!isInputStatementAttribute(statementAttribute.kind()))
+				{
 					report(ParserErrors.invalidInputStatementAttribute(statementAttribute));
 				}
 			}
 		}
 
-		if (peekKind(SyntaxKind.USING)) {
+		if (peekKind(SyntaxKind.USING))
+		{
 			consumeMandatory(reinput, SyntaxKind.USING);
 			consumeMandatory(reinput, SyntaxKind.HELP);
 			reinput.setUsingHelp(true);
-		} else {
+		}
+		else
+		{
 			// Unlike INPUT, both of these are optional
 			consumeOptionally(reinput, SyntaxKind.WITH);
 			consumeOptionally(reinput, SyntaxKind.TEXT);
@@ -2593,24 +2599,31 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 			consumeOptionally(reinput, SyntaxKind.ASTERISK);
 			consumeOperandNode(reinput);
 
-			if (isAttributeList()) {
+			if (isAttributeList())
+			{
 				reinput.setOutputAttributes(consumeAttributeList(reinput));
 			}
 
 			int formatOperandCount = 0;
-			while (consumeOptionally(reinput, SyntaxKind.COMMA)) {
+			while (consumeOptionally(reinput, SyntaxKind.COMMA))
+			{
 				var operand = consumeOperandNode(reinput);
-				formatOperandCount ++;
-				if (formatOperandCount > 7) {
-					report(ParserErrors.invalidOperand(
-						operand, "up to 7, not %d".formatted(formatOperandCount)
-					));
+				formatOperandCount++;
+				if (formatOperandCount > 7)
+				{
+					report(
+						ParserErrors.invalidOperand(
+							operand, "up to 7, not %d".formatted(formatOperandCount)
+						)
+					);
 				}
 			}
 		}
 
-		if (consumeOptionally(reinput, SyntaxKind.MARK)) {
-			if (consumeOptionally(reinput, SyntaxKind.POSITION)) {
+		if (consumeOptionally(reinput, SyntaxKind.MARK))
+		{
+			if (consumeOptionally(reinput, SyntaxKind.POSITION))
+			{
 				consumeOperandNode(reinput);
 				consumeOptionally(reinput, SyntaxKind.IN);
 			}
@@ -2618,24 +2631,26 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 			consumeOptionally(reinput, SyntaxKind.ASTERISK);
 			consumeOperandNode(reinput);
-			if (isAttributeList()) {
+			if (isAttributeList())
+			{
 				consumeAttributeList(reinput);
 			}
 
-			while (
-					!(peekKind(SyntaxKind.ALARM) || peekKind(SyntaxKind.AND) || peekKind(SyntaxKind.SOUND))
-					&&
-					(peekKind(SyntaxKind.ASTERISK) || isOperand() )
-				  ) {
+			while (!(peekKind(SyntaxKind.ALARM) || peekKind(SyntaxKind.AND) || peekKind(SyntaxKind.SOUND))
+				&&
+				(peekKind(SyntaxKind.ASTERISK) || isOperand()))
+			{
 				consumeOptionally(reinput, SyntaxKind.ASTERISK);
 				consumeOperandNode(reinput);
-				if (isAttributeList()) {
+				if (isAttributeList())
+				{
 					consumeAttributeList(reinput);
 				}
 			}
 		}
 
-		if (peekKind(SyntaxKind.AND) || peekKind(SyntaxKind.SOUND) || peekKind(SyntaxKind.ALARM)) {
+		if (peekKind(SyntaxKind.AND) || peekKind(SyntaxKind.SOUND) || peekKind(SyntaxKind.ALARM))
+		{
 			consumeOptionally(reinput, SyntaxKind.AND);
 			consumeOptionally(reinput, SyntaxKind.SOUND);
 			consumeMandatory(reinput, SyntaxKind.ALARM);
