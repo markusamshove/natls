@@ -26,7 +26,7 @@ class ReinputStatementParsingShould extends StatementParseTest
 	void parseFull()
 	{
 		var reinput = assertParsesSingleStatement("REINPUT FULL USING HELP", IReinputStatementNode.class);
-		assertThat(reinput.isUsingHelp()).isTrue();
+		assertThat(reinput.isFull()).isTrue();
 	}
 
 	@Test

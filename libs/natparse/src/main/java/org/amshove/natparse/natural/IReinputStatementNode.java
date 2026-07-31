@@ -17,6 +17,8 @@ public interface IReinputStatementNode extends IStatementNode
 
 	ReadOnlyList<IAttributeNode> statementAttributes();
 
+	boolean isFull();
+
 	// USING HELP
 	boolean isUsingHelp();
 

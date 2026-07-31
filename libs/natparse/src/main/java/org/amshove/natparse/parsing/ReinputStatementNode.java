@@ -11,6 +11,7 @@ import org.amshove.natparse.natural.IReinputStatementNode;
 
 class ReinputStatementNode extends StatementNode implements IReinputStatementNode
 {
+	private boolean isFull;
 	private IAttributeListNode statementAttributes;
 
 	private boolean usingHelp;
@@ -20,6 +21,17 @@ class ReinputStatementNode extends StatementNode implements IReinputStatementNod
 	private List<IOperandNode> messageFormatOperands = new ArrayList<>();
 
 	private boolean hasAlarm;
+
+	@Override
+	public boolean isFull()
+	{
+		return isFull;
+	}
+
+	public void setIsFull(boolean isFull)
+	{
+		this.isFull = isFull;
+	}
 
 	@Override
 	public boolean isUsingHelp()

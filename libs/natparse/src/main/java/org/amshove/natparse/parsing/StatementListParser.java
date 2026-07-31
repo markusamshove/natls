@@ -2570,7 +2570,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 
 		consumeMandatory(reinput, SyntaxKind.REINPUT);
 
-		consumeOptionally(reinput, SyntaxKind.FULL);
+		reinput.setIsFull(consumeOptionally(reinput, SyntaxKind.FULL));
 
 		if (isAttributeList())
 		{
