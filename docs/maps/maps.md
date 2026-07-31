@@ -35,6 +35,21 @@ Less importantly, the comments in Maps contain data, somewhat cryptically encode
 
 - [ ] Is this just for the map editor in N1 or do they have an effect on how maps run?
 
+### Default Usage Comment
+
+```
+* INPUT USING MAP 'XXXXXXXX'
+*     PARAM-1 PARAM-2 PARAM-3
+*     PARAM-4 PARAM5(*)
+DEFINE DATA PARAMETER
+```
+
+This comment block **is consumed by the compiler**.
+
+If you don't supply parameters in your `INPUT USING MAP` statement,
+this set of parameters will be used. This means that programs that do
+this will fail `PCHECK` if you change the parameter set but don't change this magic comment.
+
 ### Properties Thing
 
 ```
