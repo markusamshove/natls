@@ -22,7 +22,9 @@ public interface IReinputStatementNode extends IStatementNode
 
 	// WITH TEXT
 	IOperandNode messageOperand();
+
 	ReadOnlyList<IAttributeNode> messageAttributes();
+
 	ReadOnlyList<IOperandNode> messageFormatOperands();
 
 	boolean hasAlarm();
