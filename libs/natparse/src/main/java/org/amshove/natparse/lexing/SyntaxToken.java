@@ -180,7 +180,8 @@ public class SyntaxToken implements IPosition
 
 	public SyntaxToken withKind(SyntaxKind newKind)
 	{
-		if (newKind == this.kind) {
+		if (newKind == this.kind)
+		{
 			return this;
 		}
 		var newToken = new SyntaxToken(

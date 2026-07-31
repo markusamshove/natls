@@ -2,7 +2,8 @@ package org.amshove.natparse.natural;
 
 public interface IRuleVarNode extends IStatementWithBodyNode
 {
-	public enum Type {
+	public enum Type
+	{
 		FREE_RULE,
 		DICTIONARY_RULE
 	}

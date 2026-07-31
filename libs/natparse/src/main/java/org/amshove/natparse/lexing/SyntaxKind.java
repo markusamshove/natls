@@ -864,9 +864,12 @@ public enum SyntaxKind
 			return true;
 		}
 
-		if (other.isIdentifier()) {
+		if (other.isIdentifier())
+		{
 			return this.canBeIdentifier();
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 

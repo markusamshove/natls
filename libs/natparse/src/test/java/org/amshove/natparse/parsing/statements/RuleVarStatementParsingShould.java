@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;
 
-class RuleVarStatementParsingShould extends StatementParseTest {
+class RuleVarStatementParsingShould extends StatementParseTest
+{
 
 	@Test
 	void consumeRuleVar()

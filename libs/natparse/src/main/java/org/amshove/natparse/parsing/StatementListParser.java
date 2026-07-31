@@ -4748,17 +4748,24 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		consumeMandatory(node, SyntaxKind.RULEVAR);
 		var nodeIdentifier = consumeMandatoryIdentifier(node);
 
-		if (nodeIdentifier.source().charAt(0) == 'F') {
+		if (nodeIdentifier.source().charAt(0) == 'F')
+		{
 			node.setType(IRuleVarNode.Type.FREE_RULE);
-		} else if (nodeIdentifier.source().charAt(0) == 'D') {
-			node.setType(IRuleVarNode.Type.DICTIONARY_RULE);
-		} else {
-			report(ParserErrors.unexpectedToken(nodeIdentifier, "RULEVAR should have F or D type"));
 		}
+		else
+			if (nodeIdentifier.source().charAt(0) == 'D')
+			{
+				node.setType(IRuleVarNode.Type.DICTIONARY_RULE);
+			}
+			else
+			{
+				report(ParserErrors.unexpectedToken(nodeIdentifier, "RULEVAR should have F or D type"));
+			}
 
 		int index = Integer.parseInt(nodeIdentifier.source().substring(1, 3));
 
-		if (nodeIdentifier.source().length() == 3) {
+		if (nodeIdentifier.source().length() == 3)
+		{
 			// This happens when the identifier is F00*PF-KEY and it splits
 			// We need to eat the PF-KEY
 			consumeMandatory(node, SyntaxKind.SV_PF_KEY);

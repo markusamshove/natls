@@ -29,11 +29,13 @@ class RuleVarNode extends StatementWithBodyNode implements IRuleVarNode
 		this.incDicNode = incDicNode;
 	}
 
-	void setType(Type type) {
+	void setType(Type type)
+	{
 		this.type = type;
 	}
 
-	public Type type() {
+	public Type type()
+	{
 		return this.type;
 	}
 
