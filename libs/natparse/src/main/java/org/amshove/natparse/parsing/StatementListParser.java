@@ -2597,17 +2597,25 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 			consumeOptionally(reinput, SyntaxKind.TEXT);
 
 			consumeOptionally(reinput, SyntaxKind.ASTERISK);
-			consumeOperandNode(reinput);
+			reinput.setMessageOperand(consumeOperandNode(reinput));
 
 			if (isAttributeList())
 			{
-				reinput.setOutputAttributes(consumeAttributeList(reinput));
+				reinput.setMessageAttributes(consumeAttributeList(reinput));
+				for (var statementAttribute : reinput.messageAttributes())
+				{
+					if (!isOutputElementAttribute(statementAttribute.kind()))
+					{
+						report(ParserErrors.invalidOutputElementAttribute(statementAttribute));
+					}
+				}
 			}
 
 			int formatOperandCount = 0;
 			while (consumeOptionally(reinput, SyntaxKind.COMMA))
 			{
 				var operand = consumeOperandNode(reinput);
+				reinput.addMessageFormatOperand(operand);
 				formatOperandCount++;
 				if (formatOperandCount > 7)
 				{
@@ -2654,6 +2662,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 			consumeOptionally(reinput, SyntaxKind.AND);
 			consumeOptionally(reinput, SyntaxKind.SOUND);
 			consumeMandatory(reinput, SyntaxKind.ALARM);
+			reinput.setHasAlarm(true);
 		}
 
 		return reinput;

@@ -14,8 +14,17 @@ import org.amshove.natparse.ReadOnlyList;
  */
 public interface IReinputStatementNode extends IStatementNode
 {
-	boolean isUsingHelp();
 
 	ReadOnlyList<IAttributeNode> statementAttributes();
+
+	// USING HELP
+	boolean isUsingHelp();
+
+	// WITH TEXT
+	IOperandNode messageOperand();
+	ReadOnlyList<IAttributeNode> messageAttributes();
+	ReadOnlyList<IOperandNode> messageFormatOperands();
+
+	boolean hasAlarm();
 
 }

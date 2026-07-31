@@ -1,10 +1,14 @@
 package org.amshove.natparse.parsing.statements;
 
 import org.amshove.natparse.lexing.SyntaxKind;
+import org.amshove.natparse.lexing.SyntaxToken;
+import org.amshove.natparse.natural.ILiteralNode;
 import org.amshove.natparse.natural.IReinputStatementNode;
 import org.amshove.natparse.natural.IValueAttributeNode;
 import org.amshove.natparse.parsing.StatementParseTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -38,13 +42,15 @@ class ReinputStatementParsingShould extends StatementParseTest
 	@Test
 	void parseWithText()
 	{
-		assertParsesSingleStatement("REINPUT WITH TEXT 'try again'", IReinputStatementNode.class);
+		var reinput = assertParsesSingleStatement("REINPUT WITH TEXT 'try again'", IReinputStatementNode.class);
+		assertThat(((ILiteralNode)reinput.messageOperand()).token()).returns("try again", from(SyntaxToken::stringValue));
 	}
 
 	@Test
 	void parseWithTextWithoutWithText()
 	{
-		assertParsesSingleStatement("REINPUT 'try again'", IReinputStatementNode.class);
+		var reinput = assertParsesSingleStatement("REINPUT 'try again'", IReinputStatementNode.class);
+		assertThat(((ILiteralNode)reinput.messageOperand()).token()).returns("try again", from(SyntaxToken::stringValue));
 	}
 
 	@Test
@@ -57,7 +63,10 @@ class ReinputStatementParsingShould extends StatementParseTest
 	void parseFormatOperands()
 	{
 		assertParsesSingleStatement("REINPUT 'try again for the :1:th time', 5", IReinputStatementNode.class);
-		assertParsesSingleStatement("REINPUT 'try :1:x harder for the :2: reasons', 5, 'best'", IReinputStatementNode.class);
+		var reinput = assertParsesSingleStatement("REINPUT 'try :1:x harder for the :2: reasons', 5, 'best'", IReinputStatementNode.class);
+		assertThat(reinput.messageFormatOperands()).hasSize(2);
+		assertThat(((ILiteralNode)reinput.messageFormatOperands().get(0)).token()).returns(5, from(SyntaxToken::intValue));
+		assertThat(((ILiteralNode)reinput.messageFormatOperands().get(1)).token()).returns("best", from(SyntaxToken::stringValue));
 	}
 
 	@Test
@@ -76,12 +85,16 @@ class ReinputStatementParsingShould extends StatementParseTest
 			""", IReinputStatementNode.class);
 	}
 
-	@Test
-	void parseAlarm()
+	@ParameterizedTest
+	@ValueSource(strings = {
+		"REINPUT USING HELP AND SOUND ALARM",
+		"REINPUT USING HELP AND ALARM",
+		"REINPUT USING HELP SOUND ALARM",
+		"REINPUT USING HELP ALARM"
+	})
+	void parseAlarm(String statement)
 	{
-		assertParsesSingleStatement("REINPUT USING HELP AND SOUND ALARM", IReinputStatementNode.class);
-		assertParsesSingleStatement("REINPUT USING HELP AND ALARM", IReinputStatementNode.class);
-		assertParsesSingleStatement("REINPUT USING HELP SOUND ALARM", IReinputStatementNode.class);
-		assertParsesSingleStatement("REINPUT USING HELP ALARM", IReinputStatementNode.class);
+		var reinput = assertParsesSingleStatement(statement, IReinputStatementNode.class);
+		assertThat(reinput.hasAlarm()).isTrue();
 	}
 }
