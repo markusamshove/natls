@@ -43,7 +43,7 @@ public class LcovDiagnosticSink implements IDiagnosticSink
 
 	private String sfRecord(IPosition diagnostic)
 	{
-		return String.format("SF:%s\n", filePath.getParent().relativize(diagnostic.filePath()));
+		return String.format("SF:%s%n", filePath.getParent().relativize(diagnostic.filePath()));
 	}
 
 	private String daRecord(Integer line)

@@ -1,4 +1,4 @@
-package org.amshove.natlint.analyzers;
+package org.amshove.natlint.coverage;
 
 import java.util.ArrayList;
 import java.util.Arrays;

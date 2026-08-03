@@ -1,6 +1,5 @@
 package org.amshove.natlint.cli;
 
-import org.amshove.natlint.analyzers.CoverageAnalyzer;
 import org.amshove.natlint.cli.git.GitStatusPredicateParser;
 import org.amshove.natlint.cli.predicates.DiagnosticPredicate;
 import org.amshove.natlint.cli.predicates.FilePredicate;
@@ -74,12 +73,6 @@ public class AnalyzeCommand implements Callable<Integer>
 		"--ci"
 	}, description = "Analyzer will return exit code 0, even when diagnostics are found. Will also use the SonarQube CSV sink", defaultValue = "false")
 	boolean ciMode;
-
-	@CommandLine.Option(names =
-	{
-		"--coverage"
-	}, description = "Analyzer will generate a negative coverage map for your source. You can merge this with positive coverage.", defaultValue = "false")
-	boolean coverageMode;
 
 	@CommandLine.Option(names =
 	{
@@ -194,14 +187,6 @@ public class AnalyzeCommand implements Callable<Integer>
 			diagnosticIds
 				.forEach(id -> predicates.addDiagnosticPredicate(new DiagnosticPredicate("id " + id, d -> d.id().equals(id))));
 		}
-
-		if (coverageMode)
-		{
-			CoverageAnalyzer.setEnabled(true);
-			predicates.addDiagnosticPredicate(
-				new DiagnosticPredicate("coverage", d -> d.id().equals("NL000"))
-			);
-		}
 	}
 
 	private void configureOutputFlags()
@@ -214,11 +199,6 @@ public class AnalyzeCommand implements Callable<Integer>
 		if (ciMode)
 		{
 			sinkType = DiagnosticSinkType.SPLIT_CSV;
-		}
-
-		if (coverageMode)
-		{
-			sinkType = DiagnosticSinkType.LCOV;
 		}
 	}
 
