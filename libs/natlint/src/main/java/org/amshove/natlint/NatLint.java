@@ -12,7 +12,8 @@ public class NatLint
 		CommandLine coverageCommandLine = new CommandLine(new CoverageCommand());
 		CommandLine analyzeCommandLine = new CommandLine(new AnalyzeCommand());
 
-		try {
+		try
+		{
 			coverageCommandLine.parseArgs(args);
 			System.exit(coverageCommandLine.execute(args));
 		}

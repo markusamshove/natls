@@ -28,7 +28,8 @@ public class CoverageCommand implements Callable<Integer>
 	private DiagnosticSinkType sinkType = DiagnosticSinkType.LCOV;
 
 	@Override
-	public Integer call() throws Exception {
+	public Integer call() throws Exception
+	{
 		var workingDirectoryPath = workingDirectory != null ? workingDirectory : System.getProperty("user.dir");
 		var theWorkingDirectory = Paths.get(workingDirectoryPath);
 		var analyzer = new CoverageAnalyzer(
