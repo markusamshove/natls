@@ -1,0 +1,261 @@
+package org.amshove.natgen.generatable.definedata;
+
+import org.amshove.natgen.IVariableAddable;
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.IGeneratable;
+import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natparse.natural.IGroupNode;
+import org.amshove.natparse.natural.ITypedVariableNode;
+import org.amshove.natparse.natural.IVariableNode;
+import org.amshove.natparse.natural.VariableScope;
+import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public final class Variable implements IGeneratableDefineDataElement, IVariableAddable
+{
+	private int level;
+	private final VariableScope scope;
+	private String name;
+	private final VariableType type;
+	private final List<Variable> childVariables = new ArrayList<>();
+	private final List<Redefinition> redefinitions = new ArrayList<>();
+	private Variable parent;
+
+	private IGeneratable constValue = null;
+	private IGeneratable initValue = null;
+	private boolean byValue = false;
+	private boolean isOptional;
+
+	public Variable(int level, VariableScope scope, String name, VariableType type)
+	{
+		this.level = level;
+		this.scope = scope;
+		this.name = name.toUpperCase(Locale.ROOT);
+		this.type = type;
+	}
+
+	/// `CONST` value to be generated within DEFINE DATA
+	@Nullable
+	public IGeneratable constValue()
+	{
+		return constValue;
+	}
+
+	/// Sets the value that will be generated in a `CONST` block in `DEFINE DATA`
+	public Variable withConstantValue(IGeneratable value)
+	{
+		constValue = value;
+		return this;
+	}
+
+	/// `iNIT` value to be generated within DEFINE DATA
+	@Nullable
+	public IGeneratable initValue()
+	{
+		return initValue;
+	}
+
+	/// Sets the value that will be generated in an `INIT` block in `DEFINE DATA``
+	public Variable withInitialValue(IGeneratable value)
+	{
+		initValue = value;
+		return this;
+	}
+
+	/// Sets the variable as pass `BY VALUE`. Will only be generated when the
+	/// variable is generated as a parameter
+	public Variable asByValue()
+	{
+		byValue = true;
+		return this;
+	}
+
+	/// Marks this variable as `OPTIONAL`. Will only be added to the generated
+	/// source when the variable is generated as parameter
+	public Variable asOptional()
+	{
+		isOptional = true;
+		return this;
+	}
+
+	public boolean isOptional()
+	{
+		return isOptional;
+	}
+
+	public boolean isByValue()
+	{
+		return byValue;
+	}
+
+	/// Creates a new `Redefinition` for this variable.
+	/// Calling this method will *create a new* `Redefinition` every time!
+	public Redefinition newRedefine()
+	{
+		var redefinition = new Redefinition(this);
+		redefinitions.add(redefinition);
+		return redefinition;
+	}
+
+	/// Set the unqualified part of the variable name
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	/// Creates a Variable for code generation from a parsed Variable from Natural source.
+	/// Child variables get added as well.
+	public static Variable fromParsedVariable(IVariableNode variableNode)
+	{
+		Variable variable = switch (variableNode)
+		{
+			case ITypedVariableNode typedVar -> new Variable(variableNode.level(), variableNode.scope(), variableNode.name(), VariableType.fromDataType(typedVar.type()));
+			case IGroupNode _ -> new Variable(variableNode.level(), variableNode.scope(), variableNode.name(), VariableType.group());
+
+			default -> throw new IllegalStateException("Unexpected IVariableNode type: " + variableNode.getClass().getName());
+		};
+
+		addChildVariables(variable, variableNode);
+		return variable;
+	}
+
+	private static void addChildVariables(Variable variable, IVariableNode variableNode)
+	{
+		if (!(variableNode.isGroup()))
+		{
+			return;
+		}
+
+		for (var childNode : ((IGroupNode) variableNode).variables())
+		{
+			variable.childVariables.add(fromParsedVariable(childNode));
+		}
+	}
+
+	public int level()
+	{
+		return level;
+	}
+
+	public VariableScope scope()
+	{
+		return scope;
+	}
+
+	public String name()
+	{
+		return name;
+	}
+
+	public List<Variable> children()
+	{
+		return childVariables;
+	}
+
+	public List<Redefinition> redefinitions()
+	{
+		return redefinitions;
+	}
+
+	public VariableType type()
+	{
+		return type;
+	}
+
+	public Variable addVariable(Variable variable)
+	{
+		if (variable.parent != null)
+		{
+			variable.parent.childVariables.remove(variable);
+		}
+
+		while (findRootVariable().deepChildren().anyMatch(v -> v.name().equals(variable.name()) && v != variable))
+		{
+			variable.setName("#" + variable.name());
+		}
+
+		variable.parent = this;
+		variable.level = level + 1;
+		childVariables.add(variable);
+		return variable;
+	}
+
+	public Variable addVariable(String name, VariableType type)
+	{
+		return addVariable(new Variable(level + 1, scope, name, type));
+	}
+
+	void setParent(Variable newParent)
+	{
+		this.parent = newParent;
+	}
+
+	@Override
+	public String generate()
+	{
+		if (level == 1)
+		{
+			return name;
+		}
+
+		var firstLevelVariable = this;
+		while (firstLevelVariable.level > 1)
+		{
+			firstLevelVariable = firstLevelVariable.parent;
+		}
+
+		return "%s.%s".formatted(firstLevelVariable.name, name);
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Variable{" +
+			"level=" + level +
+			", name='" + name + '\'' +
+			", fqn='" + generate() + "'" +
+			", scope=" + scope +
+			", type=" + type +
+			'}';
+	}
+
+	/// Generate a dimension access for this variable, e.g. `#ARR(1)`.
+	/// If no dimensions are passed, no index access will be present.
+	public IGeneratable arrayAccess(IGeneratable... dimensions)
+	{
+		// No access needed
+		if (dimensions.length == 0)
+		{
+			return NaturalCode.plain(generate());
+		}
+
+		var access = "(%s)".formatted(
+			Arrays.stream(dimensions)
+				// Dimension access can't use fully qualified variable names :-(
+				.map(g -> g instanceof Variable v ? v.name() : g.generate())
+				.collect(Collectors.joining(", "))
+		);
+		return NaturalCode.plain(generate() + access);
+	}
+
+	private Stream<Variable> deepChildren()
+	{
+		return Stream.concat(childVariables.stream(), childVariables.stream().flatMap(Variable::deepChildren));
+	}
+
+	private Variable findRootVariable()
+	{
+		if (parent == null)
+		{
+			return this;
+		}
+
+		return parent.findRootVariable();
+	}
+}

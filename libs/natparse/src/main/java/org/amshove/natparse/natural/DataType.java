@@ -30,7 +30,7 @@ public record DataType(DataFormat format, double length) implements IDataType
 			lengthString.append(ch);
 		}
 
-		var length = lengthString.length() > 0 ? Double.parseDouble(lengthString.toString().replace(",", ".")) : 1.0;
+		var length = !lengthString.isEmpty() ? Double.parseDouble(lengthString.toString().replace(",", ".")) : 1.0;
 		return new DataType(format, length);
 	}
 }

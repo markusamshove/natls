@@ -1,12 +1,12 @@
 plugins {
-    id 'maven-publish'
+    id 'com.vanniktech.maven.publish'
 }
 
 dependencies {
     implementation project(':natparse')
-    implementation libraries.reflections
-    implementation libraries.slf4j_nop
-    implementation libraries.picocli
+    implementation libs.reflections
+    implementation libs.slf4j.nop
+    implementation libs.picocli
 
     testImplementation project(':testhelpers')
 }
@@ -14,7 +14,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-            'Main-Class': 'org.amshove.natlint.App',
+            'Main-Class': 'org.amshove.natlint.NatLint',
             'Implementation-Title': project.name,
             'Implementation-Version': project.version
         )
@@ -24,7 +24,7 @@ jar {
 tasks.register('fatJar', Jar) {
     manifest {
         attributes(
-                'Main-Class': 'org.amshove.natlint.App',
+                'Main-Class': 'org.amshove.natlint.NatLint',
                 'Implementation-Title': project.name,
                 'Implementation-Version': project.version
         )
@@ -36,48 +36,44 @@ tasks.register('fatJar', Jar) {
     with jar
 }
 
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
+mavenPublishing {
+    coordinates(project.group, 'natlint', project.version)
 
-publishing {
-    publications {
-        mavenNatlint(MavenPublication) {
-            from components.java
-            pom {
-                name = project.name
-                description = 'Static code analysis for Software AGs Natural language'
+    publishToMavenCentral()
+    signAllPublications()
+
+    pom {
+        name = project.name
+            description = 'Static code analysis for Software AGs Natural language'
+            url = 'https://github.com/MarkusAmshove/natls'
+            scm {
+                connection = 'scm:git:https://github.com/MarkusAmshove/natls.git'
+                developerConnection = 'scm:git:git@github.com:MarkusAmshove/natls.git'
                 url = 'https://github.com/MarkusAmshove/natls'
-                scm {
-                    connection = 'scm:git:https://github.com/MarkusAmshove/natls.git'
-                    developerConnection = 'scm:git:git@github.com:MarkusAmshove/natls.git'
-                    url = 'https://github.com/MarkusAmshove/natls'
-                }
+            }
 
-                licenses {
-                    license {
-                        name = 'MIT'
-                        url = 'https://github.com/MarkusAmshove/natls/blob/main/LICENSE'
-                    }
-                }
+        licenses {
+            license {
+                name = 'MIT'
+                url = 'https://github.com/MarkusAmshove/natls/blob/main/LICENSE'
+            }
+        }
 
-                developers {
-                    developer {
-                        id = 'markusamshove'
-                        name = 'Markus Amshove'
-                    }
-                }
+        developers {
+            developer {
+                id = 'markusamshove'
+                name = 'Markus Amshove'
             }
         }
     }
 }
 
 signing {
+    required { !gradle.startParameter.taskNames.contains('publishToMavenLocal') }
     def signingKey = findProperty("signingKey")
     def signingPassword = findProperty("signingPassword")
     useInMemoryPgpKeys(signingKey, signingPassword)
-    sign publishing.publications.mavenNatlint
+    sign publishing.publications
 }
 
 artifacts {

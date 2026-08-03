@@ -5,6 +5,7 @@ import org.amshove.natlint.api.DiagnosticDescription;
 import org.amshove.natlint.api.IAnalyzeContext;
 import org.amshove.natlint.api.ILinterContext;
 import org.amshove.natparse.DiagnosticSeverity;
+import org.amshove.natparse.NodeUtil;
 import org.amshove.natparse.ReadOnlyList;
 import org.amshove.natparse.natural.ISymbolNode;
 import org.amshove.natparse.natural.ISyntaxNode;
@@ -31,6 +32,11 @@ public class KeywordAsIdentifierAnalyzer extends AbstractAnalyzer
 
 	private void analyzeDeclaration(ISyntaxNode node, IAnalyzeContext context)
 	{
+		if (!NodeUtil.moduleContainsNode(context.getModule(), node))
+		{
+			return;
+		}
+
 		var symbolNode = ((ISymbolNode) node);
 		if (symbolNode.declaration() != null && symbolNode.declaration().originalKind().isPresent())
 		{

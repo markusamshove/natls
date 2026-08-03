@@ -27,6 +27,12 @@ class NaturalParserShould extends ParserIntegrationTest
 	}
 
 	@Test
+	void parseAFunctionWhichDeclaresADifferentNameForReturnVariable(@ProjectName("naturalParserTests") NaturalProject project)
+	{
+		assertParsesWithoutAnyDiagnostics(project.findModule("TEST", "FUNCRET"));
+	}
+
+	@Test
 	void parseTheReturnTypesOfFunctions(@ProjectName("naturalParserTests") NaturalProject project)
 	{
 		var module = parse(project.findModule("TEST", "FUNC"));

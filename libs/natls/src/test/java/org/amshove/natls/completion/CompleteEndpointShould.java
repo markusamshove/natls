@@ -4,6 +4,8 @@ import org.amshove.natls.config.LSConfiguration;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
 class CompleteEndpointShould extends CompletionTest
 {
 	@Test
@@ -325,5 +327,79 @@ class CompleteEndpointShould extends CompletionTest
 			""")
 			.assertContainsVariable("FUNC :(A1) (FUNC)")
 			.assertContainsVariable("#VAR :(A10) (FUNC)");
+	}
+
+	@Test
+	void replaceAnExistingHashWithADedicatedReplaceEdit()
+	{
+		/* When writing `#` and then triggering the completion by shortcut
+		 * the starting `#` would not be replaced.
+		 * Writing `#`, trigger, chose `#NAME` would result in `##NAME`
+		 */
+
+		var items = assertCompletions("LIBONE", "SUB.NSN", """
+			DEFINE DATA
+			LOCAL
+			1 #NAME (A10)
+			END-DEFINE
+			#${}$
+			END
+			""")
+			.assertContainsCompletionResultingIn("#NAME :(A10) (SUB)", """
+			DEFINE DATA
+			LOCAL
+			1 #NAME (A10)
+			END-DEFINE
+			#NAME
+			END
+			""")
+			.items();
+
+		var itemForName = items.stream().filter(i -> i.getLabel().contains("#NAME")).findAny().orElseThrow(() -> new RuntimeException("Could not find the completion item for #NAME"));
+		var theEdit = itemForName.getTextEdit().getLeft();
+		assertThat(theEdit.getNewText()).isEqualTo("#NAME");
+		assertThat(theEdit.getRange().getStart().getCharacter())
+			.as("The edit should start in front of the already present hash")
+			.isZero();
+		assertThat(theEdit.getRange().getEnd().getCharacter())
+			.as("The edit should end after the already present hash to replace it")
+			.isEqualTo(1);
+	}
+
+	@Test
+	void replaceAnExistingHashWithADedicatedReplaceEditWithinALine()
+	{
+		/* When writing `#` and then triggering the completion by shortcut
+		 * the starting `#` would not be replaced.
+		 * Writing `#`, trigger, chose `#NAME` would result in `##NAME`
+		 */
+
+		var items = assertCompletions("LIBONE", "SUB.NSN", """
+			DEFINE DATA
+			LOCAL
+			1 #NAME (A10)
+			END-DEFINE
+			WRITE #${}$
+			END
+			""")
+			.assertContainsCompletionResultingIn("#NAME :(A10) (SUB)", """
+			DEFINE DATA
+			LOCAL
+			1 #NAME (A10)
+			END-DEFINE
+			WRITE #NAME
+			END
+			""")
+			.items();
+
+		var itemForName = items.stream().filter(i -> i.getLabel().contains("#NAME")).findAny().orElseThrow(() -> new RuntimeException("Could not find the completion item for #NAME"));
+		var theEdit = itemForName.getTextEdit().getLeft();
+		assertThat(theEdit.getNewText()).isEqualTo("#NAME");
+		assertThat(theEdit.getRange().getStart().getCharacter())
+			.as("The edit should start in front of the already present hash")
+			.isEqualTo(6);
+		assertThat(theEdit.getRange().getEnd().getCharacter())
+			.as("The edit should end after the already present hash to replace it")
+			.isEqualTo(7);
 	}
 }

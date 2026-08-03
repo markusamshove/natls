@@ -131,26 +131,26 @@ public abstract class AbstractParserTest<NodeType>
 		return node;
 	}
 
-	protected NaturalModule newEmptyLda()
+	protected void assertHasStatementLabel(ILabelReferencable statement, String labelName)
+	{
+		assertThat(statement.labelIdentifier()).as("Statement should have a label").isNotNull();
+		assertThat(statement.labelIdentifier().kind()).as("Label identifier should be a LABEL_IDENTIFIER token").isEqualTo(SyntaxKind.LABEL_IDENTIFIER);
+		assertThat(statement.labelIdentifier().symbolName()).as("Label name should match").isEqualTo(labelName);
+	}
+
+	protected LocalDataArea newEmptyLda()
 	{
 		var file = new NaturalFile("MYLDA", Path.of(""), NaturalFileType.LDA);
-		var module = new NaturalModule(file);
+		var module = new LocalDataArea(file);
 		module.setDefineData(new DefineDataNode());
 		return module;
 	}
 
-	protected NaturalModule newEmptySubprogram()
+	protected Subprogram newEmptySubprogram()
 	{
 		var file = new NaturalFile("SUBPROG", Path.of(""), NaturalFileType.SUBPROGRAM);
-		var module = new NaturalModule(file);
+		var module = new Subprogram(file);
 		module.setDefineData(new DefineDataNode());
-		return module;
-	}
-
-	protected NaturalModule newEmptyCopyCode()
-	{
-		var file = new NaturalFile("THECC", Path.of(""), NaturalFileType.COPYCODE);
-		var module = new NaturalModule(file);
 		return module;
 	}
 

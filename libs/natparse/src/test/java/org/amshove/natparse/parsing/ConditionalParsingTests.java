@@ -54,7 +54,7 @@ class ConditionalParsingTests extends AbstractParserTest<IStatementListNode>
 	@Test
 	void parseFunctionCallsAsUnaryCondition()
 	{
-		var calledFunction = new NaturalModule(null);
+		var calledFunction = new Function(null);
 		moduleProvider.addModule("ISSTH", calledFunction);
 
 		var criteria = assertParsesCriteria("ISSTH(<'1', '2'>)", IUnaryLogicalCriteriaNode.class);
@@ -65,7 +65,7 @@ class ConditionalParsingTests extends AbstractParserTest<IStatementListNode>
 	@Test
 	void parseMultipleFunctionCallsOverMultipleLinesInNegatedGroupedCriteriaWithoutDiagnostics()
 	{
-		var calledFunction = new NaturalModule(null);
+		var calledFunction = new Function(null);
 		moduleProvider.addModule("ISSTH", calledFunction);
 		assertParsesCriteria("""
 			  NOT (ISSTH(<#VAR3.VAR4(#I)>)
@@ -80,7 +80,7 @@ class ConditionalParsingTests extends AbstractParserTest<IStatementListNode>
 	@Test
 	void parseFunctionCallsInRelationalCriteria()
 	{
-		var calledFunction = new NaturalModule(null);
+		var calledFunction = new Function(null);
 		moduleProvider.addModule("ISSTH", calledFunction);
 
 		var criteria = assertParsesCriteria("ISSTH(<'1', '2'>) = 'A'", IRelationalCriteriaNode.class);
@@ -535,8 +535,8 @@ class ConditionalParsingTests extends AbstractParserTest<IStatementListNode>
 	void parseAConditionSystemFunctions()
 	{
 		var criteria = assertParsesCriteria("*COUNTER(ASD.) = *OCC(#ARR)", IRelationalCriteriaNode.class);
-		assertThat(assertNodeType(criteria.left(), ISystemFunctionNode.class).systemFunction()).isEqualTo(SyntaxKind.COUNTER);
-		assertThat(assertNodeType(criteria.right(), ISystemFunctionNode.class).systemFunction()).isEqualTo(SyntaxKind.OCC);
+		assertThat(assertNodeType(criteria.left(), ISystemFunctionNode.class).systemFunction()).isEqualTo(SyntaxKind.SV_COUNTER);
+		assertThat(assertNodeType(criteria.right(), ISystemFunctionNode.class).systemFunction()).isEqualTo(SyntaxKind.SV_OCC);
 	}
 
 	@Test
@@ -596,7 +596,7 @@ class ConditionalParsingTests extends AbstractParserTest<IStatementListNode>
 		var criteria = assertParsesCriteria("*OCC(#ARR) + 5 = (10 * 2)", IRelationalCriteriaNode.class);
 
 		var leftArithmetic = assertNodeType(criteria.left(), IArithmeticExpressionNode.class);
-		assertThat(assertNodeType(leftArithmetic.left(), ISystemFunctionNode.class).systemFunction()).isEqualTo(SyntaxKind.OCC);
+		assertThat(assertNodeType(leftArithmetic.left(), ISystemFunctionNode.class).systemFunction()).isEqualTo(SyntaxKind.SV_OCC);
 		assertThat(leftArithmetic.operator()).isEqualTo(SyntaxKind.PLUS);
 		assertThat(assertNodeType(leftArithmetic.right(), ILiteralNode.class).token().intValue()).isEqualTo(5);
 
@@ -656,7 +656,7 @@ class ConditionalParsingTests extends AbstractParserTest<IStatementListNode>
 	@Test
 	void parseFunctionCallsWithEmptyParameter()
 	{
-		var calledFunction = new NaturalModule(null);
+		var calledFunction = new Function(null);
 		moduleProvider.addModule("ISSTH", calledFunction);
 
 		var negated = assertParsesCriteria("NOT ISSTH(<>)", INegatedConditionalCriteria.class);

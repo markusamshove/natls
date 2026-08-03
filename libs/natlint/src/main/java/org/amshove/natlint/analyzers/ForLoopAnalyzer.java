@@ -34,7 +34,7 @@ public class ForLoopAnalyzer extends AbstractAnalyzer
 
 	private void analyzeFor(ISyntaxNode iSyntaxNode, IAnalyzeContext context)
 	{
-		if (context.getModule().file().getFiletype() == NaturalFileType.COPYCODE)
+		if (context.isFiletype(NaturalFileType.COPYCODE))
 		{
 			return;
 		}
@@ -57,7 +57,7 @@ public class ForLoopAnalyzer extends AbstractAnalyzer
 			return;
 		}
 
-		if (sysFuncNode.systemFunction() == SyntaxKind.OCC || sysFuncNode.systemFunction() == SyntaxKind.OCCURRENCE)
+		if (sysFuncNode.systemFunction() == SyntaxKind.SV_OCC || sysFuncNode.systemFunction() == SyntaxKind.SV_OCCURRENCE)
 		{
 			context.report(UPPER_BOUND_OCC.createDiagnostic(sysFuncNode));
 		}

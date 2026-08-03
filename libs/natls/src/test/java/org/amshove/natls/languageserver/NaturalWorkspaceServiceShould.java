@@ -50,9 +50,9 @@ class NaturalWorkspaceServiceShould extends EmptyProjectTest
 	}
 
 	@Test
-	void reparseExternallyChangedModulesIfTheyAreNotOpenedAndParseTheirCallersIfTheyAreOpen()
+	void reparseExternallyChangedModulesAndTheirCallersIfTheyAreOpened()
 	{
-		createOrSaveFile("LIBONE", "MYLDA.NSL", """
+		createOrSaveFileExternally("LIBONE", "MYLDA.NSL", """
 			DEFINE DATA LOCAL
 			* >Natural Source Header 000000
 			* :Mode S
@@ -61,7 +61,7 @@ class NaturalWorkspaceServiceShould extends EmptyProjectTest
 			END-DEFINE
 			""");
 
-		var subprogram = createOrSaveFile("LIBONE", "EXTADD.NSN", """
+		var subprogram = createOrSaveFileExternally("LIBONE", "EXTADD.NSN", """
 			* >Natural Source Header 000000
 			* :Mode S
 			* :CP
@@ -84,10 +84,13 @@ class NaturalWorkspaceServiceShould extends EmptyProjectTest
 			)
 		);
 
+		// Wait for didOpen Task to finish
+		getContext().waitForRunningTasksToFinish();
+
 		// The subprogram is open and should have a diagnostic indicating that #VAR is not resolved
 		assertThat(getContext().client().getPublishedDiagnostics(subprogram))
 			.as("Unresolved Reference diagnostic should be present, because the variable is not declared")
-			.anyMatch(d -> d.getMessage().equals("Unresolved reference: #VAR"));
+			.anyMatch(d -> d.getMessage().getLeft().equals("Unresolved reference: #VAR"));
 
 		createOrSaveFileExternally("LIBONE", "MYLDA.NSL", """
 			DEFINE DATA LOCAL
@@ -99,6 +102,7 @@ class NaturalWorkspaceServiceShould extends EmptyProjectTest
 			END-DEFINE
 			""");
 
+		// Wait for reparseOpenFiles Tasks to finish
 		getContext().waitForRunningTasksToFinish();
 		assertThat(getContext().client().getPublishedDiagnostics(subprogram))
 			.as("Diagnostic should have gone away, because it was externally added to the LDA")

@@ -1,0 +1,196 @@
+package org.amshove.natgen.generators;
+
+import static org.amshove.natgen.generatable.NaturalCode.*;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import java.util.Locale;
+import org.amshove.natgen.CodeGenerationContext;
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.DecideOn;
+import org.amshove.natgen.generatable.Dimension;
+import org.amshove.natgen.generatable.IGeneratable;
+import org.amshove.natgen.generatable.IGeneratableStatement;
+import org.amshove.natgen.generatable.NatGenFunctions;
+import org.amshove.natgen.generatable.definedata.Variable;
+
+public class ParseJsonFromJsonGenerator extends ParseJsonGenerator
+{
+	private final String rawJson;
+
+	ParseJsonFromJsonGenerator(String rawJson, Settings settings)
+	{
+		super(settings);
+		this.rawJson = rawJson;
+	}
+
+	@Override
+	protected void generateInternal(CodeGenerationContext context, DecideOn decide)
+	{
+		var gson = new Gson();
+		var rootElement = gson.fromJson(rawJson, JsonElement.class);
+
+		createDecideOnJsonElementBranches(decide, parsedJsonRoot, "", rootElement, "");
+	}
+
+	private void createDecideOnJsonElementBranches(
+		DecideOn decideStatement, Variable parentVariable, String elementName, JsonElement currentElement,
+		String currentPath
+	)
+	{
+		if (currentElement.isJsonPrimitive() || currentElement.isJsonNull())
+		{
+			var valueJsonPath = appendPath(currentPath, PARSED_DATA);
+
+			var variableForPrimitive = getVariableForProperty(currentPath, parentVariable, elementName, inferJsonType(currentElement));
+
+			decideStatement
+				.addBranch(stringLiteral(valueJsonPath))
+				.addStatement(assignValueToVariable(variableForPrimitive, currentElement, valueJsonPath));
+			return;
+		}
+
+		if (currentElement.isJsonArray())
+		{
+			if (elementName.isEmpty())
+			{
+				// The root element of the document is an array, and we don't have a better name for it
+				elementName = "inline";
+			}
+
+			// This is the primitive path
+			var arrayVariable = getVariableForProperty(currentPath, parentVariable, elementName, inferJsonType(currentElement));
+			var sizeVariable = findSizeVariableForArray(arrayVariable);
+			var firstElementInArray = currentElement.getAsJsonArray().get(0);
+
+			var arrayStartPath = appendPath(currentPath, START_ARRAY);
+			var newArrayValuePath = firstElementInArray.isJsonObject()
+				? appendPath(arrayStartPath, START_OBJECT) // Array expansion needs to happen when a new object starts
+				: appendPath(arrayStartPath, PARSED_DATA); // Array expansion needs to happen on every new primitive value
+
+			var numberOfDimensions = getNumberOfDimensions(arrayStartPath);
+			var branch = decideStatement
+				.addBranch(stringLiteral(newArrayValuePath))
+				.addStatement(incrementVariable(sizeVariable))
+				.addStatement(expandNthArrayDimension(arrayVariable, numberOfDimensions, sizeVariable));
+
+			if (firstElementInArray.isJsonPrimitive())
+			{
+				branch.addStatement(
+					assignValueToVariable(arrayVariable, firstElementInArray.getAsJsonPrimitive(), newArrayValuePath)
+				);
+			}
+			else
+				if (firstElementInArray.isJsonObject())
+				{
+					createDecideOnJsonElementBranches(
+						decideStatement, arrayVariable, elementName, firstElementInArray,
+						arrayStartPath
+					);
+				}
+
+			return;
+		}
+
+		if (currentElement.isJsonObject())
+		{
+			var newParentVariable = parentVariable;
+			if (!elementName.isEmpty() && !parentVariable.type().isArray())
+			{
+				newParentVariable = parentVariable.addVariable("#" + elementName.toUpperCase(Locale.ROOT), VariableType.group());
+			}
+
+			var currentObjectPath = appendPath(currentPath, START_OBJECT);
+			var jsonObject = currentElement.getAsJsonObject();
+			for (var property : jsonObject.entrySet())
+			{
+				createDecideOnJsonElementBranches(
+					decideStatement, newParentVariable, property.getKey(), property.getValue(), appendPath(
+						currentObjectPath,
+						property.getKey()
+					)
+				);
+			}
+
+			return;
+		}
+
+		throw new IllegalStateException(
+			"Can not handle JSON element type <%s>".formatted(currentElement.getClass().getSimpleName())
+		);
+	}
+
+	private IGeneratable valueAssignment(JsonElement element)
+	{
+		if (element.isJsonNull())
+		{
+			return jsonValue;
+		}
+
+		var primitive = element.getAsJsonPrimitive();
+
+		if (primitive.isNumber())
+		{
+			return val(jsonValue);
+		}
+
+		if (primitive.isString())
+		{
+			return jsonValue;
+		}
+
+		if (primitive.isBoolean())
+		{
+			return NatGenFunctions.jsonBooleanToLogical(jsonValue);
+		}
+
+		throw new UnsupportedOperationException("Unknown json primitive: %s".formatted(primitive));
+	}
+
+	private IGeneratableStatement assignValueToVariable(Variable variableForPrimitive, JsonElement element, String currentPath)
+	{
+		if (currentPath.contains(START_ARRAY))
+		{
+			var arrayAccessVariables = findAllArrayAccessVariablesForCurrentPathInOrder(currentPath);
+			return assignment(variableForPrimitive.arrayAccess(arrayAccessVariables), valueAssignment(element));
+		}
+		return assignment(variableForPrimitive, valueAssignment(element));
+	}
+
+	private static VariableType inferJsonType(JsonElement element)
+	{
+		if (element.isJsonPrimitive())
+		{
+			var primitive = element.getAsJsonPrimitive();
+			if (primitive.isBoolean())
+			{
+				return VariableType.logical();
+			}
+
+			if (primitive.isNumber())
+			{
+				return VariableType.numeric(12.7);
+			}
+
+			return VariableType.alphanumericDynamic();
+		}
+
+		if (element.isJsonObject())
+		{
+			return VariableType.group();
+		}
+
+		if (element.isJsonArray())
+		{
+			var array = element.getAsJsonArray();
+			if (array.isEmpty())
+			{
+				return VariableType.alphanumericDynamic().withDimension(Dimension.upperUnbound());
+			}
+
+			return inferJsonType(array.get(0)).withDimension(Dimension.upperUnbound());
+		}
+
+		return VariableType.alphanumericDynamic();
+	}
+}

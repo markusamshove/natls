@@ -1,5 +1,7 @@
 package org.amshove.natls.quickfixes;
 
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natlint.analyzers.ForLoopAnalyzer;
 import org.amshove.natls.WorkspaceEditBuilder;
 import org.amshove.natls.codeactions.AbstractQuickFix;
@@ -36,7 +38,7 @@ public class ForLoopOccQuickFix extends AbstractQuickFix
 			.fixesDiagnostic(quickFixContext.diagnostic())
 			.appliesWorkspaceEdit(
 				new WorkspaceEditBuilder()
-					.addsVariable(quickFixContext.file(), sizeVariableName, "(I4)", VariableScope.LOCAL)
+					.addsVariable(quickFixContext.file(), new Variable(1, VariableScope.LOCAL, sizeVariableName, VariableType.integer(4)))
 					.changesNode(systemFunctionNode, sizeVariableName)
 					.changesText(
 						quickFixContext.fileUri(),

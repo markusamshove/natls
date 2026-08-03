@@ -1,5 +1,14 @@
 package org.amshove.natparse.parsing;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Fail.fail;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 import org.amshove.natparse.DiagnosticSeverity;
 import org.amshove.natparse.IDiagnostic;
 import org.amshove.natparse.lexing.Lexer;
@@ -7,16 +16,6 @@ import org.amshove.natparse.natural.project.NaturalFile;
 import org.amshove.natparse.natural.project.NaturalFileType;
 import org.amshove.testhelpers.ResourceHelper;
 import org.junit.jupiter.api.DynamicTest;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.assertj.core.api.Fail.fail;
-import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 public abstract class ResourceFolderBasedTest
 {

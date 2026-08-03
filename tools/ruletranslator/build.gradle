@@ -9,9 +9,12 @@ dependencies {
 }
 
 application {
-    mainClass = 'org.amshove.natqube.ruletranslator.App'
+    mainClass = 'org.amshove.natqube.ruletranslator.RuleTranslator'
 }
 
 run {
-    args = ["${project(':natqube').sourceSets.main.resources.srcDirs[0]}/rules.xml"]
+    args = [
+            "${project(':natqube').sourceSets.main.resources.srcDirs[0]}/rules.xml",
+            "${project.layout.buildDirectory.get()}/diagnostics/"
+    ]
 }

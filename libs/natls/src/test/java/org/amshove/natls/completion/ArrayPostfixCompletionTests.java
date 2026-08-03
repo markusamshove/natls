@@ -13,9 +13,9 @@ class ArrayPostfixCompletionTests extends CompletionTest
 		@ParameterizedTest
 		@ValueSource(strings =
 		{
-			"A10", "N5", "L", "C"
+			"A10", "L", "C"
 		})
-		void notBeApplicableWhenNotInvokedOnAnArray(String type)
+		void notBeApplicableWhenNotInvokedOnAnArrayOrNumeric(String type)
 		{
 			assertCompletions("LIBONE", "SUB.NSN", ".", """
 				DEFINE DATA LOCAL

@@ -1,5 +1,5 @@
 plugins {
-	id 'org.gradle.toolchains.foojay-resolver-convention' version '0.9.0'
+	id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
 
 rootProject.name = 'natls'
@@ -12,6 +12,9 @@ project(':libs/natparse').name = 'natparse'
 
 include 'libs/natlint'
 project(':libs/natlint').name = 'natlint'
+
+include 'libs/natgen'
+project(':libs/natgen').name = 'natgen'
 
 include 'libs/natls'
 project(':libs/natls').name = 'natls'

@@ -211,7 +211,7 @@ class ModuleRenameShould extends LanguageServerTest
 				{
 					assertThat(edit.getEdits())
 						.as("Expected changes to file %s to have an edit in line %d with new text %s".formatted(expectedChange.uri, change.line, change.newText))
-						.anyMatch(te -> te.getRange().getStart().getLine() == change.line && te.getNewText().equals(change.newText));
+						.anyMatch(te -> te.getLeft().getRange().getStart().getLine() == change.line && te.getLeft().getNewText().equals(change.newText));
 				}
 			});
 		}

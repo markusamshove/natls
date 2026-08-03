@@ -32,7 +32,7 @@ public class NaturalSourceHeaderAnalyzer extends AbstractAnalyzer
 
 	private void analyzeModule(INaturalModule module, IAnalyzeContext context)
 	{
-		if (module.file().getFiletype() == NaturalFileType.DDM)
+		if (context.isFiletype(NaturalFileType.DDM))
 		{
 			return;
 		}

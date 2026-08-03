@@ -7,6 +7,12 @@ import java.util.stream.Stream;
 
 public interface IFilesystem
 {
+	static boolean hasExtension(Path filePath)
+	{
+		var split = filePath.getFileName().toString().split("\\.");
+		return split.length > 1;
+	}
+
 	String readFile(Path path);
 
 	boolean exists(Path path);

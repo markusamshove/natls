@@ -7,7 +7,7 @@ import org.amshove.natparse.natural.project.NaturalFile;
 import org.amshove.natparse.natural.project.NaturalHeader;
 import org.amshove.natparse.natural.project.NaturalProgrammingMode;
 
-public interface INaturalModule
+public sealed interface INaturalModule permits ISubprogram,IProgram,IExternalSubroutine,IHelproutine,IGlobalDataArea,ILocalDataArea,IParameterDataArea,INaturalMap,ICopyCode,IFunction
 {
 	String name();
 
@@ -21,9 +21,9 @@ public interface INaturalModule
 
 	ReadOnlyList<IModuleReferencingNode> callers();
 
-	ReadOnlyList<SyntaxToken> comments();
+	ReadOnlyList<SyntaxToken> tokens();
 
-	boolean isTestCase();
+	ReadOnlyList<SyntaxToken> comments();
 
 	String moduleDocumentation();
 
@@ -36,4 +36,12 @@ public interface INaturalModule
 	void removeCaller(IModuleReferencingNode node);
 
 	void addCaller(IModuleReferencingNode caller);
+
+	/**
+	 * Wether this module is a NatUnit test case.
+	 */
+	default boolean isTestCase()
+	{
+		return false;
+	}
 }

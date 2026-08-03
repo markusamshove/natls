@@ -1,14 +1,14 @@
 package org.amshove.natls.folding;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import org.amshove.natls.testlifecycle.EmptyProjectTest;
 import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 class FoldingEndpointShould extends EmptyProjectTest
 {
@@ -114,6 +114,25 @@ class FoldingEndpointShould extends EmptyProjectTest
 		""");
 
 		assertFolding(0, 2, foldings);
+	}
+
+	@Test
+	void provideFoldingsForDefinePrototype()
+	{
+		var foldings = getFoldings("""
+			DEFINE DATA
+			LOCAL
+			END-DEFINE
+			DEFINE PROTOTYPE ASD RETURNS (L)
+			DEFINE DATA
+			PARAMETER 1 #PARAM (L)
+			END-DEFINE
+			END-PROTOTYPE
+			IGNORE
+			END
+			""");
+
+		assertFolding(3, 7, foldings);
 	}
 
 	@Test

@@ -19,11 +19,16 @@ public class VariableReferenceAnalyzer extends AbstractAnalyzer
 		"Variable %s is modified but never accessed",
 		DiagnosticSeverity.INFO
 	);
+	public static final DiagnosticDescription UNUSED_REDEFINE_VARIABLE = DiagnosticDescription.create(
+		"NL040",
+		"Redefinition variable %s is unused",
+		DiagnosticSeverity.WARNING
+	);
 
 	@Override
 	public ReadOnlyList<DiagnosticDescription> getDiagnosticDescriptions()
 	{
-		return ReadOnlyList.of(UNUSED_VARIABLE, VARIABLE_MODIFIED_ONLY);
+		return ReadOnlyList.of(UNUSED_VARIABLE, VARIABLE_MODIFIED_ONLY, UNUSED_REDEFINE_VARIABLE);
 	}
 
 	@Override
@@ -34,7 +39,7 @@ public class VariableReferenceAnalyzer extends AbstractAnalyzer
 
 	private void analyzeVariable(ISyntaxNode syntaxNode, IAnalyzeContext context)
 	{
-		if (UNWANTED_FILETYPES.contains(context.getModule().file().getFiletype()))
+		if (context.isIncludableFileType())
 		{
 			return;
 		}
@@ -46,12 +51,19 @@ public class VariableReferenceAnalyzer extends AbstractAnalyzer
 
 		var variable = (IVariableNode) syntaxNode;
 		var references = computeReferenceCount(variable);
-		if (references == 0
-			&& computeParentReferenceCount(variable) == 0
-			&& (!(variable.parent()instanceof IRedefinitionNode redefine) || noMembersAfterAreReferenced(redefine, variable)))
+		if (references == 0 && computeParentReferenceCount(variable) == 0)
 		{
-			context.report(UNUSED_VARIABLE.createFormattedDiagnostic(variable.position(), variable.name()));
-
+			if (!(variable.parent()instanceof IRedefinitionNode redefine))
+			{
+				context.report(UNUSED_VARIABLE.createFormattedDiagnostic(variable.position(), variable.name()));
+			}
+			else
+			{
+				if (noMembersAfterAreReferenced(redefine, variable))
+				{
+					context.report(UNUSED_REDEFINE_VARIABLE.createFormattedDiagnostic(variable.position(), variable.name()));
+				}
+			}
 		}
 
 		checkIfVariableIsMutatedOnly(variable, context);
@@ -59,7 +71,7 @@ public class VariableReferenceAnalyzer extends AbstractAnalyzer
 
 	private void checkIfVariableIsMutatedOnly(IVariableNode variable, IAnalyzeContext context)
 	{
-		if (variable.references().size() == 0)
+		if (variable.references().isEmpty())
 		{
 			return;
 		}
@@ -84,13 +96,14 @@ public class VariableReferenceAnalyzer extends AbstractAnalyzer
 			// Just assume that any parent group that is referenced is read
 			for (var parent : variable.getVariableParentsAscending())
 			{
-				if (parent.references().size() > 0)
+				if (!parent.references().isEmpty())
 				{
 					return;
 				}
 			}
 
-			if (NodeUtil.findFirstParentOfType(variable, IRedefinitionNode.class)instanceof IRedefinitionNode redefine && redefine.reference().references().size() > 0)
+			if (NodeUtil.findFirstParentOfType(variable, IRedefinitionNode.class)instanceof IRedefinitionNode redefine && !redefine.reference()
+				.references().isEmpty())
 			{
 				return;
 			}

@@ -1,17 +1,11 @@
 package org.amshove.natls;
 
-import org.amshove.natlint.linter.LinterContext;
 import org.amshove.natls.languageserver.ReferableFileExistsParams;
 import org.amshove.natls.testlifecycle.LanguageServerTest;
 import org.amshove.natls.testlifecycle.LspProjectName;
 import org.amshove.natls.testlifecycle.LspTestContext;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

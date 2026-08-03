@@ -38,6 +38,18 @@ class DataTypeShould
 		assertThat(type.alphanumericLength()).isEqualTo(expectedLength);
 	}
 
+	@ParameterizedTest
+	@CsvSource(
+		{
+			"A10,0", "N10,0", "N5.2,2", "P7.2,2", "N22.7,7"
+		}
+	)
+	void calculateTheNumericPrecision(String datatype, int expectedPrecision)
+	{
+		var type = DataType.fromString(datatype);
+		assertThat(type.numericPrecision()).isEqualTo(expectedPrecision);
+	}
+
 	private DynamicTest test(String source, DataFormat expectedFormat, double expectedLength)
 	{
 		return DynamicTest.dynamicTest(source, () -> assertType(source, expectedFormat, expectedLength));
@@ -49,7 +61,4 @@ class DataTypeShould
 		assertThat(parsedType.format()).isEqualTo(expectedFormat);
 		assertThat(parsedType.length()).isEqualTo(expectedLength);
 	}
-
-	private record TypeParseTest(String source, DataFormat expectedFormat, double expectedLength)
-	{}
 }

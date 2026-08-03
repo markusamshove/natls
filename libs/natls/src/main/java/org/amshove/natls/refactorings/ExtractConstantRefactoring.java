@@ -1,5 +1,8 @@
 package org.amshove.natls.refactorings;
 
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.NaturalCode;
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natls.WorkspaceEditBuilder;
 import org.amshove.natls.codeactions.ICodeActionProvider;
 import org.amshove.natls.codeactions.RefactoringContext;
@@ -8,7 +11,9 @@ import org.amshove.natls.quickfixes.CodeActionBuilder;
 import org.amshove.natparse.NodeUtil;
 import org.amshove.natparse.lexing.SyntaxKind;
 import org.amshove.natparse.lexing.SyntaxToken;
-import org.amshove.natparse.natural.*;
+import org.amshove.natparse.natural.IDefineData;
+import org.amshove.natparse.natural.ISyntaxNode;
+import org.amshove.natparse.natural.VariableScope;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
@@ -49,9 +54,12 @@ public class ExtractConstantRefactoring implements ICodeActionProvider
 				.forEach(additionalChanges::add);
 		}
 
+		var theConstant = new Variable(1, VariableScope.LOCAL, constantName, getLiteralType(literalToken))
+			.withConstantValue(NaturalCode.plain(literalToken.source()));
+
 		var workspaceEdits = new WorkspaceEditBuilder()
 			.changesText(context.fileUri(), LspUtil.toRange(literalToken), constantName)
-			.addsVariable(context.file(), constantName, getLiteralType(literalToken), VariableScope.LOCAL);
+			.addsVariable(context.file(), theConstant);
 
 		for (var additionalChange : additionalChanges)
 		{
@@ -65,16 +73,14 @@ public class ExtractConstantRefactoring implements ICodeActionProvider
 		);
 	}
 
-	private String getLiteralType(SyntaxToken literal)
+	private static VariableType getLiteralType(SyntaxToken literal)
 	{
-		var type = switch (literal.kind())
+		return switch (literal.kind())
 		{
-			case STRING_LITERAL -> "(A%d)".formatted(literal.stringValue().length());
-			case NUMBER_LITERAL -> "(N12,7)";
-			case TRUE, FALSE -> "(B)";
-			default -> "(A) DYNAMIC";
+			case STRING_LITERAL -> VariableType.alphanumeric(literal.stringValue().length());
+			case NUMBER_LITERAL -> VariableType.numeric(12.7);
+			case TRUE, FALSE -> VariableType.logical();
+			default -> VariableType.alphanumericDynamic();
 		};
-
-		return "%s CONST<%s>".formatted(type, literal.source());
 	}
 }

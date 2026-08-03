@@ -1,6 +1,7 @@
 package org.amshove.natlint.analyzers;
 
 import org.amshove.natlint.linter.AbstractAnalyzerTest;
+import org.amshove.natparse.parsing.ParserError;
 import org.junit.jupiter.api.Test;
 
 class VariableReferenceAnalyzerShould extends AbstractAnalyzerTest
@@ -106,9 +107,9 @@ class VariableReferenceAnalyzerShould extends AbstractAnalyzerTest
                1 redefine #var
                2 #var2 (a20)
                end-define
-               
+
                write #var2
-               
+
                end
             """,
 			expectNoDiagnosticOfType(VariableReferenceAnalyzer.UNUSED_VARIABLE)
@@ -130,7 +131,7 @@ class VariableReferenceAnalyzerShould extends AbstractAnalyzerTest
                write #var2
                end
             """,
-			expectNoDiagnosticOfType(VariableReferenceAnalyzer.UNUSED_VARIABLE)
+			expectNoDiagnosticOfType(VariableReferenceAnalyzer.UNUSED_REDEFINE_VARIABLE)
 		);
 	}
 
@@ -150,7 +151,7 @@ class VariableReferenceAnalyzerShould extends AbstractAnalyzerTest
                write #var2
                end
             """,
-			expectDiagnostic(6, VariableReferenceAnalyzer.UNUSED_VARIABLE)
+			expectDiagnostic(6, VariableReferenceAnalyzer.UNUSED_REDEFINE_VARIABLE)
 		);
 	}
 
@@ -197,6 +198,23 @@ class VariableReferenceAnalyzerShould extends AbstractAnalyzerTest
 			end
 			""",
 			expectNoDiagnosticOfType(VariableReferenceAnalyzer.VARIABLE_MODIFIED_ONLY)
+		);
+	}
+
+	@Test
+	void notReportDiagnosticsTwiceWhenViewsAreInvolved()
+	{
+		allowParserError(ParserError.UNRESOLVED_MODULE.id());
+		testDiagnostics(
+			"""
+			DEFINE DATA LOCAL
+			1 #VIEW VIEW OF DDM
+			  2 #FIELD (A10)
+			END-DEFINE
+			END
+			""",
+			expectSingleDiagnosticOfTypeInLine(1, VariableReferenceAnalyzer.UNUSED_VARIABLE), // #VIEW
+			expectSingleDiagnosticOfTypeInLine(2, VariableReferenceAnalyzer.UNUSED_VARIABLE) // #FIELD
 		);
 	}
 }

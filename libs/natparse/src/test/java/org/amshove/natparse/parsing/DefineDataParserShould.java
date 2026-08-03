@@ -367,7 +367,7 @@ class DefineDataParserShould extends AbstractParserTest<IDefineData>
 		var variable = assertNodeType(defineData.variables().first(), ITypedVariableNode.class);
 		var systemVar = assertNodeType(variable.type().initialValue(), ISystemVariableNode.class);
 		assertThat(systemVar).isNotNull();
-		assertThat(systemVar.systemVariable()).isEqualTo(SyntaxKind.DATN);
+		assertThat(systemVar.systemVariable()).isEqualTo(SyntaxKind.SV_DATN);
 	}
 
 	@Test
@@ -420,6 +420,17 @@ class DefineDataParserShould extends AbstractParserTest<IDefineData>
 	void addADiagnosticForTypeMismatchesInConstValues(String type, String literal)
 	{
 		assertDiagnostic("define data local 1 #var (%s4) const <%s> end-define".formatted(type, literal), ParserError.INITIAL_VALUE_TYPE_MISMATCH);
+	}
+
+	@ParameterizedTest
+	@CsvSource(
+		{
+			"2", "-2", "+2",
+		}
+	)
+	void allowNumericInitialValuesWithSignsForNumericFields(String value)
+	{
+		assertParsesWithoutDiagnostics("DEFINE DATA LOCAL 01 #VAR (N1) INIT <%s> END-DEFINE".formatted(value));
 	}
 
 	@Test
@@ -1009,6 +1020,24 @@ class DefineDataParserShould extends AbstractParserTest<IDefineData>
 
 		var redefine = assertNodeType(defineData.variables().get(1), IRedefinitionNode.class);
 		assertThat(redefine.fillerBytes()).isEqualTo(90);
+	}
+
+	@Test
+	void notMistakeFillersOfFollowingRedefinesAsFillersOfItsOwn()
+	{
+		var defineData = assertParsesWithoutDiagnostics("""
+			DEFINE DATA
+			LOCAL
+			1 #ASTRING (A100)
+			1 REDEFINE #ASTRING
+				2 #SUBSTR (A10)
+				2 FILLER 50X
+			END-DEFINE
+			INPUT 50X 'A'
+			""");
+
+		var redefine = assertNodeType(defineData.variables().get(1), IRedefinitionNode.class);
+		assertThat(redefine.fillerBytes()).isEqualTo(50); // not 100 from FILLER 50X + INPUT 50X
 	}
 
 	@Test
@@ -2521,6 +2550,29 @@ class DefineDataParserShould extends AbstractParserTest<IDefineData>
 				""".formatted(scope),
 			NaturalFileType.valueOf(extension)
 		);
+	}
+
+	@Test
+	void raiseADiagnosticForEmptyGroups()
+	{
+		assertDiagnostic("""
+			DEFINE DATA LOCAL
+			1 #GRP
+			END-DEFINE
+			""", ParserError.GROUP_CANNOT_BE_EMPTY);
+	}
+
+	@Test
+	void notConsiderARedefineAsEmptyGroupWhenItContainsOnlyFiller()
+	{
+		// https://github.com/markusamshove/natls/issues/384
+		assertParsesWithoutDiagnostics("""
+			DEFINE DATA LOCAL
+			1 AAA (A10)
+			1 REDEFINE AAA
+			2 FILLER 10X
+			END-DEFINE
+			""");
 	}
 
 	@TestFactory

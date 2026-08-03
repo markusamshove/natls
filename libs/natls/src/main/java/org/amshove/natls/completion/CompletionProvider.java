@@ -1,5 +1,7 @@
 package org.amshove.natls.completion;
 
+import org.amshove.natgen.VariableType;
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natls.WorkspaceEditBuilder;
 import org.amshove.natls.config.LSConfiguration;
 import org.amshove.natls.hover.HoverContext;
@@ -9,6 +11,7 @@ import org.amshove.natls.languageserver.UnresolvedCompletionInfo;
 import org.amshove.natls.project.LanguageServerFile;
 import org.amshove.natls.project.LanguageServerLibrary;
 import org.amshove.natls.snippets.SnippetEngine;
+import org.amshove.natparse.IPosition;
 import org.amshove.natparse.ReadOnlyList;
 import org.amshove.natparse.lexing.SyntaxKind;
 import org.amshove.natparse.natural.*;
@@ -91,9 +94,12 @@ public class CompletionProvider
 
 		completionItems.addAll(snippetEngine.provideSnippets(file));
 
+		var replacePosition = completionContext.cursorIsExactlyOnCurrentToken() && completionContext.currentToken() != null
+			? completionContext.currentToken()
+			: null;
 		completionItems.addAll(
 			findVariablesToComplete(module)
-				.map(v -> toVariableCompletion(v, module, file, ""))
+				.map(v -> toVariableCompletion(v, module, file, "", replacePosition))
 				.filter(Objects::nonNull)
 				.toList()
 		);
@@ -122,7 +128,7 @@ public class CompletionProvider
 		completionItems.addAll(
 			findVariablesToComplete(module)
 				.filter(v -> v.qualifiedName().startsWith(qualifiedNameFilter))
-				.map(v -> toVariableCompletion(v, module, file, qualifiedNameFilter))
+				.map(v -> toVariableCompletion(v, module, file, qualifiedNameFilter, null))
 				.filter(Objects::nonNull)
 				.toList()
 		);
@@ -169,6 +175,7 @@ public class CompletionProvider
 		var deleteEdit = new TextEdit(rangeToDelete, "");
 
 		addIfPostfix(completionItems, identifierName, rangeToInsert, deleteEdit);
+		addCompressPostfix(completionItems, identifierName, variableInvokedOn, rangeToInsert, deleteEdit);
 
 		if (variableInvokedOn.isArray())
 		{
@@ -177,20 +184,43 @@ public class CompletionProvider
 			addCollectionMatchExpressionPostfix(completionItems, identifierName, variableInvokedOn, rangeToInsert, deleteEdit);
 		}
 
-		if (variableInvokedOn instanceof ITypedVariableNode typedVar && typedVar.type().emptyValue() != null)
+		if (variableInvokedOn instanceof ITypedVariableNode typedVar)
 		{
-			addIsDefaultPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
-			addCaseTranslationPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
-			addValPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
-			addIncrementDecrementPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
-			addTrimPostfixes(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
-			addScanAndMask(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+			if (typedVar.type().emptyValue() != null)
+			{
+				addIsDefaultPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+				addCaseTranslationPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+				addValPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+				addIncrementDecrementPostfix(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+				addTrimPostfixes(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+				addScanAndMask(completionItems, typedVar, identifierName, rangeToInsert, deleteEdit);
+			}
+			if (!typedVar.isArray() && typedVar.type().isNumericFamily())
+			{
+				addForLoopOnVariablePostfix(file, completionItems, identifierName, rangeToInsert, deleteEdit);
+			}
 		}
 
 		if (variableInvokedOn.scope().isParameter() && variableInvokedOn.findDescendantToken(SyntaxKind.OPTIONAL) != null)
 		{
 			addIfSpecifiedPostfix(completionItems, identifierName, rangeToInsert, deleteEdit);
 		}
+
+	}
+
+	private static void addCompressPostfix(ArrayList<CompletionItem> completionItems, String identifierName, IVariableNode variable, Range rangeToInsert, TextEdit deleteEdit)
+	{
+		var isProperGroup = variable instanceof IGroupNode && !(variable instanceof IRedefinitionNode);
+		var wantsDelimiters = variable.isArray() || isProperGroup;
+
+		var delimiters = wantsDelimiters ? " ${0:WITH ALL DELIMITER ';'}" : "${0}";
+		completionItems.add(
+			createSnippetPostfixCompletionItem(
+				"compress",
+				new TextEdit(rangeToInsert, "COMPRESS %s INTO ${1:#RESULT}%s".formatted(identifierAccess(identifierName, variable), delimiters)),
+				deleteEdit
+			)
+		);
 	}
 
 	private static void addScanAndMask(
@@ -357,7 +387,7 @@ public class CompletionProvider
 		completionItems.add(
 			createPlainTextPostfixCompletionItem(
 				"contains",
-				new TextEdit(rangeToInsert, "%s(*) = %s".formatted(identifierName, defaultValue)),
+				new TextEdit(rangeToInsert, "%s = %s".formatted(identifierAccess(identifierName, variableInvokedOn), defaultValue)),
 				deleteEdit
 			)
 		);
@@ -365,7 +395,7 @@ public class CompletionProvider
 		completionItems.add(
 			createPlainTextPostfixCompletionItem(
 				"noneIs",
-				new TextEdit(rangeToInsert, "NOT %s(*) = %s".formatted(identifierName, defaultValue)),
+				new TextEdit(rangeToInsert, "NOT %s = %s".formatted(identifierAccess(identifierName, variableInvokedOn), defaultValue)),
 				deleteEdit
 			)
 		);
@@ -373,7 +403,7 @@ public class CompletionProvider
 		completionItems.add(
 			createPlainTextPostfixCompletionItem(
 				"anyIsNot",
-				new TextEdit(rangeToInsert, "%s(*) <> %s".formatted(identifierName, defaultValue)),
+				new TextEdit(rangeToInsert, "%s <> %s".formatted(identifierAccess(identifierName, variableInvokedOn), defaultValue)),
 				deleteEdit
 			)
 		);
@@ -381,7 +411,7 @@ public class CompletionProvider
 		completionItems.add(
 			createPlainTextPostfixCompletionItem(
 				"allAre",
-				new TextEdit(rangeToInsert, "NOT %s(*) <> %s".formatted(identifierName, defaultValue)),
+				new TextEdit(rangeToInsert, "NOT %s <> %s".formatted(identifierAccess(identifierName, variableInvokedOn), defaultValue)),
 				deleteEdit
 			)
 		);
@@ -431,8 +461,32 @@ public class CompletionProvider
 		var item = createSnippetPostfixCompletionItem("for", edit, deleteEdit);
 		var editBuilder = new WorkspaceEditBuilder();
 		editBuilder
-			.addsVariable(file, "#S-%s".formatted(sanitizedName), "(I4)", VariableScope.LOCAL)
-			.addsVariable(file, "#I-%s".formatted(sanitizedName), "(I4)", VariableScope.LOCAL);
+			.addsVariable(file, new Variable(1, VariableScope.LOCAL, "#S-%s".formatted(sanitizedName), VariableType.integer(4)))
+			.addsVariable(file, new Variable(1, VariableScope.LOCAL, "#I-%s".formatted(sanitizedName), VariableType.integer(4)));
+		var workspaceEdit = editBuilder.build();
+		if (workspaceEdit.getChanges().containsKey(file.getUri()))
+		{
+			item.getAdditionalTextEdits().addAll(workspaceEdit.getChanges().get(file.getUri()));
+		}
+
+		completionItems.add(item);
+	}
+
+	private static void addForLoopOnVariablePostfix(
+		LanguageServerFile file, List<CompletionItem> completionItems,
+		String identifierName, Range rangeToInsert, TextEdit deleteEdit
+	)
+	{
+		var sanitizedName = identifierName.replace(".", "-");
+		var edit = new TextEdit(rangeToInsert, """
+			FOR #I-%s := 1 TO %s
+			  ${0:IGNORE}
+			END-FOR""".formatted(sanitizedName, identifierName));
+
+		var item = createSnippetPostfixCompletionItem("for", edit, deleteEdit);
+		var editBuilder = new WorkspaceEditBuilder();
+		editBuilder
+			.addsVariable(file, new Variable(1, VariableScope.LOCAL, "#I-%s".formatted(sanitizedName), VariableType.integer(4)));
 		var workspaceEdit = editBuilder.build();
 		if (workspaceEdit.getChanges().containsKey(file.getUri()))
 		{
@@ -448,12 +502,7 @@ public class CompletionProvider
 	)
 	{
 		var defaultValue = typedVar.type().emptyValue();
-		var identifierAccess = identifierName;
-
-		if (typedVar.isArray())
-		{
-			identifierAccess += "(*)";
-		}
+		var identifierAccess = identifierAccess(identifierName, typedVar);
 
 		var edit = new TextEdit(rangeToInsert, """
 			IF %s = %s
@@ -608,14 +657,24 @@ public class CompletionProvider
 
 	private CompletionItem toVariableCompletion(
 		IVariableNode variableNode, INaturalModule module,
-		LanguageServerFile file, String alreadyPresentText
+		LanguageServerFile file, String alreadyPresentText, IPosition replacePosition
 	)
 	{
 		try
 		{
 			var item = createCompletionItem(variableNode, file, module.referencableNodes(), !alreadyPresentText.isEmpty());
-			item.setLabel(item.getLabel().replace(alreadyPresentText, ""));
-			item.setInsertText(item.getInsertText().substring(alreadyPresentText.length()));
+			if (replacePosition != null)
+			{
+				// Replace previous written text
+				var replaceWrittenFilter = new TextEdit(LspUtil.toRange(replacePosition), item.getInsertText());
+				item.setTextEdit(Either.forLeft(replaceWrittenFilter));
+				item.setInsertText(null);
+			}
+			else
+			{
+				item.setLabel(item.getLabel().replace(alreadyPresentText, ""));
+				item.setInsertText(item.getInsertText().substring(alreadyPresentText.length()));
+			}
 			if (item.getKind() == CompletionItemKind.Variable)
 			{
 				item.setData(new UnresolvedCompletionInfo((String) item.getData(), file.getPath().toUri().toString()));
@@ -873,7 +932,7 @@ public class CompletionProvider
 			.filter(sk -> sk.isSystemVariable() || sk.isSystemFunction())
 			.map(sk ->
 			{
-				var callableName = sk.toString().replace("SV_", "").replace("_", "-");
+				var callableName = sk.name().replace("SV_", "").replaceAll("_", "-");
 				var completionItem = new CompletionItem();
 				var definition = BuiltInFunctionTable.getDefinition(sk);
 				var label = "*" + callableName;
@@ -904,6 +963,14 @@ public class CompletionProvider
 		var info = new UnresolvedCompletionInfo(file.getReferableName(), file.getUri());
 		info.setPreviousText(context.previousTexts());
 		return info;
+	}
+
+	private static String identifierAccess(String identifierName, IVariableNode node)
+	{
+		var access = identifierName;
+		return node.isArray()
+			? String.format("%s(%s)", access, "*" + ", *".repeat(node.dimensions().size() - 1))
+			: access;
 	}
 
 }

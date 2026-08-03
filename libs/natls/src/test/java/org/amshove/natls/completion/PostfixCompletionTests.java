@@ -742,4 +742,81 @@ class PostfixCompletionTests extends CompletionTest
 				.assertDoesNotContain("decrement");
 		}
 	}
+
+	@Nested
+	class CompressSnippetsShould
+	{
+		@Test
+		void createACompressForScalarVariables()
+		{
+			assertCompletions("LIBONE", "SUB.NSN", ".", """
+			DEFINE DATA LOCAL
+			1 #VAR (A2)
+			END-DEFINE
+			#VAR.${}$
+			END
+			""")
+				.assertContainsCompleting("compress", CompletionItemKind.Snippet, "COMPRESS #VAR INTO ${1:#RESULT}${0}");
+		}
+
+		@Test
+		void createACompressArraySnippetForArrays()
+		{
+			assertCompletions("LIBONE", "SUB.NSN", ".", """
+			DEFINE DATA LOCAL
+			1 #ARR (A2/1:*,1:*)
+			END-DEFINE
+			#ARR.${}$
+			END
+			""")
+				.assertContainsCompleting("compress", CompletionItemKind.Snippet, "COMPRESS #ARR(*, *) INTO ${1:#RESULT} ${0:WITH ALL DELIMITER ';'}");
+		}
+
+		@Test
+		void createACompressGroupSnippet()
+		{
+			assertCompletions("LIBONE", "SUB.NSN", ".", """
+			DEFINE DATA LOCAL
+			1 #AGRP
+			2 #VAL1 (A2)
+			2 #VAL2 (A2)
+			END-DEFINE
+			#AGRP.${}$
+			END
+			""")
+				.assertContainsCompleting("compress", CompletionItemKind.Snippet, "COMPRESS #AGRP INTO ${1:#RESULT} ${0:WITH ALL DELIMITER ';'}");
+		}
+	}
+
+	@Nested
+	class TheForSnippetShould
+	{
+		@ParameterizedTest
+		@ValueSource(strings =
+		{
+			"I4", "N12", "F8", "N8", "P4"
+		})
+		void createALoopWithScalarNumericVariableAsUpperBound(String type)
+		{
+			assertCompletions("LIBONE", "SUB.NSN", ".", """
+				DEFINE DATA
+				LOCAL
+				1 #VAR (%s)
+				END-DEFINE
+				#VAR.${}$
+				END
+				""".formatted(type))
+				.assertContainsCompletionResultingIn("for", """
+					DEFINE DATA
+					LOCAL
+					1 #I-#VAR (I4)
+					1 #VAR (%s)
+					END-DEFINE
+					FOR #I-#VAR := 1 TO #VAR
+					  ${0:IGNORE}
+					END-FOR
+					END
+					""".formatted(type));
+		}
+	}
 }

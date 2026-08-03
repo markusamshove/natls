@@ -817,6 +817,27 @@ class ExternalParameterCheckShould
 		assertNoDiagnostic();
 	}
 
+	@Test
+	void notCheckParameterForFetchStatements()
+	{
+		parse("CALLED.NSP", """
+			DEFINE DATA LOCAL
+			1 #PARM (A10)
+			END-DEFINE
+			INPUT #PARM
+			END
+			""");
+
+		parse("CALLER.NSN", """
+			DEFINE DATA LOCAL
+			END-DEFINE
+			FETCH 'CALLED' 'ASD'
+			END
+			""");
+
+		assertNoDiagnostic();
+	}
+
 	private void assertNoDiagnostic()
 	{
 		var messages = lastParsedModule.diagnostics().stream().map(IDiagnostic::message).toList();
@@ -855,7 +876,7 @@ class ExternalParameterCheckShould
 	{
 		var path = Paths.get("MYPDA.NSA");
 		var file = new NaturalFile("MYPDA.NSA", path, NaturalFileType.fromPath(path));
-		var module = new NaturalModule(file);
+		var module = new ParameterDataArea(file);
 		module.setDefineData(new DefineDataParser(moduleProvider).parse(new Lexer().lex("""
 				DEFINE DATA PARAMETER
 				1 MYPDA

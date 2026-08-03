@@ -8,7 +8,7 @@ public interface IArrayDimension extends ISyntaxNode
 	/**
 	 * Specifies the lower bound of the array. If the array is unbound, it returns int.MAX_VALUE. Use `isLowerUnbound()`
 	 * to check if it is unbound.
-	 * 
+	 *
 	 * @return the lower bound.
 	 */
 	int lowerBound();
@@ -16,7 +16,7 @@ public interface IArrayDimension extends ISyntaxNode
 	/**
 	 * Specifies the upper bound of the array. If the array is unbound, it returns int.MAX_VALUE. Use `isUpperUnbound()`
 	 * to check if it is unbound.
-	 * 
+	 *
 	 * @return the upper bound.
 	 */
 	int upperBound();

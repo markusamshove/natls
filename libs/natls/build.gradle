@@ -1,38 +1,39 @@
 dependencies {
-    implementation libraries.lsp4j
-    implementation libraries.reflections
-	implementation libraries.slf4j_utillogging
+    implementation libs.lsp4j
+    implementation libs.reflections
+	implementation libs.slf4j.utillogging
     implementation project(':natparse')
     implementation project(':natlint')
+    implementation project(':natgen')
 
     testImplementation project(':testhelpers')
-    testImplementation libraries.slf4j_nop
-    testImplementation 'org.awaitility:awaitility:4.2.0'
+    testImplementation libs.slf4j.nop
+    testImplementation libs.testing.awaitility
 }
 
 tasks.register('fatJar', Jar) {
     manifest {
         attributes(
-                'Main-Class': 'org.amshove.natls.App',
+                'Main-Class': 'org.amshove.natls.NatLs',
                 'Implementation-Title': project.name,
                 'Implementation-Version': project.version
         )
     }
     archiveFileName = 'natls.jar'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dependsOn(':natparse:jar', ':natlint:jar')
+    dependsOn(':natparse:jar', ':natlint:jar', ':natgen:jar')
     from {configurations.runtimeClasspath.collect { (it.isDirectory() ? it : zipTree(it)).matching { exclude "**/*.SF", "**/*.DSA", "**/*.RSA" } } }
     with jar
 }
 
 configurations.testImplementation {
-    exclude group: 'org.slf4j', module: libraries.slf4j_utillogging.split(':')[1]
+    exclude group: 'org.slf4j', module: 'slf4j-jdk14'
 }
 
 jar {
     manifest {
         attributes(
-            'Main-Class': 'org.amshove.natls.App',
+            'Main-Class': 'org.amshove.natls.NatLs',
             'Implementation-Title': project.name,
             'Implementation-Version': project.version
         )

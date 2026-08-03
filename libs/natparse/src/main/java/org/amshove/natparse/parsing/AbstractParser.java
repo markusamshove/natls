@@ -264,7 +264,7 @@ abstract class AbstractParser<T>
 		}
 
 		// negative numeric literals like `-1`
-		if (peekKind(SyntaxKind.MINUS) && peekKind(1, SyntaxKind.NUMBER_LITERAL))
+		if ((peekKind(SyntaxKind.MINUS) || peekKind(SyntaxKind.PLUS)) && peekKind(1, SyntaxKind.NUMBER_LITERAL))
 		{
 			var combinedLiteral = peek().combine(peek(1), SyntaxKind.NUMBER_LITERAL);
 			var literal = new LiteralNode(combinedLiteral);
@@ -284,32 +284,45 @@ abstract class AbstractParser<T>
 
 	protected boolean isAttributeList()
 	{
-		return peekKind(SyntaxKind.LPAREN) && peek(1).kind().isAttribute();
+		var currentKind = peekKind();
+		return (currentKind == SyntaxKind.LPAREN && peek(1).kind().isAttribute())
+			|| ASTERISK_INPUT_ATTRIBUTES.contains(currentKind);
 	}
 
 	protected IAttributeListNode consumeAttributeList(BaseSyntaxNode node) throws ParseError
 	{
 		var attributeList = new AttributeListNode();
 		node.addNode(attributeList);
-		consumeMandatory(attributeList, SyntaxKind.LPAREN);
-		while (!isAtEnd() && peek().kind() != SyntaxKind.RPAREN && peek().kind() != SyntaxKind.END_DEFINE)
+
+		if (ASTERISK_INPUT_ATTRIBUTES.contains(peekKind()))
 		{
-			if (peek().source().length() == 3 && !peek().source().endsWith("="))
-			{
-				addImplicitAttributes(attributeList);
-			}
-			else
-			{
-				attributeList.addAttribute(parseAttribute());
-			}
+			attributeList.addAttribute(parseAttribute());
 		}
-		consumeMandatory(attributeList, SyntaxKind.RPAREN);
+
+		if (consumeOptionally(attributeList, SyntaxKind.LPAREN))
+		{
+			while (!isAtEnd() && peek().kind() != SyntaxKind.RPAREN && peek().kind() != SyntaxKind.END_DEFINE)
+			{
+				if (peek().source().length() == 3 && !peek().source().endsWith("="))
+				{
+					addImplicitAttributes(attributeList);
+				}
+				else
+				{
+					attributeList.addAttribute(parseAttribute());
+				}
+			}
+			consumeMandatory(attributeList, SyntaxKind.RPAREN);
+		}
 		return attributeList;
 	}
+
+	private static final Set<SyntaxKind> ASTERISK_INPUT_ATTRIBUTES = Set.of(SyntaxKind.IN_ATTRIBUTE, SyntaxKind.OUT_ATTRIBUTE, SyntaxKind.OUTIN_ATTRIBUTE);
 
 	private IAttributeNode parseAttribute() throws ParseError
 	{
 		var attributeToken = tokens.advance();
+
 		if (attributeToken.source().endsWith("="))
 		{
 			var operandAttribute = new OperandAttributeNode(attributeToken);
@@ -329,6 +342,11 @@ abstract class AbstractParser<T>
 			if (implicitConversionKind != null)
 			{
 				return new ValueAttributeNode(implicitConversionKind, attributeToken);
+			}
+
+			if (ASTERISK_INPUT_ATTRIBUTES.contains(attributeToken.kind()))
+			{
+				return new ConstantAttributeNode(attributeToken);
 			}
 
 			return new ValueAttributeNode(attributeToken);
@@ -540,7 +558,7 @@ abstract class AbstractParser<T>
 		node.setReferencingToken(token);
 		node.addNode(functionName);
 		var module = sideloadModule(token.symbolName(), functionName.token(), NaturalFileType.FUNCTION);
-		node.setReferencedModule((NaturalModule) module);
+		node.setReferencedModule(module);
 		externalModuleReferences.add(node);
 
 		consumeMandatory(node, SyntaxKind.LPAREN);
@@ -633,7 +651,7 @@ abstract class AbstractParser<T>
 	{
 		var skip = new SkipOperandNode();
 		node.addNode(skip);
-		consumeMandatory(skip, SyntaxKind.OPERAND_SKIP);
+		skip.setSkipToken(consumeMandatory(skip, SyntaxKind.OPERAND_SKIP));
 		return skip;
 	}
 
@@ -1000,7 +1018,7 @@ abstract class AbstractParser<T>
 			return consumeTranslateSystemFunction(node);
 		}
 
-		if (peek().kind() == SyntaxKind.PAGE_NUMBER || peek().kind() == SyntaxKind.LINE_COUNT)
+		if (peek().kind() == SyntaxKind.SV_PAGE_NUMBER || peek().kind() == SyntaxKind.SV_LINE_COUNT)
 		// TODO: Get the entry for the function from BuiltInFunctionTable and check if it takes one parameter that is rep
 		{
 			return consumeSystemFunctionWithRepParameter(node, peek().kind());
@@ -1027,11 +1045,13 @@ abstract class AbstractParser<T>
 			}
 			consumeMandatory(systemFunction, SyntaxKind.RPAREN);
 		}
-		systemFunction.addParameter(consumeOperandNode(systemFunction));
-		while (consumeOptionally(systemFunction, SyntaxKind.COMMA))
+
+		do
 		{
 			systemFunction.addParameter(consumeOperandNode(systemFunction));
 		}
+		while (consumeOptionally(systemFunction, SyntaxKind.COMMA));
+
 		consumeMandatory(systemFunction, SyntaxKind.RPAREN);
 		node.addNode(systemFunction);
 		return systemFunction;
@@ -1426,18 +1446,6 @@ abstract class AbstractParser<T>
 	protected void relocateDiagnosticPosition(IPosition relocatedDiagnosticPosition)
 	{
 		this.relocatedDiagnosticPosition = relocatedDiagnosticPosition;
-	}
-
-	protected boolean peekAnyMandatoryOrAdvance(List<SyntaxKind> acceptedKinds)
-	{
-		if (peekAny(acceptedKinds))
-		{
-			return true;
-		}
-
-		report(ParserErrors.unexpectedToken(acceptedKinds, tokens));
-		tokens.advance();
-		return false;
 	}
 
 	protected boolean peekKindInLine(SyntaxKind kind)

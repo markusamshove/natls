@@ -112,7 +112,9 @@ public class DefineDataParser extends AbstractParser<IDefineData>
 		{
 			return;
 		}
-		if (groupNode.variables().isEmpty())
+
+		var hasFillerBytes = groupNode instanceof IRedefinitionNode redefine && redefine.fillerBytes() > 0;
+		if (groupNode.variables().isEmpty() && !hasFillerBytes)
 		{
 			report(ParserErrors.emptyGroupVariable(groupNode));
 		}
@@ -173,7 +175,7 @@ public class DefineDataParser extends AbstractParser<IDefineData>
 					var currentRedefineNode = currentRedefine(variable);
 					if (currentRedefineNode != null)
 					{
-						while (mightBeFillerBytes(peek(1), peek(2)))
+						while (mightBeFillerAndItsBytes(peek(1), peek(2)))
 						{
 							parseRedefineFiller(currentRedefineNode);
 						}
@@ -301,7 +303,7 @@ public class DefineDataParser extends AbstractParser<IDefineData>
 		var defineDataModule = sideloadDefineData(identifierTokenNode);
 		if (defineDataModule != null)
 		{
-			using.setReferencingModule((NaturalModule) defineDataModule);
+			using.setReferencingModule((INaturalModule) defineDataModule);
 			for (var diagnostic : ((NaturalModule) defineDataModule).diagnostics())
 			{
 				if (diagnostic instanceof ParserDiagnostic pd)
@@ -480,9 +482,14 @@ public class DefineDataParser extends AbstractParser<IDefineData>
 		}
 	}
 
-	private boolean mightBeFillerBytes(SyntaxToken fillerToken, SyntaxToken maybeFillerBytes)
+	private boolean mightBeFillerAndItsBytes(SyntaxToken fillerToken, SyntaxToken maybeFillerBytes)
 	{
 		if (fillerToken == null || maybeFillerBytes == null)
+		{
+			return false;
+		}
+
+		if (fillerToken.kind() != SyntaxKind.FILLER)
 		{
 			return false;
 		}

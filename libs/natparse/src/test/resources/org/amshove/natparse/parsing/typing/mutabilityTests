@@ -1,0 +1,11 @@
+DEFINE DATA LOCAL
+1 #C-CONSTANT (A100) CONST<'a'>
+END-DEFINE
+
+RESET #C-CONSTANT /* !{D:ERROR:NPP039} can't reset CONST
+RESET INITIAL #C-CONSTANT /* !{D:ERROR:NPP039} can't reset initial CONST
+RESET 'A' /* !{D:ERROR:NPP039} can't reset initial CONST
+RESET INITIAL 'A' /* !{D:ERROR:NPP039} can't reset initial CONST
+
+END
+

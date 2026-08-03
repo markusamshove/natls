@@ -1,5 +1,17 @@
 package org.amshove.natlint.linter;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.amshove.natlint.api.AbstractAnalyzer;
 import org.amshove.natlint.api.DiagnosticDescription;
 import org.amshove.natlint.api.LinterDiagnostic;
@@ -12,25 +24,14 @@ import org.amshove.natparse.natural.INaturalModule;
 import org.amshove.natparse.natural.project.NaturalFile;
 import org.amshove.natparse.natural.project.NaturalFileType;
 import org.amshove.natparse.parsing.NaturalParser;
+import org.amshove.natparse.parsing.ParserError;
 import org.amshove.testhelpers.IntegrationTest;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.io.TempDir;
-
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @IntegrationTest
 public abstract class AbstractAnalyzerTest
@@ -84,7 +85,7 @@ public abstract class AbstractAnalyzerTest
 		assertAll(
 			"Expected and unexpected diagnostics",
 			() -> assertAll(
-				"Expected Diagostics",
+				"Expected Diagnostics",
 				Arrays.stream(diagnosticAssertions)
 					.map(e -> e.checkAssertion(diagnostics.toList()))
 			),
@@ -174,6 +175,11 @@ public abstract class AbstractAnalyzerTest
 		allowedParserErrors.add(id);
 	}
 
+	protected void allowParserError(ParserError error)
+	{
+		allowParserError(error.id());
+	}
+
 	protected DiagnosticAssertion expectDiagnostic(int line, DiagnosticDescription description)
 	{
 		return new ExpectedDiagnostic(line, description);
@@ -192,6 +198,11 @@ public abstract class AbstractAnalyzerTest
 	protected DiagnosticAssertion expectNoDiagnosticOfType(DiagnosticDescription description)
 	{
 		return new ExpectedNoDiagnosticOfType(description);
+	}
+
+	protected DiagnosticAssertion expectSingleDiagnosticOfTypeInLine(int line, DiagnosticDescription description)
+	{
+		return new ExpectedDiagnosticCountInLine(1, line, description);
 	}
 
 	protected sealed interface DiagnosticAssertion
@@ -219,6 +230,7 @@ public abstract class AbstractAnalyzerTest
 		}
 
 		@Override
+		@NonNull
 		public String toString()
 		{
 			return "ExpectedDiagnostic{" +
@@ -245,6 +257,7 @@ public abstract class AbstractAnalyzerTest
 		}
 
 		@Override
+		@NonNull
 		public String toString()
 		{
 			return "ExpectedDiagnosticWithMessage{line=" + line + ", description=" + description.getId() + ", expectedMessage=" + expectedMessage + "}";
@@ -262,6 +275,7 @@ public abstract class AbstractAnalyzerTest
 		}
 
 		@Override
+		@NonNull
 		public String toString()
 		{
 			return "ExpectedNoDiagnostic{" +
@@ -288,11 +302,36 @@ public abstract class AbstractAnalyzerTest
 		}
 
 		@Override
+		@NonNull
 		public String toString()
 		{
 			return "ExpectedNoDiagnosticOfType{" +
 				"description=" + description.getId() +
 				'}';
+		}
+	}
+
+	protected record ExpectedDiagnosticCountInLine(int count, int line, DiagnosticDescription description)
+		implements DiagnosticAssertion
+	{
+
+		@Override
+		public int line()
+		{
+			return line;
+		}
+
+		@Override
+		public Executable checkAssertion(List<LinterDiagnostic> actualDiagnostics)
+		{
+			return () ->
+			{
+				var diagnosticsOfType = actualDiagnostics.stream().filter(d -> d.id().equals(description.getId()) && d.line() == line).toList();
+				assertThat(diagnosticsOfType)
+					.as("Expected Diagnostic with id <%s> to have count <%d>, but was <%d>".formatted(description.getId(), count, diagnosticsOfType.size()))
+					.hasSize(count);
+			};
+
 		}
 	}
 }

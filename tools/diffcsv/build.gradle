@@ -1,7 +1,7 @@
 tasks.register('fatJar', Jar) {
     manifest {
         attributes(
-                'Main-Class': 'org.amshove.natls.diffcsv.App',
+                'Main-Class': 'org.amshove.natls.diffcsv.DiffCsv',
                 'Implementation-Title': project.name,
                 'Implementation-Version': project.version
         )
@@ -15,7 +15,7 @@ tasks.register('fatJar', Jar) {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'org.amshove.natls.diffcsv.App',
+                'Main-Class': 'org.amshove.natls.diffcsv.DiffCsv',
                 'Implementation-Title': project.name,
                 'Implementation-Version': project.version
         )

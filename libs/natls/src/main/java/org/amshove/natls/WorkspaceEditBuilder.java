@@ -1,7 +1,8 @@
 package org.amshove.natls;
 
+import org.amshove.natgen.generatable.definedata.Using;
+import org.amshove.natgen.generatable.definedata.Variable;
 import org.amshove.natls.codemutation.FileEdits;
-import org.amshove.natls.codemutation.UsingToAdd;
 import org.amshove.natls.languageserver.LspUtil;
 import org.amshove.natls.project.LanguageServerFile;
 import org.amshove.natparse.IPosition;
@@ -38,7 +39,7 @@ public class WorkspaceEditBuilder
 
 	public WorkspaceEditBuilder changesText(IPosition position, String newText)
 	{
-		var edits = textEdits.computeIfAbsent(LspUtil.pathToUri(position.filePath()), u -> new ArrayList<>());
+		var edits = textEdits.computeIfAbsent(LspUtil.pathToUri(position.filePath()), _ -> new ArrayList<>());
 
 		var edit = new TextEdit();
 		edit.setRange(LspUtil.toRange(position));
@@ -62,7 +63,7 @@ public class WorkspaceEditBuilder
 
 	public WorkspaceEditBuilder changesText(String fileUri, Range range, String newText)
 	{
-		var edits = textEdits.computeIfAbsent(fileUri, u -> new ArrayList<>());
+		var edits = textEdits.computeIfAbsent(fileUri, _ -> new ArrayList<>());
 
 		var edit = new TextEdit();
 		edit.setRange(range);
@@ -74,25 +75,25 @@ public class WorkspaceEditBuilder
 
 	public WorkspaceEditBuilder addsUsing(LanguageServerFile file, String using, VariableScope scope)
 	{
-		var fileEdit = FileEdits.addUsing(file, new UsingToAdd(using, scope));
+		var fileEdit = FileEdits.addUsing(file, new Using(scope, using));
 		if (fileEdit != null)
 		{
-			var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), u -> new ArrayList<>());
+			var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), _ -> new ArrayList<>());
 			edits.add(fileEdit.textEdit());
 		}
 
 		return this;
 	}
 
-	public WorkspaceEditBuilder addsVariable(LanguageServerFile file, String name, String type, VariableScope scope)
+	public WorkspaceEditBuilder addsVariable(LanguageServerFile file, Variable variable)
 	{
-		if (file.module()instanceof IHasDefineData hasDefineData && hasDefineData.defineData() != null && hasDefineData.defineData().findVariable(name) != null)
+		if (file.module()instanceof IHasDefineData hasDefineData && hasDefineData.defineData() != null && hasDefineData.defineData().findVariable(variable.name()) != null)
 		{
 			return this;
 		}
 
-		var fileEdit = FileEdits.addVariable(file, name, type, scope);
-		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), u -> new ArrayList<>());
+		var fileEdit = FileEdits.addVariable(file, variable);
+		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), _ -> new ArrayList<>());
 		edits.add(fileEdit.textEdit());
 		return this;
 	}
@@ -112,7 +113,7 @@ public class WorkspaceEditBuilder
 		}
 
 		var fileEdit = FileEdits.addSubroutine(file, name, source);
-		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), u -> new ArrayList<>());
+		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), _ -> new ArrayList<>());
 		edits.add(fileEdit.textEdit());
 
 		return this;
@@ -120,7 +121,7 @@ public class WorkspaceEditBuilder
 
 	public WorkspaceEditBuilder changesRange(LanguageServerFile file, Range range, String source)
 	{
-		var edits = textEdits.computeIfAbsent(file.getUri(), u -> new ArrayList<>());
+		var edits = textEdits.computeIfAbsent(file.getUri(), _ -> new ArrayList<>());
 		edits.add(new TextEdit(range, source));
 		return this;
 	}
@@ -128,7 +129,7 @@ public class WorkspaceEditBuilder
 	public WorkspaceEditBuilder addPrototype(LanguageServerFile file, IFunction calledFunction)
 	{
 		var fileEdit = FileEdits.addPrototype(file, calledFunction);
-		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), u -> new ArrayList<>());
+		var edits = textEdits.computeIfAbsent(fileEdit.fileUri(), _ -> new ArrayList<>());
 		edits.add(fileEdit.textEdit());
 		return this;
 	}

@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.amshove.natlint.editorconfig.EditorConfigParser;
 import org.amshove.natlint.linter.LinterContext;
-import org.amshove.natls.DiagnosticTool;
 import org.amshove.natls.LanguageServerException;
 import org.amshove.natls.SymbolKinds;
 import org.amshove.natls.callhierarchy.CallHierarchyProvider;
@@ -15,6 +14,7 @@ import org.amshove.natls.codelens.CodeLensService;
 import org.amshove.natls.completion.CompletionProvider;
 import org.amshove.natls.config.IConfigChangedSubscriber;
 import org.amshove.natls.config.LSConfiguration;
+import org.amshove.natls.definition.DefinitionFinder;
 import org.amshove.natls.documentsymbol.DocumentSymbolProvider;
 import org.amshove.natls.folding.FoldingVisitor;
 import org.amshove.natls.hover.HoverContext;
@@ -77,7 +77,7 @@ public class NaturalLanguageService implements LanguageClientAware
 	private boolean initialized;
 	private Path workspaceRoot;
 
-	private final InlayHintProvider inlayHintProvider = new InlayHintProvider();
+	private InlayHintProvider inlayHintProvider;
 	private HoverProvider hoverProvider;
 	private final RenameSymbolAction renameComputer = new RenameSymbolAction();
 	private final RenameFileHandler renameFileHandler = new RenameFileHandler();
@@ -85,6 +85,7 @@ public class NaturalLanguageService implements LanguageClientAware
 
 	private static LSConfiguration config = LSConfiguration.createDefault();
 	private final ReferenceFinder referenceFinder = new ReferenceFinder();
+	private final DefinitionFinder definitionFinder = new DefinitionFinder();
 	private final SignatureHelpProvider signatureHelp = new SignatureHelpProvider();
 	private CallHierarchyProvider callHierarchyProvider;
 	private CompletionProvider completionProvider;
@@ -122,9 +123,13 @@ public class NaturalLanguageService implements LanguageClientAware
 		hoverProvider = new HoverProvider();
 		completionProvider = new CompletionProvider(new SnippetEngine(languageServerProject), hoverProvider);
 		callHierarchyProvider = new CallHierarchyProvider(languageServerProject);
-		codeLensService = new CodeLensService(getConfig());
+
+		var initialConfig = getConfig();
+		codeLensService = new CodeLensService(initialConfig);
+		inlayHintProvider = new InlayHintProvider(initialConfig);
 
 		configChangedSubscribers.add(codeLensService);
+		configChangedSubscribers.add(inlayHintProvider);
 	}
 
 	public void loadEditorConfig(Path path)
@@ -149,13 +154,6 @@ public class NaturalLanguageService implements LanguageClientAware
 		var filepath = LspUtil.uriToPath(textDocument.getUri());
 		var module = findNaturalFile(filepath).module();
 		return new DocumentSymbolProvider().provideSymbols(module);
-	}
-
-	public void createdFile(String uri)
-	{
-		var path = LspUtil.uriToPath(uri);
-		var lspFile = languageServerProject.addFile(path);
-		lspFile.parse();
 	}
 
 	public static void setConfiguration(LSConfiguration configuration)
@@ -243,40 +241,7 @@ public class NaturalLanguageService implements LanguageClientAware
 		var fileUri = params.getTextDocument().getUri();
 		var filePath = LspUtil.uriToPath(fileUri);
 		var file = findNaturalFile(filePath);
-		var position = params.getPosition();
-
-		var node = NodeUtil.findTokenNodeAtPosition(filePath, position.getLine(), position.getCharacter(), file.module().syntaxTree());
-		if (node == null)
-		{
-			return List.of();
-		}
-
-		if (node instanceof IVariableReferenceNode variableReferenceNode)
-		{
-			return List.of(LspUtil.toLocation(variableReferenceNode.reference()));
-		}
-
-		if (node.parent()instanceof ISymbolReferenceNode symbolReferenceNode)
-		{
-			return List.of(LspUtil.toLocation(symbolReferenceNode.reference()));
-		}
-
-		if (node.parent()instanceof IModuleReferencingNode moduleReferencingNode)
-		{
-			return List.of(LspUtil.toLocation(moduleReferencingNode.reference()));
-		}
-
-		if (node.token() != null && node.token().kind().opensStatementWithCloseKeyword())
-		{
-			return List.of(LspUtil.toLocation(node.parent().descendants().last()));
-		}
-
-		if (node.token() != null && node.token().kind().closesStatement())
-		{
-			return List.of(LspUtil.toLocation(node.parent().descendants().first()));
-		}
-
-		return List.of();
+		return definitionFinder.findDefinition(params, file);
 	}
 
 	public CompletableFuture<List<? extends Location>> findReferences(ReferenceParams params)
@@ -350,22 +315,28 @@ public class NaturalLanguageService implements LanguageClientAware
 
 	private void publishDiagnosticsOfFile(LanguageServerFile file)
 	{
-		var allDiagnostics = file.allDiagnostics();
-		var shouldIncludeLinterDiagnostics = switch (file.getType())
+		if (file.getNaturalFile().getFiletype() == NaturalFileType.DDM)
 		{
-			case LDA, GDA, PDA, MAP, DDM -> false;
-			default -> true;
-		};
+			return;
+		}
 
-		var diagnosticsToReport = shouldIncludeLinterDiagnostics ? allDiagnostics
-			: allDiagnostics.stream().filter(d -> !d.getSource().equals(DiagnosticTool.NATLINT.getId())).toList();
-		client.publishDiagnostics(new PublishDiagnosticsParams(file.getUri(), diagnosticsToReport));
+		client.publishDiagnostics(new PublishDiagnosticsParams(file.getUri(), file.allDiagnostics()));
 	}
 
 	@Override
 	public void connect(LanguageClient client)
 	{
 		this.client = client;
+	}
+
+	public void fileCreated(String uri)
+	{
+		var path = LspUtil.uriToPath(uri);
+		var lspFile = languageServerProject.addFile(path);
+		if (openEditors.contains(path))
+		{
+			lspFile.parse();
+		}
 	}
 
 	public void fileSaved(Path path)
@@ -376,28 +347,65 @@ public class NaturalLanguageService implements LanguageClientAware
 			return;
 		}
 
-		file.save();
-		publishDiagnostics(file);
-		client.refreshCodeLenses();
-	}
-
-	public void fileExternallyChanged(Path path)
-	{
 		if (openEditors.contains(path))
 		{
-			// Already handled by `fileSaved`
-			return;
+			file.save();
+			publishDiagnostics(file);
+			client.refreshCodeLenses();
 		}
-
-		var file = findNaturalFile(path);
-		file.parseWithoutCallers();
 	}
 
 	public void fileDeleted(Path path)
 	{
 		var file = findNaturalFile(path);
 		languageServerProject.removeFile(file);
-		reparseOpenFiles();
+	}
+
+	/**
+	 * Handle externally changed files. This should only trigger a parse of files that are <strong>not</strong> directly
+	 * opened, because the client is expected to send a didChange event.</br>
+	 * The parsing that this handler triggers is for files that are <strong>not opened</strong> but referenced by opened
+	 * files, e.g. data areas.
+	 */
+	public void fileExternallyChanged(Path changedFilePath)
+	{
+		if (openEditors.contains(changedFilePath))
+		{
+			// If the file is opened then the client should've sent didChange by specification
+			return;
+		}
+
+		var filesToParse = new HashSet<LanguageServerFile>();
+
+		for (var openEditor : openEditors)
+		{
+			var file = findNaturalFile(openEditor);
+			if (file == null)
+			{
+				continue;
+			}
+
+			for (var outgoingReference : file.getOutgoingReferences())
+			{
+				if (outgoingReference.getPath().equals(changedFilePath))
+				{
+					log.fine(() -> "%s is open and references %s, reparse without callers triggered".formatted(openEditor, changedFilePath));
+					filesToParse.add(outgoingReference);
+				}
+			}
+		}
+
+		if (!filesToParse.isEmpty())
+		{
+			var changedFile = findNaturalFile(changedFilePath);
+			changedFile.parseWithoutCallers();
+			publishDiagnosticsOfFile(changedFile);
+			for (var file : filesToParse)
+			{
+				file.parseWithoutCallers();
+				publishDiagnosticsOfFile(file);
+			}
+		}
 	}
 
 	public void fileClosed(Path path)
@@ -691,7 +699,10 @@ public class NaturalLanguageService implements LanguageClientAware
 		var renameFileChanges = willRenameFiles(List.of(new FileRename(params.getTextDocument().getUri(), newUri)));
 		for (Map.Entry<String, List<TextEdit>> stringListEntry : renameFileChanges.getChanges().entrySet())
 		{
-			var txtDocEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(stringListEntry.getKey(), 0), stringListEntry.getValue());
+			var txtDocEdit = new TextDocumentEdit(
+				new VersionedTextDocumentIdentifier(stringListEntry.getKey(), 0),
+				LspUtil.toLeftList(stringListEntry.getValue())
+			);
 			changes.add(Either.forLeft(txtDocEdit));
 		}
 

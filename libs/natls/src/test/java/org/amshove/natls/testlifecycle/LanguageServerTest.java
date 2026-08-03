@@ -120,6 +120,9 @@ public abstract class LanguageServerTest
 			else
 			{
 				getContext().workspaceService().didCreateFiles(new CreateFilesParams(List.of(new FileCreate(fileUri))));
+				var textDocument = new TextDocumentItem();
+				textDocument.setUri(identifier.getUri());
+				getContext().documentService().didOpen(new DidOpenTextDocumentParams(textDocument));
 			}
 
 			return identifier;

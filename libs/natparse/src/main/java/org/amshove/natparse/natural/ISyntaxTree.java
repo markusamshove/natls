@@ -2,8 +2,8 @@ package org.amshove.natparse.natural;
 
 import org.amshove.natparse.ReadOnlyList;
 import org.amshove.natparse.lexing.SyntaxKind;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.stream.Stream;
 
 public interface ISyntaxTree extends Iterable<ISyntaxNode>
@@ -40,6 +40,27 @@ public interface ISyntaxTree extends Iterable<ISyntaxNode>
 		}
 
 		return null;
+	}
+
+	/**
+	 * Checks if this node contains the other node, meaning that the other node is a descendant of this node.
+	 *
+	 * @param other The node to check for containment.
+	 * @return true if this node contains the other node, false otherwise.
+	 */
+	default boolean contains(ISyntaxNode other)
+	{
+		var parent = other.parent();
+		while (parent != null)
+		{
+			if (parent == this)
+			{
+				return true;
+			}
+			parent = parent.parent();
+		}
+
+		return false;
 	}
 
 	@SuppressWarnings("unchecked")

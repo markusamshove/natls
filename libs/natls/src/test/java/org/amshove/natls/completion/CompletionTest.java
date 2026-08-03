@@ -104,7 +104,10 @@ public abstract class CompletionTest extends EmptyProjectTest
 
 			var edits = new ArrayList<TextEdit>();
 			edits.add(completion.getTextEdit().getLeft());
-			edits.addAll(completion.getAdditionalTextEdits());
+			if (completion.getAdditionalTextEdits() != null)
+			{
+				edits.addAll(completion.getAdditionalTextEdits());
+			}
 			var sourceAfter = new TextEditApplier().applyAll(edits, source);
 
 			assertThat(sourceAfter).isEqualToNormalizingNewlines(expectedSource);

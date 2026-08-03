@@ -45,7 +45,7 @@ public class DefineDataParameterAnalyzer extends AbstractAnalyzer
 			return;
 		}
 
-		if (UNWANTED_FILETYPES.contains(context.getModule().file().getFiletype()))
+		if (context.isIncludableFileType())
 		{
 			return;
 		}

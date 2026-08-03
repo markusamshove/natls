@@ -303,13 +303,14 @@ public class KeywordTable
 			case "is" -> SyntaxKind.IS;
 			case "isn" -> SyntaxKind.KW_ISN;
 			case "join" -> SyntaxKind.JOIN;
+			case "json" -> SyntaxKind.JSON;
 			case "just" -> SyntaxKind.JUST;
 			case "justified" -> SyntaxKind.JUSTIFIED;
 			case "kd" -> SyntaxKind.KD;
 			case "keep" -> SyntaxKind.KEEP;
 			case "key" -> SyntaxKind.KEY;
 			case "keys" -> SyntaxKind.KEYS;
-			case "language" -> SyntaxKind.LANGUAGE;
+			case "language" -> SyntaxKind.SV_LANGUAGE;
 			case "last" -> SyntaxKind.LAST;
 			case "lc" -> SyntaxKind.LC;
 			case "lcu" -> SyntaxKind.LCU;
@@ -333,8 +334,8 @@ public class KeywordTable
 			case "local" -> SyntaxKind.LOCAL;
 			case "locks" -> SyntaxKind.LOCKS;
 			case "log" -> SyntaxKind.LOG;
-			case "log-ls" -> SyntaxKind.LOG_LS;
-			case "log-ps" -> SyntaxKind.LOG_PS;
+			case "log-ls" -> SyntaxKind.SV_LOG_LS;
+			case "log-ps" -> SyntaxKind.SV_LOG_PS;
 			case "logical" -> SyntaxKind.LOGICAL;
 			case "loop" -> SyntaxKind.LOOP;
 			case "lower" -> SyntaxKind.LOWER;
@@ -439,7 +440,7 @@ public class KeywordTable
 			case "process" -> SyntaxKind.PROCESS;
 			case "processing" -> SyntaxKind.PROCESSING;
 			case "profile" -> SyntaxKind.PROFILE;
-			case "program" -> SyntaxKind.PROGRAM;
+			case "program" -> SyntaxKind.SV_PROGRAM;
 			case "property" -> SyntaxKind.PROPERTY;
 			case "prototype" -> SyntaxKind.PROTOTYPE;
 			case "prty" -> SyntaxKind.PRTY;
@@ -508,6 +509,7 @@ public class KeywordTable
 			case "send" -> SyntaxKind.SEND;
 			case "sensitive" -> SyntaxKind.SENSITIVE;
 			case "separate" -> SyntaxKind.SEPARATE;
+			case "separator" -> SyntaxKind.SEPARATOR;
 			case "sequence" -> SyntaxKind.SEQUENCE;
 			case "server" -> SyntaxKind.SERVER;
 			case "set" -> SyntaxKind.SET;
@@ -544,6 +546,7 @@ public class KeywordTable
 			case "step" -> SyntaxKind.STEP;
 			case "stop" -> SyntaxKind.STOP;
 			case "store" -> SyntaxKind.STORE;
+			case "subcode" -> SyntaxKind.SUBCODE;
 			case "subprogram" -> SyntaxKind.SUBPROGRAM;
 			case "subprograms" -> SyntaxKind.SUBPROGRAMS;
 			case "subroutine" -> SyntaxKind.SUBROUTINE;
