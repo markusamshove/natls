@@ -1,30 +1,20 @@
 package org.amshove.natlint.cli;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.amshove.natlint.cli.sinks.FileStatusSink;
 import org.amshove.natlint.cli.sinks.FileStatusSink.MessageType;
 import org.amshove.natlint.cli.sinks.IDiagnosticSink;
-import org.amshove.natlint.editorconfig.EditorConfigParser;
-import org.amshove.natlint.linter.LinterContext;
 import org.amshove.natlint.linter.NaturalLinter;
 import org.amshove.natparse.IDiagnostic;
 import org.amshove.natparse.ReadOnlyList;
-import org.amshove.natparse.infrastructure.ActualFilesystem;
 import org.amshove.natparse.lexing.TokenList;
 import org.amshove.natparse.natural.INaturalModule;
 import org.amshove.natparse.natural.project.*;
-import org.amshove.natparse.parsing.NaturalParser;
-import org.amshove.natparse.parsing.project.BuildFileProjectReader;
 
-import java.lang.management.ManagementFactory;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class CliAnalyzer extends ProjectAnalyzer
 {
@@ -33,7 +23,7 @@ public class CliAnalyzer extends ProjectAnalyzer
 	private final AnalyzerPredicates predicates;
 	private SlowestModule slowestLintedModule = new SlowestModule(Long.MIN_VALUE, "NONE");
 
-	public CliAnalyzer(Path workingDirectory, IDiagnosticSink sink, FileStatusSink fileStatusSink, AnalyzerPredicates predicates, boolean disableLinting, AnalyzerOutputFlags outputFlags, String sourceEncoding)
+	public CliAnalyzer(Path workingDirectory, IDiagnosticSink sink, FileStatusSink fileStatusSink, AnalyzerPredicates predicates, boolean disableLinting, AnalyzerOutputFlags outputFlags)
 	{
 		super(workingDirectory, fileStatusSink, outputFlags);
 		this.predicates = predicates;
