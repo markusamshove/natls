@@ -44,7 +44,7 @@ class XmlLibraryVisitor implements Visitor
 		if (currentLibrary != null)
 		{
 			var steplibs = node.getStringValue();
-			steplibs = steplibs.replaceAll("\\d", "");
+			steplibs = steplibs.replace("^\\d+;", ";");
 			steplibs = steplibs.replaceAll("\\[.*?]", "");
 			Arrays.stream(steplibs.split(";"))
 				.filter(lib -> !lib.isEmpty())

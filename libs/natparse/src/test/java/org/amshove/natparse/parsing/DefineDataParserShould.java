@@ -422,6 +422,17 @@ class DefineDataParserShould extends AbstractParserTest<IDefineData>
 		assertDiagnostic("define data local 1 #var (%s4) const <%s> end-define".formatted(type, literal), ParserError.INITIAL_VALUE_TYPE_MISMATCH);
 	}
 
+	@ParameterizedTest
+	@CsvSource(
+		{
+			"2", "-2", "+2",
+		}
+	)
+	void allowNumericInitialValuesWithSignsForNumericFields(String value)
+	{
+		assertParsesWithoutDiagnostics("DEFINE DATA LOCAL 01 #VAR (N1) INIT <%s> END-DEFINE".formatted(value));
+	}
+
 	@Test
 	void allowNumericInitialValuesForAlphanumericFields()
 	{
