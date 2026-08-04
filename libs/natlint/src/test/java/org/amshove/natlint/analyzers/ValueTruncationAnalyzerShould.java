@@ -11,7 +11,8 @@ class ValueTruncationAnalyzerShould extends AbstractAnalyzerTest
 	@Test
 	void reportThatAnythingFitsInADynamic()
 	{
-		testDiagnostics("""
+		testDiagnostics(
+			"""
 			DEFINE DATA LOCAL
 			01 #A-HOLE (A) DYNAMIC
 			01 #U-HOLE (U) DYNAMIC
@@ -23,10 +24,7 @@ class ValueTruncationAnalyzerShould extends AbstractAnalyzerTest
 			#B-HOLE := H'42'
 
 			END
-			"""
-			, expectNoDiagnostic(6, ValueTruncationAnalyzer.VALUE_TRUNCATED)
-			, expectNoDiagnostic(7, ValueTruncationAnalyzer.VALUE_TRUNCATED)
-			, expectNoDiagnostic(8, ValueTruncationAnalyzer.VALUE_TRUNCATED)
+			""", expectNoDiagnostic(6, ValueTruncationAnalyzer.VALUE_TRUNCATED), expectNoDiagnostic(7, ValueTruncationAnalyzer.VALUE_TRUNCATED), expectNoDiagnostic(8, ValueTruncationAnalyzer.VALUE_TRUNCATED)
 
 		);
 	}
