@@ -41,7 +41,7 @@ public interface IDataType
 	default boolean fitsInto(IDataType target)
 	{
 
-		if (this.isCharacterFamily() && target.isCharacterFamily())
+		if (this.isCharacterFamily() && target.isCharacterFamily() && !target.hasDynamicLength())
 		{
 			return target.length() >= this.length();
 		}

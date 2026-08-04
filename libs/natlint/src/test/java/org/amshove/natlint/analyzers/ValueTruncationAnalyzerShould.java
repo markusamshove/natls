@@ -7,6 +7,30 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class ValueTruncationAnalyzerShould extends AbstractAnalyzerTest
 {
+
+	@Test
+	void reportThatAnythingFitsInADynamic()
+	{
+		testDiagnostics("""
+			DEFINE DATA LOCAL
+			01 #A-HOLE (A) DYNAMIC
+			01 #U-HOLE (U) DYNAMIC
+			01 #B-HOLE (B) DYNAMIC
+			END-DEFINE
+
+			#A-HOLE := 'A'
+			#U-HOLE := 'U'
+			#B-HOLE := H'42'
+
+			END
+			"""
+			, expectNoDiagnostic(6, ValueTruncationAnalyzer.VALUE_TRUNCATED)
+			, expectNoDiagnostic(7, ValueTruncationAnalyzer.VALUE_TRUNCATED)
+			, expectNoDiagnostic(8, ValueTruncationAnalyzer.VALUE_TRUNCATED)
+
+		);
+	}
+
 	@Test
 	void raiseADiagnosticWhenAConstInitializerIsTruncatedForCompatibleFormats()
 	{
