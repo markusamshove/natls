@@ -150,6 +150,11 @@ class VariableReferenceTests extends ParserIntegrationTest
 				.filter(d -> d.id() == ParserError.UNRESOLVED_REFERENCE.id())
 		).isEmpty();
 
+		assertThat(
+			subprogram.diagnostics().stream()
+				.filter(d -> d.id() == ParserError.AMBIGUOUS_VARIABLE_REFERENCE.id())
+		).isEmpty();
+
 	}
 
 	@Test
