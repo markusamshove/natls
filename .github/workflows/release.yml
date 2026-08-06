@@ -9,14 +9,12 @@ on:
     types:
       - completed
 
-permissions:
-  contents: write
-  packages: write
-  deployments: write
-  issues: write
-
 jobs:
   release-drafter:
+    permissions:
+      # Needed to create a release
+      contents: write
+      pull-requests: read
     name: Draft Release
     runs-on: ubuntu-latest
     outputs:
@@ -24,10 +22,14 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: release-drafter/release-drafter@v6
+      - uses: release-drafter/release-drafter@v7
         id: create_version
 
   release-docker:
+    permissions:
+      contents: write
+      packages: write
+      deployments: write
     needs: [ release-drafter ]
     name: Release Docker Images
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
@@ -114,6 +116,9 @@ jobs:
         run: ./gradlew publishToMavenCentral --no-daemon
 
   create-issue:
+    permissions:
+      contents: read
+      issues: write
     name: Create after Release issue
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
