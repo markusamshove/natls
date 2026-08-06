@@ -138,6 +138,26 @@ class VariableReferenceTests extends ParserIntegrationTest
 	}
 
 	@Test
+	void disambiguateBasedOnLoopLabel(@ProjectName("variablereferencetests") NaturalProject project)
+	{
+		var subprogram = assertFileParsesAs(project.findModule("LABELREF"), ISubprogram.class);
+		var assignments = NodeUtil.findNodesOfType(subprogram.body(), IAssignmentStatementNode.class);
+
+		assertThat(assignments).hasSize(3);
+
+		assertThat(
+			subprogram.diagnostics().stream()
+				.filter(d -> d.id() == ParserError.UNRESOLVED_REFERENCE.id())
+		).isEmpty();
+
+		assertThat(
+			subprogram.diagnostics().stream()
+				.filter(d -> d.id() == ParserError.AMBIGUOUS_VARIABLE_REFERENCE.id())
+		).isEmpty();
+
+	}
+
+	@Test
 	void addReferenceToVariableOperand(@ProjectName("variablereferencetests") NaturalProject project)
 	{
 		var subprogram = assertFileParsesAs(project.findModule("OPER"), ISubprogram.class);

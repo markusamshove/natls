@@ -1,0 +1,23 @@
+DB: 001 FILE: 001  - A-DDM                            DEFAULT SEQUENCE:
+TYPE: ADABAS
+
+T L DB Name                              F Leng  S D Remark
+- - -- --------------------------------  - ----  - - --------------------
+*      >Natural Source Header 000000
+*      :CP
+*      UTF-8
+*
+*      :LineIncrement 10
+*      <Natural Source Header
+*   Generation started
+*   at 2025-02-14 14:45:14
+*   by user SAGADMIN
+*
+  1 AA DDMFIELD-AA                       A   10  N D
+  1 AB DDMFIELD-AB                       A   10  N D
+  1 AC DDMFIELD-AC                       A   20  N S
+*      -------- SOURCE FIELD(S) -------
+*      DDMFIELD-AA(1-10)
+*      DDMFIELD-AB(1-10)
+******DDM OUTPUT TERMINATED******
+

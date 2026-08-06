@@ -312,7 +312,7 @@ public class NaturalParser
 				continue;
 			}
 
-			if (tryFindAndReference(unresolvedReference.token().symbolName(), unresolvedReference, defineData, moduleBuilder))
+			if (tryFindAndReference(unresolvedReference, defineData, moduleBuilder))
 			{
 				continue;
 			}
@@ -376,7 +376,7 @@ public class NaturalParser
 			}
 			else
 			{
-				if (!tryFindAndReference(unresolvedReference.token().symbolName(), unresolvedReference, defineData, moduleBuilder))
+				if (!tryFindAndReference(unresolvedReference, defineData, moduleBuilder))
 				{
 					reportUnresolvedReference(moduleBuilder, unresolvedReference);
 				}
@@ -406,8 +406,54 @@ public class NaturalParser
 		moduleBuilder.addDiagnostic(diagnostic);
 	}
 
+	private String resolveLabelToView(String symbolName, ISymbolReferenceNode referenceNode)
+	{
+		var labelNode = referenceNode.parent();
+		while (labelNode != null)
+		{
+			if (labelNode instanceof IAdabasAccessStatementNode accessNode)
+			{
+				var labelIdentifier = accessNode.labelIdentifier();
+				if (labelIdentifier != null)
+				{
+					var label = labelIdentifier.source();
+					if (symbolName.startsWith(label))
+					{
+						var view = accessNode.view().token().source();
+						return symbolName.replaceFirst(label, view + ".");
+					}
+				}
+			}
+			labelNode = labelNode.parent();
+		}
+		return symbolName;
+	}
+
+	private boolean tryFindAndReference(ISymbolReferenceNode referenceNode, IDefineData defineData, NaturalModuleBuilder moduleBuilder)
+	{
+		return tryFindAndReference(referenceNode.token().symbolName(), referenceNode, defineData, moduleBuilder);
+	}
+
 	private boolean tryFindAndReference(String symbolName, ISymbolReferenceNode referenceNode, IDefineData defineData, NaturalModuleBuilder moduleBuilder)
 	{
+
+		// Resolve labels on cursors to their view names
+		if (symbolName.contains("."))
+		{
+			symbolName = resolveLabelToView(symbolName, referenceNode);
+		}
+		else
+			if (referenceNode instanceof IVariableReferenceNode varNode && varNode.hasLabelReference())
+			{
+				var labelledSymbol = varNode.labelReference().token().source()
+					+ symbolName;
+				var resolvedSymbol = resolveLabelToView(labelledSymbol, referenceNode);
+				if (!labelledSymbol.equals(resolvedSymbol))
+				{
+					symbolName = resolvedSymbol;
+				}
+			}
+
 		var foundVariables = ((DefineDataNode) defineData).findVariablesWithName(symbolName);
 
 		if (foundVariables.size() > 1)
