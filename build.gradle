@@ -120,7 +120,7 @@ sonarqube {
 }
 
 project.tasks.getByPath('natlint:test').dependsOn(project.tasks.getByPath('natparse:test'))
-project.tasks['sonarqube'].dependsOn cover
+project.tasks['sonar'].dependsOn cover
 project.tasks['cover'].dependsOn spotlessJava
 project.tasks['cover'].dependsOn spotlessGradle
 
