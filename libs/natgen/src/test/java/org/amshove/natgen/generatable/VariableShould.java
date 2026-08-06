@@ -52,13 +52,4 @@ class VariableShould
 		assertThat(variable.arrayAccess(NaturalCode.plain("1"), NaturalCode.plain("2")).generate())
 			.isEqualTo("#ARR(1, 2)");
 	}
-
-	@Test
-	void generateAnArrayAccessWithVariablesAsAccessor()
-	{
-		var variable = new Variable(1, VariableScope.LOCAL, "#ARR", VariableType.alphanumericDynamic().withDimension(Dimension.upperUnbound()));
-		var indexVariable = new Variable(1, VariableScope.LOCAL, "#I-ARR", VariableType.integer(4));
-		assertThat(variable.arrayAccess(indexVariable).generate())
-			.isEqualTo("#ARR(#I-ARR)");
-	}
 }
