@@ -454,6 +454,17 @@ class DefineDataParserShould extends AbstractParserTest<IDefineData>
 	}
 
 	@Test
+	void allowUnicodeValuesForAlphanumericFields()
+	{
+		assertParsesWithoutDiagnostics("""
+			DEFINE DATA LOCAL
+			01 #A1 (A1) INIT <U'A'>
+			02 #A2 (A1) INIT <UH'0041'>
+			END-DEFINE
+			""");
+	}
+
+	@Test
 	void allowMixedStringConcatInitialValuesForAlphanumericFields()
 	{
 		var defineData = assertParsesWithoutDiagnostics("""

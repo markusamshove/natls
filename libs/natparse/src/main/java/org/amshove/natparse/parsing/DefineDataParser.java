@@ -826,16 +826,16 @@ public class DefineDataParser extends AbstractParser<IDefineData>
 
 			switch (variable.type().format())
 			{
-				case ALPHANUMERIC ->
+				case ALPHANUMERIC, UNICODE ->
 				{
 					if (initialValueKind.isBoolean())
 					{
 						break;
 					}
-					expectInitialValueType(variable, initialValueKind, SyntaxKind.STRING_LITERAL, SyntaxKind.NUMBER_LITERAL, SyntaxKind.HEX_LITERAL);
+					expectInitialValueType(variable, initialValueKind, SyntaxKind.STRING_LITERAL, SyntaxKind.UNICODE_LITERAL, SyntaxKind.NUMBER_LITERAL, SyntaxKind.HEX_LITERAL, SyntaxKind.UNICODE_HEX_LITERAL);
 				}
 				case DATE -> expectInitialValueType(variable, initialValueKind, SyntaxKind.DATE_LITERAL);
-				case BINARY, CONTROL, TIME, UNICODE, NONE ->
+				case BINARY, CONTROL, TIME, NONE ->
 				{}
 				case FLOAT, NUMERIC, PACKED, INTEGER -> expectInitialValueType(variable, initialValueKind, SyntaxKind.NUMBER_LITERAL);
 				case LOGIC ->

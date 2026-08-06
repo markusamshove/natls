@@ -280,6 +280,22 @@ public class Lexer
 				case 'S':
 				case 'u':
 				case 'U':
+					if (scanner.peek(1) == '\'')
+					{
+						consumeUnicodeLiteral();
+					}
+					else
+					{
+						if (scanner.peek(1) == 'H' && scanner.peek(2) == '\'')
+						{
+							consumeUnicodeHexLiteral();
+						}
+						else
+						{
+							consumeIdentifierOrKeyword();
+						}
+					}
+					continue;
 				case 'v':
 				case 'V':
 				case 'w':
@@ -1932,6 +1948,19 @@ public class Lexer
 		checkStringLiteralLength(previousUnsafe());
 	}
 
+	private void consumeUnicodeLiteral()
+	{
+		scanner.start();
+		scanner.advance(2); // U and '
+
+		if (!consumeStringToEnd(SyntaxKind.UNICODE_LITERAL))
+		{
+			return;
+		}
+
+		createAndAdd(SyntaxKind.UNICODE_LITERAL);
+	}
+
 	private void consumeHexLiteral()
 	{
 		scanner.start();
@@ -1948,6 +1977,25 @@ public class Lexer
 		if (hexLiteralChars % 2 != 0)
 		{
 			addDiagnostic("Invalid HEX literal. Number of characters must be even but was %d.".formatted(hexLiteralChars), "Literal defined here", LexerError.UNKNOWN_CHARACTER);
+		}
+	}
+
+	private void consumeUnicodeHexLiteral()
+	{
+		scanner.start();
+		scanner.advance(3); // U, H, '
+
+		if (!consumeStringToEnd(SyntaxKind.UNICODE_HEX_LITERAL))
+		{
+			return;
+		}
+
+		createAndAdd(SyntaxKind.UNICODE_HEX_LITERAL);
+		checkStringLiteralLength(previousUnsafe());
+		var hexLiteralChars = previousUnsafe().source().length() - 4; // - H''
+		if (hexLiteralChars % 4 != 0)
+		{
+			addDiagnostic("Invalid UNICODE HEX literal. Number of characters must be divisible by 4, but was %d.".formatted(hexLiteralChars), "Literal defined here", LexerError.UNKNOWN_CHARACTER);
 		}
 	}
 

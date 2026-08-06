@@ -16,6 +16,20 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 class LiteralTypeInferenceShould
 {
+
+	@ParameterizedTest
+	@CsvSource(
+		{
+			"H'4142',A2",
+			"U'AB',U2",
+			"UH'00410042',U2"
+		}
+	)
+	void inferTheCorrectSizesForAlphaFamilyLiterals(String source, String targetType)
+	{
+		assertCompatibleType(targetType, source);
+	}
+
 	@ParameterizedTest
 	@CsvSource(
 		{

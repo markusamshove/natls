@@ -74,6 +74,22 @@ class LexerForStringsShould extends AbstractLexerTest
 	}
 
 	@Test
+	void lexUnicodeHexStrings()
+	{
+		// U+00A5 = ¥
+		assertTokens("UH'00A5'", token(SyntaxKind.UNICODE_HEX_LITERAL, "UH'00A5'"));
+	}
+
+	@Test
+	void reportDiagnosticForWrongLengthUnicodeHexStrings()
+	{
+		assertDiagnostic(
+			"UH'00A'",
+			assertedDiagnostic(-1, 7, 0, 8, LexerError.UNKNOWN_CHARACTER)
+		);
+	}
+
+	@Test
 	void correctlyParseTimeFormats()
 	{
 		assertTokens(
@@ -139,6 +155,13 @@ class LexerForStringsShould extends AbstractLexerTest
 	{
 		var token = lexSingle("H'313233'");
 		assertThat(token.stringValue()).isEqualTo("123");
+	}
+
+	@Test
+	void containTheMultiCharUnicodeHexLiteralAsString()
+	{
+		var token = lexSingle("UH'00C4007000660065006C'");
+		assertThat(token.stringValue()).isEqualTo("Äpfel");
 	}
 
 	@Test

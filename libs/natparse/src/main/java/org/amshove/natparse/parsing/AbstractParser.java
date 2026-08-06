@@ -279,6 +279,11 @@ abstract class AbstractParser<T>
 			return consumeStringConcat(node);
 		}
 
+		if (peekAny(List.of(SyntaxKind.UNICODE_LITERAL, SyntaxKind.UNICODE_HEX_LITERAL)) && peekKind(1, SyntaxKind.MINUS) && peekAny(2, List.of(SyntaxKind.UNICODE_LITERAL, SyntaxKind.UNICODE_HEX_LITERAL)))
+		{
+			return consumeStringConcat(node);
+		}
+
 		return consumeSingleLiteral(node);
 	}
 
@@ -392,7 +397,14 @@ abstract class AbstractParser<T>
 		return false;
 	}
 
-	private static final Set<SyntaxKind> LITERAL_KINDS = Set.of(SyntaxKind.NUMBER_LITERAL, SyntaxKind.STRING_LITERAL, SyntaxKind.HEX_LITERAL, SyntaxKind.TRUE, SyntaxKind.FALSE, SyntaxKind.ASTERISK, SyntaxKind.DATE_LITERAL, SyntaxKind.TIME_LITERAL, SyntaxKind.EXTENDED_TIME_LITERAL);
+	private static final Set<SyntaxKind> LITERAL_KINDS = Set.of(
+		SyntaxKind.NUMBER_LITERAL,
+		SyntaxKind.STRING_LITERAL, SyntaxKind.HEX_LITERAL,
+		SyntaxKind.UNICODE_LITERAL, SyntaxKind.UNICODE_HEX_LITERAL,
+		SyntaxKind.TRUE, SyntaxKind.FALSE,
+		SyntaxKind.ASTERISK,
+		SyntaxKind.DATE_LITERAL, SyntaxKind.TIME_LITERAL, SyntaxKind.EXTENDED_TIME_LITERAL
+	);
 
 	private ILiteralNode consumeSingleLiteral(BaseSyntaxNode node) throws ParseError
 	{
@@ -472,7 +484,7 @@ abstract class AbstractParser<T>
 			return;
 		}
 
-		var literal = consumeAny(List.of(SyntaxKind.NUMBER_LITERAL, SyntaxKind.STRING_LITERAL, SyntaxKind.HEX_LITERAL, SyntaxKind.TRUE, SyntaxKind.FALSE, SyntaxKind.DATE_LITERAL, SyntaxKind.TIME_LITERAL, SyntaxKind.EXTENDED_TIME_LITERAL));
+		var literal = consumeAny(List.of(SyntaxKind.NUMBER_LITERAL, SyntaxKind.STRING_LITERAL, SyntaxKind.UNICODE_LITERAL, SyntaxKind.HEX_LITERAL, SyntaxKind.UNICODE_HEX_LITERAL, SyntaxKind.TRUE, SyntaxKind.FALSE, SyntaxKind.DATE_LITERAL, SyntaxKind.TIME_LITERAL, SyntaxKind.EXTENDED_TIME_LITERAL));
 		previousNode = new TokenNode(literal);
 		node.addNode(previousNode);
 	}

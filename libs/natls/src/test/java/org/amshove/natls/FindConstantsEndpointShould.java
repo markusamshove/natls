@@ -50,6 +50,9 @@ class FindConstantsEndpointShould extends EmptyProjectTest
 			1 C-N (N1) CONST<2>
 			1 C-L (L) CONST<TRUE>
 			1 C-CONCAT (A6) CONST<'abc' - 'def'>
+			1 U-CONCAT (U6) CONST <U'abc' - U'def'>
+			1 UH-CONCAT (U6) CONST <UH'00410042' - U'CDEF'>
+			1 AH-CONCAT (U6) CONST <'AB' - U'CDEF'>
 			END-DEFINE
 			""");
 
@@ -60,12 +63,14 @@ class FindConstantsEndpointShould extends EmptyProjectTest
 			""");
 
 		var response = getContext().server().findConstants(new FindConstantsParams(identifier)).get(1, TimeUnit.MINUTES);
-		assertThat(response.getConstants()).hasSize(4);
+		assertThat(response.getConstants()).hasSize(6);
 
 		assertConstantWithValue(response, "C-A", "'A'");
 		assertConstantWithValue(response, "C-N", "2");
 		assertConstantWithValue(response, "C-L", "TRUE");
 		assertConstantWithValue(response, "C-CONCAT", "'abcdef'");
+		assertConstantWithValue(response, "U-CONCAT", "'abcdef'");
+		assertConstantWithValue(response, "UH-CONCAT", "'ABCDEF'");
 	}
 
 	@Test
