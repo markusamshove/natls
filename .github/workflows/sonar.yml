@@ -10,7 +10,6 @@ on:
 jobs:
   Sonar:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success'
     env:
       HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
     steps:
