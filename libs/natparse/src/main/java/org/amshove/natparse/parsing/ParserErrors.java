@@ -728,6 +728,15 @@ class ParserErrors
 		);
 	}
 
+	public static IDiagnostic invalidOutputElementAttribute(IAttributeNode attribute)
+	{
+		return ParserDiagnostic.create(
+			"%s is not a valid attribute for an OUTPUT operand".formatted(attribute.kind()),
+			attribute,
+			ParserError.INVALID_OUTPUT_ELEMENT_ATTRIBUTE
+		);
+	}
+
 	public static IDiagnostic noSourceCodeAllowedAfterEnd(IStatementNode statement)
 	{
 		return ParserDiagnostic.create(
