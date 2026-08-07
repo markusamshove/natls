@@ -1,5 +1,6 @@
 package org.amshove.natlint.api;
 
+import org.amshove.natparse.IDiagnostic;
 import org.amshove.natparse.natural.INaturalModule;
 import org.amshove.natparse.natural.project.NaturalFile;
 import org.amshove.natparse.natural.project.NaturalFileType;
@@ -8,7 +9,7 @@ public interface IAnalyzeContext
 {
 	INaturalModule getModule();
 
-	void report(LinterDiagnostic diagnostic);
+	void report(IDiagnostic diagnostic);
 
 	/**
 	 * Returns the .editorconfig setting for the given property matching the files path otherwise returns given
@@ -41,6 +42,9 @@ public interface IAnalyzeContext
 	 */
 	default boolean isIncludableFileType()
 	{
-		return isFiletype(NaturalFileType.COPYCODE, NaturalFileType.LDA, NaturalFileType.GDA, NaturalFileType.PDA, NaturalFileType.MAP);
+		return isFiletype(
+			NaturalFileType.COPYCODE, NaturalFileType.LDA, NaturalFileType.GDA, NaturalFileType.PDA,
+			NaturalFileType.MAP
+		);
 	}
 }

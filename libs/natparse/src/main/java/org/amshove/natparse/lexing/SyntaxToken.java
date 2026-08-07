@@ -180,6 +180,10 @@ public class SyntaxToken implements IPosition
 
 	public SyntaxToken withKind(SyntaxKind newKind)
 	{
+		if (newKind == this.kind)
+		{
+			return this;
+		}
 		var newToken = new SyntaxToken(
 			newKind,
 			offset,
@@ -189,10 +193,7 @@ public class SyntaxToken implements IPosition
 			filePath
 		);
 		newToken.setDiagnosticPosition(diagnosticPosition);
-		if (kind != newKind)
-		{
-			newToken.originalKind = kind;
-		}
+		newToken.originalKind = kind;
 		return newToken;
 	}
 
