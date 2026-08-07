@@ -53,6 +53,11 @@ public class Lexer
 		this.copyCodeParameter = copyCodeParameter;
 	}
 
+	private void aMethod()
+	{
+		System.out.println("Unused and uncovered");
+	}
+
 	public TokenList lex(String source, Path filePath)
 	{
 		this.filePath = filePath;
