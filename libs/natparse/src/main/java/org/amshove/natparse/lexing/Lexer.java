@@ -1,15 +1,14 @@
 package org.amshove.natparse.lexing;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import org.amshove.natparse.AdditionalDiagnosticInfo;
 import org.amshove.natparse.IPosition;
 import org.amshove.natparse.lexing.text.SourceTextScanner;
 import org.amshove.natparse.natural.project.NaturalHeader;
 import org.amshove.natparse.natural.project.NaturalProgrammingMode;
-
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class Lexer
 {

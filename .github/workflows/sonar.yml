@@ -15,17 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-            repository: ${{ github.event.workflow_run.head_repository.full_name }}
-            ref: ${{ github.event.workflow_run.head_branch }}
-            fetch-depth: 0
-      - name: Checkout base branch
-        if: github.event_name == 'pull_request'
-        run: |
-          git remote add upstream ${{ github.event.repository.clone_url }}
-          git fetch upstream
-          git checkout -B ${{ fromJson(steps.get_pr_data.outputs.data).base.ref }} upstream/${{ fromJson(steps.get_pr_data.outputs.data).base.ref }}
-          git checkout $HEAD_BRANCH
-          git clean -ffdx && git reset --hard HEAD
+          fetch-depth: 0
 
       - name: Set up JDK
         uses: actions/setup-java@v4
