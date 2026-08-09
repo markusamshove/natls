@@ -9,6 +9,7 @@ public enum DiagnosticSinkType
 	STDOUT,
 	NONE,
 	CSV,
+	LCOV,
 	SPLIT_CSV;
 
 	public IDiagnosticSink createSink(Path workspace)
@@ -18,6 +19,7 @@ public enum DiagnosticSinkType
 			case STDOUT -> new AnsiDiagnosticSink();
 			case NONE -> new NullDiagnosticSink();
 			case CSV -> new CsvDiagnosticSink(workspace.resolve("diagnostics.csv"));
+			case LCOV -> new LcovDiagnosticSink(workspace.resolve("lcov-base.info"));
 			case SPLIT_CSV -> new SplitCsvDiagnosticSink(workspace);
 		};
 	}

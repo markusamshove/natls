@@ -3,6 +3,7 @@ package org.amshove.natlint.cli.sinks;
 import com.google.common.io.CharSink;
 import com.google.common.io.FileWriteMode;
 import com.google.common.io.Files;
+
 import org.amshove.natparse.IDiagnostic;
 
 import java.io.IOException;

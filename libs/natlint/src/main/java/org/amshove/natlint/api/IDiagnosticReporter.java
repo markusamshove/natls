@@ -1,7 +1,9 @@
 package org.amshove.natlint.api;
 
+import org.amshove.natparse.IDiagnostic;
+
 @FunctionalInterface
 public interface IDiagnosticReporter
 {
-	void report(LinterDiagnostic diagnostic);
+	void report(IDiagnostic diagnostic);
 }
