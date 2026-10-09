@@ -33,7 +33,7 @@ public class CsvDiagnosticSink implements IDiagnosticSink
 	}
 
 	@Override
-	public void printDiagnostics(int currentFileCount, Path filePath, List<IDiagnostic> diagnostics)
+	public synchronized void printDiagnostics(int currentFileCount, Path filePath, List<IDiagnostic> diagnostics)
 	{
 		for (var diagnostic : diagnostics)
 		{

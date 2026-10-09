@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.amshove.natlint.api.AbstractAnalyzer;
 import org.amshove.natlint.api.DiagnosticDescription;
-import org.amshove.natlint.api.LinterDiagnostic;
 import org.amshove.natlint.editorconfig.EditorConfig;
 import org.amshove.natlint.editorconfig.EditorConfigParser;
 import org.amshove.natparse.IDiagnostic;
@@ -118,7 +117,7 @@ public abstract class AbstractAnalyzerTest
 			.contains(diagnosticDescription);
 	}
 
-	private ReadOnlyList<LinterDiagnostic> lint(NaturalFile file)
+	private ReadOnlyList<IDiagnostic> lint(NaturalFile file)
 	{
 		var module = parse(file);
 		LinterContext.INSTANCE.reset();
@@ -211,7 +210,7 @@ public abstract class AbstractAnalyzerTest
 
 		DiagnosticDescription description();
 
-		Executable checkAssertion(List<LinterDiagnostic> actualDiagnostics);
+		Executable checkAssertion(List<IDiagnostic> actualDiagnostics);
 
 		default boolean matches(IDiagnostic diagnostic)
 		{
@@ -222,7 +221,7 @@ public abstract class AbstractAnalyzerTest
 	protected record ExpectedDiagnostic(int line, DiagnosticDescription description) implements DiagnosticAssertion
 	{
 		@Override
-		public Executable checkAssertion(List<LinterDiagnostic> actualDiagnostics)
+		public Executable checkAssertion(List<IDiagnostic> actualDiagnostics)
 		{
 			return () -> assertThat(actualDiagnostics)
 				.as("Expected diagnostic %s to be present but was not", this)
@@ -243,7 +242,7 @@ public abstract class AbstractAnalyzerTest
 	protected record ExpectedDiagnosticWithMessage(int line, DiagnosticDescription description, String expectedMessage) implements DiagnosticAssertion
 	{
 		@Override
-		public Executable checkAssertion(List<LinterDiagnostic> actualDiagnostics)
+		public Executable checkAssertion(List<IDiagnostic> actualDiagnostics)
 		{
 			return () -> assertThat(actualDiagnostics)
 				.as("Expected diagnostic %s to be present but was not", this)
@@ -267,7 +266,7 @@ public abstract class AbstractAnalyzerTest
 	protected record ExpectedNoDiagnostic(int line, DiagnosticDescription description) implements DiagnosticAssertion
 	{
 		@Override
-		public Executable checkAssertion(List<LinterDiagnostic> actualDiagnostics)
+		public Executable checkAssertion(List<IDiagnostic> actualDiagnostics)
 		{
 			return () -> assertThat(actualDiagnostics)
 				.as("Expected diagnostic %s to not be present", this)
@@ -294,7 +293,7 @@ public abstract class AbstractAnalyzerTest
 		}
 
 		@Override
-		public Executable checkAssertion(List<LinterDiagnostic> actualDiagnostics)
+		public Executable checkAssertion(List<IDiagnostic> actualDiagnostics)
 		{
 			return () -> assertThat(actualDiagnostics)
 				.as("Expected no diagnostic with id %s", description.getId())
@@ -322,7 +321,7 @@ public abstract class AbstractAnalyzerTest
 		}
 
 		@Override
-		public Executable checkAssertion(List<LinterDiagnostic> actualDiagnostics)
+		public Executable checkAssertion(List<IDiagnostic> actualDiagnostics)
 		{
 			return () ->
 			{
