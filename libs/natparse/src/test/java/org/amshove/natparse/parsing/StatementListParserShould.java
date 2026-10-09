@@ -1912,6 +1912,13 @@ class StatementListParserShould extends StatementParseTest
 	}
 
 	@Test
+	void parseFormatWithIdentifier()
+	{
+		var statementList = assertParsesWithoutDiagnostics("FORMAT (REPORT) LS=5 ZP=ON");
+		assertThat(statementList.statements().size()).isEqualTo(1);
+	}
+
+	@Test
 	void parseFormatIfNextLineStartsWithStatement()
 	{
 		// If a format thingy is empty, the next line should still properly be identified as the next statement
@@ -4036,17 +4043,11 @@ class StatementListParserShould extends StatementParseTest
 	@Test
 	void consumeIncDir()
 	{
-		assertParsesSingleStatement("""
-               INCDIR #VAR #VAR1 #VAR2;
+		var incdirNode = assertParsesSingleStatement("""
+               INCDIR DDMNAME FIELDNAME ;
             """, IIncDirNode.class);
-	}
-
-	@Test
-	void consumeRuleVar()
-	{
-		assertParsesSingleStatement("""
-               RULEVAR DDM.FIELD;
-            """, IRuleVarNode.class);
+		assertThat(incdirNode.ddmName().source()).isEqualTo("DDMNAME");
+		assertThat(incdirNode.fieldName().source()).isEqualTo("FIELDNAME");
 	}
 
 	@Test

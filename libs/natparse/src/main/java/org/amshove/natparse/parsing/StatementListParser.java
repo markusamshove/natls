@@ -22,6 +22,7 @@ import org.amshove.natparse.natural.ILiteralNode;
 import org.amshove.natparse.natural.IMaskOperandNode;
 import org.amshove.natparse.natural.IOperandNode;
 import org.amshove.natparse.natural.IReferencableNode;
+import org.amshove.natparse.natural.IRuleVarNode;
 import org.amshove.natparse.natural.IStatementListNode;
 import org.amshove.natparse.natural.IStatementWithBodyNode;
 import org.amshove.natparse.natural.ISymbolReferenceNode;
@@ -4657,6 +4658,7 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 		var opening = consumeMandatory(work, SyntaxKind.READ);
 		consumeMandatory(work, SyntaxKind.WORK);
 		consumeOptionally(work, SyntaxKind.FILE);
+		// TODO: This operand can also accept a constant variable
 		var number = consumeNonConcatLiteralNode(work, SyntaxKind.NUMBER_LITERAL);
 		checkNumericRange(number, 1, 32);
 		work.setWorkFileNumber(number);
@@ -4744,6 +4746,41 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	{
 		var node = new RuleVarNode();
 		consumeMandatory(node, SyntaxKind.RULEVAR);
+		var nodeIdentifier = consumeMandatoryIdentifier(node);
+
+		if (nodeIdentifier.source().charAt(0) == 'F')
+		{
+			node.setType(IRuleVarNode.Type.FREE_RULE);
+		}
+		else
+			if (nodeIdentifier.source().charAt(0) == 'D')
+			{
+				node.setType(IRuleVarNode.Type.DICTIONARY_RULE);
+			}
+			else
+			{
+				report(ParserErrors.unexpectedToken(nodeIdentifier, "RULEVAR should have F or D type"));
+			}
+
+		int index = Integer.parseInt(nodeIdentifier.source().substring(1, 3));
+
+		if (nodeIdentifier.source().length() == 3)
+		{
+			// This happens when the identifier is F00*PF-KEY and it splits
+			// We need to eat the PF-KEY
+			consumeMandatory(node, SyntaxKind.SV_PF_KEY);
+		}
+
+		if (peekKind(SyntaxKind.INCDIR))
+		{
+			node.setIncDir(incdir());
+		}
+		else
+			if (peekKind(SyntaxKind.INCDIC))
+			{
+				node.setIncDic(incdic());
+			}
+
 		while (!isAtEnd() && !isStatementStart())
 		{
 			consume(node);
@@ -4756,9 +4793,39 @@ public class StatementListParser extends AbstractParser<IStatementListNode>
 	{
 		var node = new IncDirNode();
 		consumeMandatory(node, SyntaxKind.INCDIR);
-		while (!isAtEnd() && !isStatementStart())
+		SyntaxToken ddmName = consumeMandatory(node, SyntaxKind.IDENTIFIER);
+		node.setDdmName(ddmName);
+		SyntaxToken fieldName = consumeMandatory(node, SyntaxKind.IDENTIFIER);
+		node.setFieldName(fieldName);
+		consumeMandatory(node, SyntaxKind.SEMICOLON);
+
+		return node;
+	}
+
+	private IncDicNode incdic() throws ParseError
+	{
+		var node = new IncDicNode();
+		consumeMandatory(node, SyntaxKind.INCDIC);
+
+		SyntaxToken ruleName = null;
+		if (peekKind(SyntaxKind.IDENTIFIER))
 		{
-			consume(node);
+			ruleName = consumeMandatoryIdentifier(node);
+			node.setRuleName(ruleName);
+		}
+		consumeMandatory(node, SyntaxKind.SEMICOLON);
+
+		if (ruleName == null)
+		{
+			// Inline rule
+			if (peekKind(SyntaxKind.DEFINE))
+			{
+				// with a define block
+				var defineDataParser = new DefineDataParser(this.moduleProvider);
+				var defineBlock = defineDataParser.parse((tokens));
+				node.setDefine(defineBlock.result());
+			}
+			node.setBody(statementList(Set.of(SyntaxKind.RULEVAR, SyntaxKind.END)));
 		}
 
 		return node;

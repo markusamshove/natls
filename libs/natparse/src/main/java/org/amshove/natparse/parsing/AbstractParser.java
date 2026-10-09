@@ -190,9 +190,9 @@ abstract class AbstractParser<T>
 	 */
 	protected boolean consumeOptionally(BaseSyntaxNode node, SyntaxKind kind)
 	{
-		if (!tokens.isAtEnd() && tokens.peek().kind() == kind)
+		if (!tokens.isAtEnd() && tokens.peek().kind().canBe(kind))
 		{
-			previousNode = new TokenNode(tokens.peek());
+			previousNode = new TokenNode(tokens.peek().withKind(kind));
 			node.addNode(previousNode);
 		}
 
@@ -675,7 +675,8 @@ abstract class AbstractParser<T>
 		}
 
 		if ((peekKind(SyntaxKind.IDENTIFIER) || peek().kind().canBeIdentifier())
-			&& !peek().kind().isSystemVariable() && !peek().kind().isSystemFunction() && !peekKind(SyntaxKind.LOG))
+			&& !peek().kind().isSystemVariable() && !peek().kind().isSystemFunction()
+			&& !peekKind(SyntaxKind.LOG) && !peekKind(SyntaxKind.COUNT) && !peekKind(SyntaxKind.TOTAL))
 		{
 			if (peekKind(1, SyntaxKind.LPAREN) && (peekKind(2, SyntaxKind.LESSER_SIGN) || peekKind(2, SyntaxKind.LESSER_GREATER)))
 			{

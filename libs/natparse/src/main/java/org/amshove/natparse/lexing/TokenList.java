@@ -201,7 +201,7 @@ public class TokenList implements Iterable<SyntaxToken>
 	 */
 	public boolean consume(SyntaxKind kind)
 	{
-		if (!isAtEnd() && peek().kind() == kind)
+		if (!isAtEnd() && peek().kind().canBe(kind))
 		{
 			advance();
 			return true;
