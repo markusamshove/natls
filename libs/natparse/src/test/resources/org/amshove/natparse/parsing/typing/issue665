@@ -1,0 +1,13 @@
+/* https://github.com/markusamshove/natls/issues/665
+/* #CONTROL-CONST had no inferred type on assign
+DEFINE DATA
+LOCAL
+1 #CONTROL (C)
+1 #CONTROL-CONST-LIST (C) CONST<(AD=U CD=YE)>
+1 #CONTROL-CONST-ONE (C) CONST<(AD=U)>
+END-DEFINE
+
+#CONTROL := #CONTROL-CONST-LIST /* Should raise no diagnostic
+#CONTROL := #CONTROL-CONST-ONE /* Should raise no diagnostic
+
+END

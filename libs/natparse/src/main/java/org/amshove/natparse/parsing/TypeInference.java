@@ -58,6 +58,11 @@ public class TypeInference
 			return inferArithmeticType(arithmeticExpressionNode);
 		}
 
+		if (operand instanceof IAttributeListNode || operand instanceof IAttributeNode)
+		{
+			return Optional.of(new DataType(DataFormat.CONTROL, 0));
+		}
+
 		return Optional.empty();
 	}
 
